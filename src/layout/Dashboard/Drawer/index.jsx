@@ -52,7 +52,9 @@ const menuItems = [
     icon: <MonetizationOnIcon />,
     children: [
       { label: "Promoters", path: "/promoters" },
-      { label: "Share Holdings", path: "/promoters/share-holdings" },
+      { 
+        label: "Share Holdings", 
+        path: "/promoters/share-holdings" ,},
       { label: "Minors", path: "/promoters/minors" },
       { label: "Share Certificates", path: "/promoters/share-certificates" },
     ],
@@ -69,21 +71,37 @@ const menuItems = [
   },
   {
     label: "Share Holdings",
-    path: "/share-holdings",
+
     icon: <AssessmentIcon />,
+       children: [
+      { label: "Share Holdings Details", path: "/share-holding" },
+      { label: "Transfer", path: "/share-holding/transfer" },
+      
+    ],
   },
   { label: "KYC", path: "/kyc", icon: <PersonIcon /> },
   {
     label: "Saving Accounts",
     icon: <SavingsIcon />,
     children: [
-      { label: "Deposit", path: "/saving/deposit" },
-      { label: "Withdraw", path: "/saving/withdraw" },
-      { label: "Passbook", path: "/saving/passbook" },
+        { label: "Accounts", path: "/saving-accounts" },
+      { label: "Deposit", path: "/saving-accounts/deposit" },
+      { label: "Withdraw", path: "/saving-accounts/withdraw" },
+      { label: "Statement", path: "/saving-accounts/statement" },
+      { label: "Passbook", path: "/saving-accounts/passbook" },
+      { label: "Enquiry", path: "/saving-accounts/enquiry" },
+      { label: "Approval", path: "/saving-accounts/approval" },
+      { label: "Closure Approval", path: "/saving-accounts/closure-approval" },
+      { label: "Receipt Print", path: "/saving-accounts/receipt-print" },
+      { label: "Interest Certificates", path: "/saving-accounts/interest-certificates" },
+      { label: "Closure", path: "/saving-accounts/closure" },
+      { label: "Change Account Plan", path: "/saving-accounts/change-account-plan" },
+      { label: "Change Account Type", path: "/saving-accounts/change-account-type" },
+      { label: "Reports", path: "/saving-accounts/reports" },
     ],
   },
   { label: "FD Accounts", path: "/fd", icon: <AccountBalanceWalletIcon /> },
-  { label: "RD Accounts", path: "/rd", icon: <AccountBalanceWalletIcon /> },
+  { label: "RD Accounts", path:"/rd", icon: <AccountBalanceWalletIcon /> },
   { label: "DD Accounts", path: "/dd", icon: <AccountBalanceWalletIcon /> },
   { label: "MIS Accounts", path: "/mis", icon: <AssessmentIcon /> },
 
