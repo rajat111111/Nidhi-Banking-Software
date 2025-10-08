@@ -11,6 +11,7 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
+import { Riple } from "react-loading-indicators";
 
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
@@ -53,8 +54,8 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
                 <TableCell
                   sx={{
                     backgroundColor: "#0D5F76",
-                    color: "#fff",
-                    fontWeight: "bold",
+                    color: "#000000",
+
                   }}
                 >
                   Actions
@@ -67,7 +68,7 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} align="center">
-                <CircularProgress sx={{ color: "#000" }} />
+              <Riple color="#7d3cd2ff" size="medium" text="" textColor="" />
               </TableCell>
             </TableRow>
           ) : (
@@ -91,7 +92,7 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
                             <TableCell
                               key={column.id}
                               align={column.align || "left"}
-                              sx={{ whiteSpace: "nowrap" }}
+                              sx={{ whiteSpace: "nowrap",color:"#8F8F8F" }}
                             >
                               {column.format && typeof value === "number"
                                 ? column.format(value)

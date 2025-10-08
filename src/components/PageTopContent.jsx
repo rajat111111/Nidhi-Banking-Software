@@ -31,6 +31,8 @@ const FirstContainer = styled("div")({
   alignItems: "center",
 
   gap: "20px",
+  borderBottom:"1px solid #DDDDEBBF",
+  paddingBottom:"15px"
 });
 
 const ContainerTitle = styled("p")({

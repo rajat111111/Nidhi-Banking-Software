@@ -25,6 +25,17 @@ import ShareHoldingDetails from "../Pages/shareHolding/ShareHoldingDetails";
 import Transfer from "../Pages/shareHolding/Transfer";
 import Accounts from "../Pages/savingAccounts/accounts/Accounts";
 import AddNewAccount from "../Pages/savingAccounts/accounts/AddNewAccount";
+import ViewSingleAccountDetails from "../Pages/savingAccounts/accounts/ViewSingleAccountDetails";
+import AddNominee from "../Pages/savingAccounts/accounts/nominee/AddNominee";
+import Deposit from "../Pages/savingAccounts/deposit/Deposit";
+import Withdraw from "../Pages/savingAccounts/widthraw/Withraw";
+import Statement from "../Pages/savingAccounts/statement/Statement";
+import Enquiry from "../Pages/savingAccounts/enquiry/Enquiry";
+import Approval from "../Pages/savingAccounts/approval/Approval";
+import ClosureApproval from "../Pages/savingAccounts/closureApproval/ClosureApproval";
+import RecieptPrint from "../Pages/savingAccounts/recieptPrint/RecientPrint";
+import CreateReceipt from "../Pages/savingAccounts/recieptPrint/CreateReceipt";
+import UpdateNominee from "../Pages/savingAccounts/accounts/nominee/UpdateNominee";
 
 const MainRoutes = {
   path: "/",
@@ -88,6 +99,17 @@ const MainRoutes = {
           children: [
             { index: true, element: <Accounts /> },
             { path: "add-new-account", element: <AddNewAccount /> },
+            { path: ":id/account-details", element: <ViewSingleAccountDetails /> },
+            { path: ":id/add-nominee", element: <AddNominee /> },
+            { path: ":id/update-nominee", element: <UpdateNominee /> },
+            { path: "deposit", element: <Deposit /> },
+            { path: "withdraw", element: <Withdraw /> },
+            { path: "statement", element: <Statement /> },
+            { path: "enquiry", element: <Enquiry /> },
+            { path: "approval", element: <Approval /> },
+            { path: "closure-approval", element: <ClosureApproval /> },
+            { path: "receipt-print", element: <RecieptPrint /> },
+            { path: "create-receipt", element: <CreateReceipt /> },
           ],
         },
       ],

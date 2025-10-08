@@ -11,8 +11,55 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url("../public/Vector (12).svg");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+  background-size: 12px;
+
+  padding-right: 30px;
+  width: 100%;
+  height: 40px;
+  border-radius: 5px;
+  border: 1px solid #e4e7eb;
+  padding: 0 20px;
+  color: #919198;
+  cursor: pointer;
+  font: 400 14px "Poppins";
+
+  /* Focus style */
+  &:focus {
+    outline: 1px solid #000;
+  }
+}
+input {
+  padding-right: 30px;
+  width: 100%;
+  height: 40px;
+  border-radius: 5px;
+  border: 1px solid #e4e7eb;
+  padding: 0 20px;
+  color: #919198;
+  font: 400 14px "Poppins";
+
+  /* Focus style */
+  &:focus {
+    outline: 1px solid #000;
+  }
+}
+
 .validationError {
   font-size: 14px;
   color: rgb(198, 25, 25);
   font-family: "Poppins";
+}
+
+.submitBotton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }

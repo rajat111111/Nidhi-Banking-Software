@@ -56,13 +56,17 @@ const Accounts = () => {
     status: curList?.status ==="closed" ? "Closed":"Approved",
     action: (
       <ActionButtonContainer>
-        <DynamicButton
+  <DynamicButton
           text="View"
           variant="outlined"
           textColor="#0D6A84"
           borderColor="#0D6A84"
           borderRadius="5px"
+          onClick={()=>localStorage.setItem("accountNumber",curList?.accountNumber)}
+          component={NavLink}
+          to={`/saving-accounts/${curList?.member?.id}/account-details`}
         />
+      
       </ActionButtonContainer>
     ),
   }));
@@ -77,8 +81,10 @@ const Accounts = () => {
           label: "Add New",
           variant: "contained",
           component: { NavLink },
+        
           to: "/saving-accounts/add-new-account",
           color: "secondary",
+        
         }}
       />
       <DynamicDataTable isLoading={isLoading} rows={rows} columns={columns} />

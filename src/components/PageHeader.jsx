@@ -9,7 +9,7 @@ export default function PageHeader({
   primaryButton,
   extraButtons = [],
   onFilter,
-
+  borderBottom,
 
   onDownload,
 }) {
@@ -23,14 +23,18 @@ export default function PageHeader({
       sx={{
         display: "flex",
         flexDirection: { xs: "column", sm: "row" },
-        justifyContent: "flex-start",
+        justifyContent: "space-between",
         alignItems: { xs: "flex-start", sm: "center" },
         gap: "40px",
-        mb: 2,
+
+        borderBottom: { borderBottom },
+        paddingBottom: "10px",
       }}
     >
       {/* Title */}
-      <Typography variant="h6" fontWeight="600">
+      <Typography
+        sx={{ fontWeight: "500", fontSize: "18px", fontFamily: "Poppins" }}
+      >
         {title}
       </Typography>
 
@@ -65,12 +69,19 @@ export default function PageHeader({
             color="#7858C6"
             component={NavLink}
             to={primaryButton.to}
-  
+            onClick={primaryButton.onClick}
           />
         )}
 
         {extraButtons.map((btn, idx) => (
-          <DynamicButton text={btn?.label} textColor="#fff" color="#7858C6" />
+          <DynamicButton
+            text={btn?.label}
+            variant={btn?.variant || "contained"}
+            startIcon={btn?.startIcon}
+            endIcon={btn?.endIcon}
+            textColor={btn?.textColor || !btn?.variant  && "#fff"}
+            color={btn?.color || !btn?.variant  && "#7858C6"}
+          />
         ))}
       </Stack>
     </Box>
