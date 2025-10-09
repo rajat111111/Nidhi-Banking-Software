@@ -89,6 +89,8 @@ const DynamicForm = ({
                       ))}
                     </select>
                   ) : type === "textarea" ? (
+                   <>
+               
                     <textarea
                       name={name}
                       id={id}
@@ -111,6 +113,7 @@ const DynamicForm = ({
                       style={{ width: "206%" }}
                       disabled={disabled}
                     />
+                   </>
                   ) : (
                     <input
                       type={type}

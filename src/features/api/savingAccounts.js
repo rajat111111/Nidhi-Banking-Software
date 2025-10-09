@@ -20,6 +20,7 @@ export const savingAccounts = createApi({
     "GET_NOMINEE_DETAILS",
     "GET_SAVING_ACCOUNT_ALL_STATUS_LIST",
     "GET_DEPOSITELIST_BY_ACCOUNT_NUMBER",
+    "GET_RECIEPT_PRINT_LATEST_LIST",
   ],
 
   endpoints: (builder) => ({
@@ -193,7 +194,7 @@ export const savingAccounts = createApi({
         "GET_LATEST_SAVING_DATA_LIST",
       ],
     }),
-   withdrawalAmountByAcccountNumber: builder.mutation({
+    withdrawalAmountByAcccountNumber: builder.mutation({
       query: (values) => ({
         url: `deposit-details/withdraw`,
         method: "POST",
@@ -203,6 +204,49 @@ export const savingAccounts = createApi({
         "GET_DEPOSITELIST_BY_ACCOUNT_NUMBER",
         "GET_LATEST_SAVING_DATA_LIST",
       ],
+    }),
+    getBankStatementByAccountNumber: builder.query({
+      query: ({ accountNumber, fromDate, toDate, page, limit }) => ({
+        url: "account-statement",
+        method: "GET",
+        params: {
+          accountNumber,
+          fromDate,
+          toDate,
+          page,
+          limit,
+        },
+      }),
+    }),
+    getRecieptPrintList: builder.query({
+      query: ({ memberName, accountNumber }) => ({
+        url: `saving-account/receipt-print/all`,
+        method: "GET",
+        params: {
+          memberName,
+          accountNumber,
+        },
+      }),
+      providesTags: ["GET_RECIEPT_PRINT_LATEST_LIST"],
+    }),
+    createReciept: builder.mutation({
+      query: (values) => ({
+        url: `saving-account/receipt-print`,
+        method: "POST",
+        body: values,
+      }),
+      invalidatesTags: ["GET_RECIEPT_PRINT_LATEST_LIST"],
+    }),
+    getClosedAccountListByAccountNumber: builder.query({
+      query: ({ closeAccountId, memberName, accountNumber }) => ({
+        url: `saving-account/closed`,
+        method: "GET",
+        params: {
+          closeAccountId,
+          memberName,
+          accountNumber,
+        },
+      }),
     }),
   }),
 });
@@ -227,5 +271,9 @@ export const {
   useApproveSavingAccountMutation,
   useLazyGetDeposiListByAccountNumberQuery,
   useDepositAmountByAcccountNumberMutation,
-  useWithdrawalAmountByAcccountNumberMutation
+  useWithdrawalAmountByAcccountNumberMutation,
+  useGetBankStatementByAccountNumberQuery,
+  useLazyGetRecieptPrintListQuery,
+  useCreateRecieptMutation,
+  useLazyGetClosedAccountListByAccountNumberQuery,
 } = savingAccounts;

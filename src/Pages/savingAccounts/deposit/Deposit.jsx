@@ -1,31 +1,32 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import * as Yup from "yup";
 import DynamicForm from "../../../components/DynamicForm";
-import DynamicDataTable from "../../../components/DynamicTable";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
 import PageHeader from "../../../components/PageHeader";
-import {
-  useDepositAmountByAcccountNumberMutation,
-  useLazyGetDeposiListByAccountNumberQuery,
-} from "../../../features/api/savingAccounts";
+import { useDepositAmountByAcccountNumberMutation } from "../../../features/api/savingAccounts";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
 import { Alert, Snackbar } from "@mui/material";
+import GetSavingDetailsByAcnt from "../../../components/GetSavingDetailsByAcnt";
 
 const Deposit = () => {
   const [showDetails, setShowDetails] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "",
-  });
+  const [accountNumber, setAccountNumber] = useState("");
+
   const [snackbarAlert, setSnackbarAlert] = useState({
     open: false,
     message: "",
     severity: "",
   });
 
-  const [triggerGetDeposiList, { data, isLoading, isError, isSuccess, error }] =
-    useLazyGetDeposiListByAccountNumberQuery();
+  // ✅ Sync account number when details are shown
+  useEffect(() => {
+    const storedAccNo = localStorage.getItem("accountNumber");
+    if (storedAccNo) {
+      setAccountNumber(storedAccNo);
+    } else {
+      setAccountNumber("");
+    }
+  }, [showDetails]);
 
   const [
     depositAmountByAcccountNumber,
@@ -38,24 +39,7 @@ const Deposit = () => {
     },
   ] = useDepositAmountByAcccountNumberMutation();
 
-  const depositDetails = data?.data || {};
-
-  const formList = [
-    {
-      label: "Account Number",
-      placeholder: "Enter Account Number",
-      name: "accountNumber",
-      id: "accountNumber",
-    },
-    {
-      label: "Member Name",
-      placeholder: "Enter Name",
-      type: "text",
-      name: "memberName",
-      id: "memberName",
-    },
-  ];
-
+  // 🔹 Deposit form
   const depositeMoneyFormList = [
     {
       label: "Account Number",
@@ -96,70 +80,22 @@ const Deposit = () => {
     },
   ];
 
-  const initialValues = {
-    accountNumber: "",
-    memberName: "",
-  };
-
-  const columns = [
-    { id: "savingAccountNo", label: "Saving Account No.", minWidth: 120 },
-    { id: "memberName", label: "Member Name", minWidth: 120 },
-    { id: "branchName", label: "Branch Name", minWidth: 120 },
-    { id: "availableBalance", label: "Available Balance (₹)", minWidth: 120 },
-  ];
-
-  const rows = [
-    {
-      savingAccountNo: depositDetails?.savingAccountNo || "N/A",
-      memberName: depositDetails?.memberName || "N/A",
-      branchName: depositDetails?.branchName || "N/A",
-      availableBalance: depositDetails?.availableBalance
-        ? `₹ ${depositDetails.availableBalance}`
-        : "N/A",
-    },
-  ];
-
-  const validationSchema = Yup.object({
-    accountNumber: Yup.string().required("Account number is required"),
-    memberName: Yup.string()
-      .required("Member name is required")
-      .matches(/^[A-Za-z\s]+$/, "Customer name must only contain letters"),
-  });
-
+  // 🔹 Validation schema
   const depositeMoneyValidationSchema = Yup.object({
-    amount: Yup.string().required("Deposit Amount is required"),
+    amount: Yup.number()
+      .required("Deposit amount is required")
+      .positive("Amount must be positive")
+      .typeError("Amount must be a number"),
     transactionDate: Yup.string().required("Transaction Date is required"),
     payMode: Yup.string().required("Mode Of Payment is required"),
   });
 
-  // ✅ Fetch deposit details manually (cached)
-  const handleSubmit = async (values, { resetForm }) => {
-    const { accountNumber, memberName } = values;
-
-    try {
-      const result = await triggerGetDeposiList({
-        accountNumber,
-        memberName,
-      }).unwrap();
-
-      if (result?.success || result?.data) {
-        setShowDetails(true);
-        resetForm();
-      } else {
-        setShowDetails(false);
-      }
-    } catch (err) {
-      console.error("Error fetching deposit list:", err);
-      setShowDetails(false);
-    }
-  };
-
-  // ✅ Deposit Money Submission
+  // ✅ Deposit money submission
   const depositMoneyHandleSubmit = async (values, { resetForm }) => {
     try {
       const result = await depositAmountByAcccountNumber({
         ...values,
-        accountNumber: depositDetails?.savingAccountNo,
+        accountNumber,
       }).unwrap();
 
       if (result?.success) {
@@ -170,32 +106,19 @@ const Deposit = () => {
     }
   };
 
-  const handleCloseSnackbar = () =>
-    setSnackbar((prev) => ({ ...prev, open: false }));
   const handleCloseSnackbarAlert = () =>
     setSnackbarAlert((prev) => ({ ...prev, open: false }));
 
   return (
     <PagesMainContainerStyle>
       {/* 🔹 Search Form */}
-      <DynamicForm
-        headerTitle="Deposit Details"
-        formList={formList}
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        actionButtonText="Show Details"
-        handleSubmit={handleSubmit}
-        isLoading={isLoading}
-        texting="Searching"
+      <GetSavingDetailsByAcnt
+        title="Deposit Details"
+        showDetails={showDetails}
+        setShowDetails={setShowDetails}
       />
 
-      <ErrorAndSuccessUseEffect
-        isError={isError}
-        isSuccess={isSuccess}
-        data={data}
-        error={error}
-        setSnackbar={setSnackbar}
-      />
+      {/* 🔹 API Status Alerts */}
       <ErrorAndSuccessUseEffect
         isError={depositAmountIsError}
         isSuccess={depositAmountSuccess}
@@ -204,11 +127,9 @@ const Deposit = () => {
         setSnackbar={setSnackbarAlert}
       />
 
-      {/* 🔹 Show details section */}
-      {showDetails && (
+      {/* 🔹 Show deposit form when account is selected */}
+      {showDetails && accountNumber && (
         <>
-          <DynamicDataTable rows={rows} columns={columns} />
-
           <PageHeader
             title="Deposit Money"
             borderBottom="1px solid #DDDDEBBF"
@@ -217,7 +138,7 @@ const Deposit = () => {
           <DynamicForm
             formList={depositeMoneyFormList}
             initialValues={{
-              accountNumber: depositDetails?.savingAccountNo || "",
+              accountNumber,
               amount: "",
               transactionDate: "",
               remark: "",
@@ -232,23 +153,7 @@ const Deposit = () => {
         </>
       )}
 
-      {/* 🔹 Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          variant="filled"
-          severity={snackbar.severity}
-          sx={{ width: "100%", color: "#fff" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-
+      {/* 🔹 Snackbar for success/error */}
       <Snackbar
         open={snackbarAlert.open}
         autoHideDuration={4000}

@@ -3,19 +3,18 @@ import DynamicForm from "../../../../components/DynamicForm";
 import PageHeader from "../../../../components/PageHeader";
 import PagesMainContainerStyle from "../../../../components/PagesMainContainerStyle";
 import * as Yup from "yup";
-import {  useDepositAmountMutation } from "../../../../features/api/savingAccounts";
+import { useDepositAmountMutation } from "../../../../features/api/savingAccounts";
 import { useParams } from "react-router-dom";
 import ErrorAndSuccessUseEffect from "../../../../components/ErrorAndSuccessUseEffect";
 import { useState } from "react";
 
-const WidthrawalAmount = ({setActiveTab="transaction"}) => {
+const WidthrawalAmount = ({ setActiveTab = "transaction" }) => {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "",
   });
   const { id } = useParams();
-
 
   const [depositAmount, { data, isLoading, isError, isSuccess, error }] =
     useDepositAmountMutation();
@@ -73,6 +72,7 @@ const WidthrawalAmount = ({setActiveTab="transaction"}) => {
     paymentMode: Yup.string().required("Payment Mode is required"),
     amount: Yup.number()
       .required("Amount is required")
+      .positive("Amount must be positive")
       .typeError("Amount must be a number"),
     transactionDate: Yup.string().required("Closing Date is required"),
     transactionType: Yup.string().required("Transaction Type is required"),
@@ -108,9 +108,8 @@ const WidthrawalAmount = ({setActiveTab="transaction"}) => {
         error={error}
         data={data}
         setSnackbar={setSnackbar}
-
-setActiveTab={setActiveTab}
-  successTab="transaction"
+        setActiveTab={setActiveTab}
+        successTab="transaction"
       />
       {snackbar && (
         <Snackbar

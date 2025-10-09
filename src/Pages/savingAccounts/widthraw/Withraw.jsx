@@ -1,31 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as Yup from "yup";
 import DynamicForm from "../../../components/DynamicForm";
-import DynamicDataTable from "../../../components/DynamicTable";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
 import PageHeader from "../../../components/PageHeader";
-import {
-  useLazyGetDeposiListByAccountNumberQuery,
-  useWithdrawalAmountByAcccountNumberMutation,
-} from "../../../features/api/savingAccounts";
+import { useWithdrawalAmountByAcccountNumberMutation } from "../../../features/api/savingAccounts";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
 import { Alert, Snackbar } from "@mui/material";
+import GetSavingDetailsByAcnt from "../../../components/GetSavingDetailsByAcnt";
 
 const Withdraw = () => {
   const [showDetails, setShowDetails] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "",
-  });
+  const [accountNumber, setAccountNumber] = useState("");
+
   const [snackbarAlert, setSnackbarAlert] = useState({
     open: false,
     message: "",
     severity: "",
   });
 
-  const [triggerGetDeposiList, { data, isLoading, isError, isSuccess, error }] =
-    useLazyGetDeposiListByAccountNumberQuery();
+  // 🔹 Sync account number after showDetails changes
+  useEffect(() => {
+    const storedAccNo = localStorage.getItem("accountNumber");
+    if (storedAccNo) {
+      setAccountNumber(storedAccNo);
+    } else {
+      setAccountNumber("");
+    }
+  }, [showDetails]);
 
   const [
     withdrawalAmountByAcccountNumber,
@@ -38,26 +39,6 @@ const Withdraw = () => {
     },
   ] = useWithdrawalAmountByAcccountNumberMutation();
 
-  const withdrawalDetails = data?.data || {};
-
-  // 🔹 Search form
-  const formList = [
-    {
-      label: "Account Number",
-      placeholder: "Enter Account Number",
-      name: "accountNumber",
-      id: "accountNumber",
-    },
-    {
-      label: "Member Name",
-      placeholder: "Enter Name",
-      type: "text",
-      name: "memberName",
-      id: "memberName",
-    },
-  ];
-
-  // 🔹 Withdraw form
   const withdreMoneyFormList = [
     {
       label: "Account Number",
@@ -98,38 +79,6 @@ const Withdraw = () => {
     },
   ];
 
-  const initialValues = {
-    accountNumber: "",
-    memberName: "",
-  };
-
-  const columns = [
-    { id: "savingAccountNo", label: "Saving Account No.", minWidth: 120 },
-    { id: "memberName", label: "Member Name", minWidth: 120 },
-    { id: "branchName", label: "Branch Name", minWidth: 120 },
-    { id: "availableBalance", label: "Available Balance (₹)", minWidth: 120 },
-  ];
-
-  const rows = [
-    {
-      savingAccountNo: withdrawalDetails?.savingAccountNo || "N/A",
-      memberName: withdrawalDetails?.memberName || "N/A",
-      branchName: withdrawalDetails?.branchName || "N/A",
-      availableBalance: withdrawalDetails?.availableBalance
-        ? `₹ ${withdrawalDetails.availableBalance}`
-        : "N/A",
-    },
-  ];
-
-  // 🔹 Validation for search form
-  const validationSchema = Yup.object({
-    accountNumber: Yup.string().required("Account number is required"),
-    memberName: Yup.string()
-      .required("Member name is required")
-      .matches(/^[A-Za-z\s]+$/, "Customer name must only contain letters"),
-  });
-
-  // 🔹 Validation for withdraw form
   const withdreMoneyValidationSchema = Yup.object({
     amount: Yup.number()
       .required("Withdraw amount is required")
@@ -139,35 +88,11 @@ const Withdraw = () => {
     payMode: Yup.string().required("Mode of Payment is required"),
   });
 
-  // 🔹 Fetch withdrawal details
-  const handleSubmit = async (values, { resetForm }) => {
-    const { accountNumber, memberName } = values;
-    setShowDetails(false); // clear old details
-
-    try {
-      const result = await triggerGetDeposiList({
-        accountNumber,
-        memberName,
-      }).unwrap();
-
-      if (result?.success || result?.data) {
-        setShowDetails(true);
-        resetForm();
-      } else {
-        setShowDetails(false);
-      }
-    } catch (err) {
-      console.error("Error fetching withdrawal list:", err);
-      setShowDetails(false);
-    }
-  };
-
-  // 🔹 Withdraw money submission
   const withdrMoneyHandleSubmit = async (values, { resetForm }) => {
     try {
       const result = await withdrawalAmountByAcccountNumber({
         ...values,
-        accountNumber: withdrawalDetails?.savingAccountNo,
+        accountNumber,
       }).unwrap();
 
       if (result?.success) {
@@ -178,35 +103,18 @@ const Withdraw = () => {
     }
   };
 
-  const handleCloseSnackbar = () =>
-    setSnackbar((prev) => ({ ...prev, open: false }));
   const handleCloseSnackbarAlert = () =>
     setSnackbarAlert((prev) => ({ ...prev, open: false }));
 
   return (
     <PagesMainContainerStyle>
-      {/* 🔹 Search Form */}
-      <DynamicForm
-        headerTitle="Withdrawal Details"
-        formList={formList}
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        actionButtonText="Show Details"
-        handleSubmit={handleSubmit}
-        isLoading={isLoading}
-        texting="Searching"
+
+      <GetSavingDetailsByAcnt
+        title="Withdrawal Details"
+        showDetails={showDetails}
+        setShowDetails={setShowDetails}
       />
 
-      {/* 🔹 Snackbar for fetching */}
-      <ErrorAndSuccessUseEffect
-        isError={isError}
-        isSuccess={isSuccess}
-        data={data}
-        error={error}
-        setSnackbar={setSnackbar}
-      />
-
-      {/* 🔹 Snackbar for withdrawal */}
       <ErrorAndSuccessUseEffect
         isError={withdrawalAmountIsError}
         isSuccess={withdrawalAmountSuccess}
@@ -215,11 +123,8 @@ const Withdraw = () => {
         setSnackbar={setSnackbarAlert}
       />
 
-      {/* 🔹 Show details section */}
-      {showDetails && (
+      {showDetails && accountNumber && (
         <>
-          <DynamicDataTable rows={rows} columns={columns} />
-
           <PageHeader
             title="Withdraw Money"
             borderBottom="1px solid #DDDDEBBF"
@@ -228,7 +133,7 @@ const Withdraw = () => {
           <DynamicForm
             formList={withdreMoneyFormList}
             initialValues={{
-              accountNumber: withdrawalDetails?.savingAccountNo || "",
+              accountNumber,
               amount: "",
               transactionDate: "",
               remark: "",
@@ -242,23 +147,6 @@ const Withdraw = () => {
           />
         </>
       )}
-
-      {/* 🔹 Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          variant="filled"
-          severity={snackbar.severity}
-          sx={{ width: "100%", color: "#fff" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
 
       <Snackbar
         open={snackbarAlert.open}
