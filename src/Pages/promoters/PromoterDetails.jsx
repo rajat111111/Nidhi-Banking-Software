@@ -1,94 +1,3 @@
-// import React from "react";
-// import {
-//     Box,
-//     Typography,
-//     Grid,
-//     Paper,
-//     Divider,
-//     Button,
-// } from "@mui/material";
-// import { useParams, useNavigate } from "react-router-dom";
-
-// const PromoterDetails = () => {
-//     const { id } = useParams();
-//     const navigate = useNavigate();
-
-//     // Example data (replace with API call or context/state)
-//     const promoter = {
-//         branch: "Taxhint Advisor Private Limited",
-//         promoterNumber: "#APC123654",
-//         firstName: "Rahul",
-//         middleName: "Kumar",
-//         lastName: "Sharma",
-//         email: "rahul.kumar@gmail.com",
-//         mobile: "+91 9865432564",
-//         occupation: "Pvt. Job",
-//         maritalStatus: "Married",
-//         enrollmentDate: "25 June 2024",
-//         title: "Mrs.",
-//         gender: "Male",
-//         dob: "26 June 1981",
-//         fatherName: "Keshav Sharma",
-//         spouseName: "Renu Sharma",
-//         address: "Flat No. 12B, Shanti Apartments, Andheri East Mumbai, MH – India",
-//     };
-
-//     const renderRow = (label, value) => (
-//         <Grid container spacing={2} sx={{ py: 1 }}>
-//             <Grid item xs={12} sm={3}>
-//                 <Typography variant="body2" fontWeight="bold">
-//                     {label}
-//                 </Typography>
-//             </Grid>
-//             <Grid item xs={12} sm={9}>
-//                 <Typography variant="body2">{value || "-"}</Typography>
-//             </Grid>
-//         </Grid>
-//     );
-
-//     return (
-//         <Box sx={{ p: 3 }}>
-//             {/* Header */}
-//             <Box display="flex" alignItems="center" mb={2}>
-//                 <Button variant="outlined" onClick={() => navigate(-1)} sx={{ mr: 2 }}>
-//                     Back
-//                 </Button>
-//                 <Typography variant="h6" fontWeight="bold">
-//                     Promoter Details
-//                 </Typography>
-//             </Box>
-
-//             <Paper sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
-//                 <Grid container spacing={2}>
-//                     {/* Left Column */}
-//                     <Grid size={{ xs: 12, sm: 6 }}>
-//                         {renderRow("Branch", promoter.branch)}
-//                         {renderRow("Promoter Number", promoter.promoterNumber)}
-//                         {renderRow("First Name", promoter.firstName)}
-//                         {renderRow("Middle Name", promoter.middleName)}
-//                         {renderRow("Last Name", promoter.lastName)}
-//                         {renderRow("Email", promoter.email)}
-//                     </Grid>
-
-//                     {/* Right Column */}
-//                     <Grid size={{ xs: 12, sm: 6 }}>
-//                         {renderRow("Mobile Number", promoter.mobile)}
-//                         {renderRow("Occupation", promoter.occupation)}
-//                         {renderRow("Marital Status", promoter.maritalStatus)}
-//                         {renderRow("Enrollment Date", promoter.enrollmentDate)}
-//                         {renderRow("Title", promoter.title)}
-//                         {renderRow("Gender", promoter.gender)}
-//                     </Grid>
-
-//                     {/* If you have more fields like DOB, Father, Spouse, Address, you can create another row or expand columns */}
-//                 </Grid>
-
-//             </Paper>
-//         </Box>
-//     );
-// };
-
-// export default PromoterDetails;
 
 
 import React, { useState } from "react";
@@ -104,31 +13,19 @@ import {
     TextField,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
+import { useGetPromoterByIdQuery } from "../../features/api/promotersApi";
+import CircularLoader from "../../components/skeleton/CircularLoader";
 
 const PromoterDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [tab, setTab] = useState(0);
+    const { data, isLoading, isError } = useGetPromoterByIdQuery(id);
+    if (isLoading) return <CircularLoader />;
+    if (isError) return <p>Error loading promoter details</p>;
 
-    // Example data (replace with API fetch)
-    const promoter = {
-        branch: "Taxhint Advisor Private Limited",
-        promoterNumber: "#APC123654",
-        firstName: "Rahul",
-        middleName: "Kumar",
-        lastName: "Sharma",
-        email: "rahul.kumar@gmail.com",
-        mobile: "+91 9865432564",
-        occupation: "Pvt. Job",
-        maritalStatus: "Married",
-        enrollmentDate: "25 June 2024",
-        title: "Mrs.",
-        gender: "Male",
-        dob: "26 June 1981",
-        fatherName: "Keshav Sharma",
-        spouseName: "Renu Sharma",
-        address: "Flat No. 12B, Shanti Apartments, Andheri East Mumbai, MH – India",
-    };
+    console.log(data);
+    const promoter = data?.data;
 
     const renderRow = (label, value) => (
         <Grid container spacing={2} sx={{ py: 1 }}>

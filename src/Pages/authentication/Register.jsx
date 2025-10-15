@@ -64,7 +64,6 @@ export default function Register() {
             console.error(error);
         }
         finally {
-
             console.log('finally')
         }
     };

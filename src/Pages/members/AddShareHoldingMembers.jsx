@@ -63,7 +63,6 @@ const AddShareHoldingMembers = () => {
             <Typography variant="h5" fontWeight="bold" gutterBottom>
                 Add New Share Holding
             </Typography>
-
             <form onSubmit={handleSubmit}>
                 <Grid container spacing={2}>
 

@@ -21,7 +21,6 @@ import WorkIcon from "@mui/icons-material/Work";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 
 
-
 const cards = [
     {
         icon: PeopleIcon,

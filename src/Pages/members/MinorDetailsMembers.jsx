@@ -24,6 +24,7 @@ const StatusButton = styled(Button)(({ status }) => ({
 
 // Define columns with action button rendering
 const MinorDetailsMembers = () => { // Renamed from MinorDetailsPromoters to MinorDetails
+
     const navigate = useNavigate();
 
     const columns = [
@@ -71,10 +72,10 @@ const MinorDetailsMembers = () => { // Renamed from MinorDetailsPromoters to Min
             pinNumber: "400003",
             status: <StatusButton status="Active">Active</StatusButton>,
         },
-
     ];
 
     // Add actions on the fly so rows remain data objects clean
+
     const [rows, setRows] = React.useState(
         initialRows.map((row, index) => ({
             ...row,

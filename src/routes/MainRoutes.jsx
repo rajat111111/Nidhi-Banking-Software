@@ -1,4 +1,3 @@
-
 import ProtectedRoute from "./ProtectedRoute";
 import Layout from "../layout/Dashboard";
 import DashboardPage from "../Pages/dashboard";
@@ -22,51 +21,73 @@ import ManualShareAllocation from "../Pages/members/ManualShareAllocation";
 import UnallottedShares from "../Pages/members/UnallottedShares";
 import ManualShareTransfer from "../Pages/members/ManualShareTransfer";
 import ApprovalViewDetails from "../Pages/members/ApprovalViewDetails";
+import ShareHoldingDetails from "../Pages/shareHolding/ShareHoldingDetails";
+import Transfer from "../Pages/shareHolding/Transfer";
+import Accounts from "../Pages/savingAccounts/accounts/Accounts";
+import AddNewAccount from "../Pages/savingAccounts/accounts/AddNewAccount";
 
 const MainRoutes = {
-    path: "/",
-    element: <ProtectedRoute />, // protects all routes
-    children: [
+  path: "/",
+  element: <ProtectedRoute />, // protects all routes
+  children: [
+    {
+      element: <Layout />, // wrap all pages with main layout
+      children: [
+        { index: true, element: <DashboardPage /> },
+        // Promoters Routes
         {
-            element: <Layout />, // wrap all pages with main layout
-            children: [
-                { index: true, element: <DashboardPage /> },
-
-                // Promoters Routes
-                {
-                    path: "promoters",
-                    children: [
-                        { index: true, element: <Promoters /> },
-                        { path: "share-holdings", element: <ShareHoldings /> },
-                        { path: "add", element: <AddPromoter /> },
-                        { path: ":id", element: <PromoterDetails /> },
-                        { path: "add-share-holder", element: <AddShareHolder /> },
-                        { path: "share-holder/:id", element: <ShareHoldingDetailsPromoters /> },
-                        { path: "minors", element: <MinorDetailsPromoters /> },
-                        { path: "share-certificates", element: <ShareCertificates /> },
-                    ],
-                },
-
-                // Members Routes
-                {
-                    path: "members",
-                    children: [
-                        { index: true, element: <MemberDetails /> },
-                        { path: "add", element: <AddMember /> },
-                        { path: "approval-details", element: <ApprovalDetails /> },
-                        { path: "approval-details/:id", element: <ApprovalViewDetails /> },
-                        { path: "share-holdings", element: <ShareHoldingDetailsMembers /> },
-                        { path: "add-share-holding", element: <AddShareHoldingMembers /> },
-                        { path: "manual-share-allocation", element: <ManualShareAllocation /> },
-                        { path: "unallotted-shares", element: <UnallottedShares /> },
-                        { path: "manual-share-transfer", element: <ManualShareTransfer /> },
-                        { path: "minor-details", element: <MinorDetailsMembers /> },
-                        { path: "collect-membership-fees/:id", element: <CollectMembershipFees /> },
-                    ],
-                },
-            ],
+          path: "promoters",
+          children: [
+            { index: true, element: <Promoters /> },
+            { path: "share-holdings", element: <ShareHoldings /> },
+            { path: ":id", element: <AddPromoter /> },
+            { path: "promoterDetails/:id", element: <PromoterDetails /> },
+            { path: "add-share-holder", element: <AddShareHolder /> },
+            { path: "share-holder/:id", element: <ShareHoldingDetailsPromoters /> },
+            { path: "minors", element: <MinorDetailsPromoters /> },
+            { path: "share-certificates", element: <ShareCertificates /> },
+          ],
         },
-    ],
+        // Members Routes
+        {
+          path: "members",
+          children: [
+            { index: true, element: <MemberDetails /> },
+            { path: "add", element: <AddMember /> },
+            { path: "approval-details", element: <ApprovalDetails /> },
+            { path: "approval-details/:id", element: <ApprovalViewDetails /> },
+            { path: "share-holdings", element: <ShareHoldingDetailsMembers /> },
+            { path: "add-share-holding", element: <AddShareHoldingMembers /> },
+            {
+              path: "manual-share-allocation",
+              element: <ManualShareAllocation />,
+            },
+            { path: "unallotted-shares", element: <UnallottedShares /> },
+            { path: "manual-share-transfer", element: <ManualShareTransfer /> },
+            { path: "minor-details", element: <MinorDetailsMembers /> },
+            {
+              path: "collect-membership-fees/:id",
+              element: <CollectMembershipFees />,
+            },
+          ],
+        },
+        {
+          path: "share-holding",
+          children: [
+            { index: true, element: <ShareHoldingDetails /> },
+            { path: "transfer", element: <Transfer /> },
+          ],
+        },
+        {
+          path: "saving-accounts",
+          children: [
+            { index: true, element: <Accounts /> },
+            { path: "add-new-account", element: <AddNewAccount /> },
+          ],
+        },
+      ],
+    },
+  ],
 };
 
 export default MainRoutes;

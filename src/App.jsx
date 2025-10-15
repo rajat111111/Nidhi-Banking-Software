@@ -1,10 +1,11 @@
 import {
-  createBrowserRouter,
+
   RouterProvider,
 } from "react-router-dom";
 
 import router from "./routes"
-import { useSelector } from "react-redux";
+import './App'
+
 
 export default function App() {
 
