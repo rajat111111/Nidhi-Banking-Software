@@ -95,7 +95,21 @@ const menuItems = [
       { label: "Receipt Print", path: "/saving-accounts/receipt-print" },
     ],
   },
-  { label: "FD Accounts", path: "/fd", icon: <AccountBalanceWalletIcon /> },
+  {
+    label: "FD Accounts",
+    icon: <AccountBalanceWalletIcon />,
+    children: [
+      { label: "Accounts", path: "/fd-accounts" },
+      { label: "Passbook", path: "/fd-accounts/passbook" },
+    
+      { label: "Enquiry", path: "/fd-accounts/enquiry" },
+      { label: "Approval", path: "/fd-accounts/approval" },
+      { label: "Closure Approval", path: "/fd-accounts/closure-approval" },
+      { label: "Receipt ", path: "/fd-accounts/receipt" },
+      { label: "Change Account Type ", path: "/fd-accounts/change-account-type" },
+    ],
+  },
+
   { label: "RD Accounts", path: "/rd", icon: <AccountBalanceWalletIcon /> },
   { label: "DD Accounts", path: "/dd", icon: <AccountBalanceWalletIcon /> },
   { label: "MIS Accounts", path: "/mis", icon: <AssessmentIcon /> },

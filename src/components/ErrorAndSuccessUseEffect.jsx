@@ -27,7 +27,11 @@ const ErrorAndSuccessUseEffect = ({
     }
 
     if (isSuccess && data) {
-      if (whereToNavigate) navigate(whereToNavigate);
+      if (whereToNavigate) {
+        setTimeout(() => {
+          navigate(whereToNavigate);
+        }, 1000);
+      }
 
       setSnackbar({
         open: true,
@@ -38,7 +42,9 @@ const ErrorAndSuccessUseEffect = ({
       if (setOpen) setOpen(false);
 
       if (setActiveTab && successTab) {
-        setActiveTab(successTab);
+        setTimeout(() => {
+          setActiveTab(successTab);
+        }, 1000);
       }
 
       if (resetForm) resetForm();

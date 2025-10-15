@@ -4,6 +4,7 @@ import { useGetBasicAccountDetailsQuery } from "../../../../features/api/savingA
 import { useParams } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import PageLoader from "../../../../components/PageLoader";
+import { capitalizeFirstLetter } from "../../../../helper/helper";
 
 const ViewBasicDetails = () => {
   const { id } = useParams();
@@ -43,7 +44,7 @@ const ViewBasicDetails = () => {
 
   const pair1 = [
     memberName || "N/A",
-    accountType || "N/A",
+    capitalizeFirstLetter(accountType) || "N/A",
     openDate || "N/A",
     status === "closed" ? (
       <strong style={{ color: "#de1313ff" }}>Closed</strong>

@@ -9,6 +9,7 @@ import { useLazyGetRecieptPrintListQuery } from "../../../features/api/savingAcc
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
 import { Alert, Snackbar } from "@mui/material";
 import { capitalizeFirstLetter } from "../../../helper/helper";
+import NotFound from "../../NotFound";
 
 const RecieptPrint = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -66,9 +67,7 @@ const RecieptPrint = () => {
   const handleCloseSnackbar = () =>
     setSnackbar((prev) => ({ ...prev, open: false }));
 
-  const handleCreateReciept=()=>{
-    
-  }
+  const handleCreateReciept = () => {};
 
   const columns = [
     { id: "id", label: "#", minWidth: 50 },
@@ -94,17 +93,18 @@ const RecieptPrint = () => {
       accountType: capitalizeFirstLetter(curPrint?.accountType) || "N/A",
       amount: `₹ ${curPrint?.amount}` || "N/A",
       mode: capitalizeFirstLetter(curPrint?.paymentMode) || "N/A",
-receiptDate: curPrint?.receiptDate
-  ? new Date(curPrint.receiptDate).toLocaleDateString("en-GB")
-  : "N/A",
+      receiptDate: curPrint?.receiptDate
+        ? new Date(curPrint.receiptDate).toLocaleDateString("en-GB")
+        : "N/A",
 
       status: capitalizeFirstLetter("Success") || "N/A",
       // receiptId:curPrint?.receiptId || 'N/A',
     }));
   return (
     <PagesMainContainerStyle>
-      <DynamicForm
-      headerTitle="Reciept Print"
+     {
+      !isError ?  <DynamicForm
+        headerTitle="Reciept Print"
         formList={formList}
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -112,7 +112,8 @@ receiptDate: curPrint?.receiptDate
         handleSubmit={handleSubmit}
         texting="Fetching"
         isLoading={isLoading}
-      />
+      />:<NotFound/>
+     }
       <ErrorAndSuccessUseEffect
         setSnackbar={setSnackbar}
         isError={isError}
@@ -142,8 +143,7 @@ receiptDate: curPrint?.receiptDate
             primaryButton={{
               label: "Create Receipt",
               to: "/saving-accounts/create-receipt",
-              onClick:handleCreateReciept
-              
+              onClick: handleCreateReciept,
             }}
           />
           <DynamicDataTable rows={rows} columns={columns} />

@@ -111,7 +111,7 @@ const AddNewAccount = () => {
         options:
           membersList?.map((curMember) => ({
             value: changeStringToNumber(curMember?.id),
-            label: `${curMember.firstName} ${curMember.lastName}`,
+            label: `${curMember.firstName} ${curMember.lastName} (${curMember?.id})`,
           })) || [],
 
         onChange: (e, formikHandleChange, formikValues, setFieldValue) => {
@@ -124,7 +124,13 @@ const AddNewAccount = () => {
 
           if (selectedMember) {
             setFieldValue("branchId", selectedMember.branch?.id || "");
-            setFieldValue("agentId", selectedMember.agent?.id || "");
+            setFieldValue(
+              "agentId",
+              selectedMember.agent?.id ||
+                selectedMember.csp?.id ||
+                selectedMember.employee?.id ||
+                ""
+            );
             setFieldValue(
               "accountType",
               lowerCaseAndRemoveTrailingS(

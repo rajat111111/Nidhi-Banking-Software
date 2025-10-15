@@ -52,7 +52,7 @@ const CreateReceipt = () => {
         options:
           membersList?.map((curMember) => ({
             value: changeStringToNumber(curMember?.id),
-            label: `${curMember.firstName} ${curMember.lastName}`,
+            label: `${curMember.firstName} ${curMember.lastName} (${curMember?.id})`,
           })) || [],
         onChange: (e, formikHandleChange, formikValues, setFieldValue) => {
           const selectedMemberId = Number(e.target.value);

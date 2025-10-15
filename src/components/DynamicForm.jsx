@@ -33,7 +33,7 @@ const DynamicForm = ({
     handleBlur,
     handleChange,
     resetForm,
-    setFieldValue, 
+    setFieldValue,
   } = formik;
 
   return (
@@ -58,7 +58,20 @@ const DynamicForm = ({
             } = curList;
 
             return (
-              <Grid sx={{ width: width || "45%" }} item key={i} {...grid}>
+              <Grid
+                item
+                key={i}
+                {...grid}
+                sx={{
+                  width:
+                    type === "textarea"
+                      ? "100%" // textarea should always be full width
+                      : {
+                          xs: "100%",
+                          sm: width ? width : "45%",
+                        },
+                }}
+              >
                 <FormContent>
                   <FormLabel label={label} />
 
@@ -70,12 +83,7 @@ const DynamicForm = ({
                       onChange={
                         onChange
                           ? (e) =>
-                              onChange(
-                                e,
-                                handleChange,
-                                values, 
-                                setFieldValue 
-                              )
+                              onChange(e, handleChange, values, setFieldValue)
                           : handleChange
                       }
                       onBlur={handleBlur}
@@ -89,31 +97,25 @@ const DynamicForm = ({
                       ))}
                     </select>
                   ) : type === "textarea" ? (
-                   <>
-               
-                    <textarea
-                      name={name}
-                      id={id}
-                      placeholder={placeholder}
-                      value={values[name]}
-                      onChange={
-                        onChange
-                          ? (e) =>
-                              onChange(
-                                e,
-                                handleChange,
-                                values, 
-                                setFieldValue 
-                              )
-                          : handleChange
-                      }
-                      onBlur={handleBlur}
-                      readOnly={readOnly}
-                      rows={10}
-                      style={{ width: "206%" }}
-                      disabled={disabled}
-                    />
-                   </>
+                    <>
+                      <textarea
+                        name={name}
+                        id={id}
+                        placeholder={placeholder}
+                        value={values[name]}
+                        onChange={
+                          onChange
+                            ? (e) =>
+                                onChange(e, handleChange, values, setFieldValue)
+                            : handleChange
+                        }
+                        onBlur={handleBlur}
+                        readOnly={readOnly}
+                        rows={6}
+                        style={{ width: "100%", resize: "vertical" }}
+                        disabled={disabled}
+                      />
+                    </>
                   ) : (
                     <input
                       type={type}
@@ -124,12 +126,7 @@ const DynamicForm = ({
                       onChange={
                         onChange
                           ? (e) =>
-                              onChange(
-                                e,
-                                handleChange,
-                                values, 
-                                setFieldValue 
-                              )
+                              onChange(e, handleChange, values, setFieldValue)
                           : handleChange
                       }
                       onBlur={handleBlur}

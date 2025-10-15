@@ -36,6 +36,7 @@ import ClosureApproval from "../Pages/savingAccounts/closureApproval/ClosureAppr
 import RecieptPrint from "../Pages/savingAccounts/recieptPrint/RecientPrint";
 import CreateReceipt from "../Pages/savingAccounts/recieptPrint/CreateReceipt";
 import UpdateNominee from "../Pages/savingAccounts/accounts/nominee/UpdateNominee";
+import Account from "../Pages/fdAccounts/accounts/Account";
 
 const MainRoutes = {
   path: "/",
@@ -110,6 +111,13 @@ const MainRoutes = {
             { path: "closure-approval", element: <ClosureApproval /> },
             { path: "receipt-print", element: <RecieptPrint /> },
             { path: "create-receipt", element: <CreateReceipt /> },
+          ],
+        },
+        {
+          path: "fd-accounts",
+          children: [
+            { index: true, element: <Account /> },
+            
           ],
         },
       ],
