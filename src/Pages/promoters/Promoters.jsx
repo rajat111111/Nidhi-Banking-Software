@@ -69,11 +69,14 @@ const Promoters = () => {
             <Stack direction="row" spacing={1} justifyContent="flex-end">
                 <ActionButton
                     startIcon={<Visibility />}
-                    onClick={() => navigate(`/promoters/${item.id}`)}
+                    onClick={() => navigate(`/promoters/promoterDetails/${item.id}`)}
                 >
                     View
                 </ActionButton>
-                <ActionButton startIcon={<Edit />}>Edit</ActionButton>
+                <ActionButton
+                    startIcon={<Edit />}
+                    onClick={() => navigate(`/promoters/${item.id}`)}
+                >Edit</ActionButton>
             </Stack>
         ),
     }));
@@ -86,7 +89,7 @@ const Promoters = () => {
                 onDownload={() => alert("Download clicked")}
                 primaryButton={{
                     label: "+ Add Promoter",
-                    onClick: () => navigate("/promoters/add"),
+                    to: "/promoters/add", // ✅ use "to" for NavLink
                 }}
             />
             <DynamicDataTable columns={columns} rows={rows} />

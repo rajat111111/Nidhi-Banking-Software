@@ -46,25 +46,20 @@ const MainRoutes = {
       element: <Layout />, // wrap all pages with main layout
       children: [
         { index: true, element: <DashboardPage /> },
-
         // Promoters Routes
         {
           path: "promoters",
           children: [
             { index: true, element: <Promoters /> },
             { path: "share-holdings", element: <ShareHoldings /> },
-            { path: "add", element: <AddPromoter /> },
-            { path: ":id", element: <PromoterDetails /> },
+            { path: ":id", element: <AddPromoter /> },
+            { path: "promoterDetails/:id", element: <PromoterDetails /> },
             { path: "add-share-holder", element: <AddShareHolder /> },
-            {
-              path: "share-holder/:id",
-              element: <ShareHoldingDetailsPromoters />,
-            },
+            { path: "share-holder/:id", element: <ShareHoldingDetailsPromoters /> },
             { path: "minors", element: <MinorDetailsPromoters /> },
             { path: "share-certificates", element: <ShareCertificates /> },
           ],
         },
-
         // Members Routes
         {
           path: "members",

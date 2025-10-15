@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
     Box,
@@ -9,110 +10,168 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
-    TextField,
     FormControl,
     InputLabel,
+    OutlinedInput,
     Select,
     MenuItem,
     useTheme,
     useMediaQuery,
+    InputAdornment,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import { useNavigate } from "react-router-dom";
-
-/**
- * AddPromoter page — MUI + responsive accordion layout matching provided screenshots.
- * Put this file in ../Pages/promoters/AddPromoter.jsx
- */
+import { useNavigate, useParams } from "react-router-dom";
+import { useAddPromoterMutation, useGetPromoterByIdQuery, useUpdatePromoterMutation } from "../../features/api/promotersApi";
+import { useForm, Controller } from "react-hook-form";
+import { useGetAllBranchesQuery } from "../../features/api/branchesApi";
 
 const titles = ["Mr", "Ms", "Mrs", "Dr", "Prof"];
 const genders = ["Male", "Female", "Other"];
 const maritalStatuses = ["Single", "Married", "Widowed", "Divorced"];
 
-const initialState = {
-    branch: "",
-    enrollmentDate: "",
-    title: "",
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    gender: "",
-    email: "",
-    dob: "",
-    occupation: "",
-    fatherName: "",
-    spouseName: "",
-    mobile: "",
-    maritalStatus: "",
-    // KYC
-    aadhar: "",
-    pan: "",
-    meter: "",
-    ciRelation: "",
-    ciNumber: "",
-    voter: "",
-    ration: "",
-    dl: "",
-    // Nominee
-    nomineeName: "",
-    nomineeRelation: "",
-    nomineeMobile: "",
-    nomineeAadhar: "",
-    nomineeVoter: "",
-    nomineePan: "",
-    nomineeAddress: "",
-};
-
 export default function AddPromoter() {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const { id } = useParams();
+    const isEdit = id && id !== "add";
+
+    const [addPromoter] = useAddPromoterMutation();
+    const [updatePromoter] = useUpdatePromoterMutation();
+    const { data: promoterData } = useGetPromoterByIdQuery(id, {
+        skip: !isEdit,
+    });
+    const { data: branchResponse, isLoading: isBranchesLoading } = useGetAllBranchesQuery();
+    const branches = branchResponse?.data || [];
+
     const navigate = useNavigate();
 
-    // control which accordion is open. default: promoter on desktop, closed on mobile
+
+
+    const { register, handleSubmit, control, formState: { errors }, reset } = useForm({
+        defaultValues: {
+            branchId: "",
+            enrollmentDate: "",
+            title: "",
+            firstName: "",
+            middleName: "",
+            lastName: "",
+            gender: "",
+            email: "",
+            dateOfBirth: "",
+            occupation: "",
+            fatherName: "",
+            spouseName: "",
+            mobileNumber: "",
+            maritalStatus: "",
+            aadhaarNumber: "",
+            panNumber: "",
+            meterNumber: "",
+            ciRelation: "",
+            ciNumber: "",
+            voterId: "",
+            rationCardNumber: "",
+            dlNumber: "",
+            nomineeName: "",
+            nomineeRelation: "",
+            nomineeMobileNumber: "",
+            nomineeAadhaarNumber: "",
+            nomineeVoterId: "",
+            nomineePanNumber: "",
+            nomineeAddress: "",
+        }
+    });
+
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
     const [expanded, setExpanded] = useState(isMobile ? false : "promoter");
-    const [form, setForm] = useState(initialState);
-    const [errors, setErrors] = useState({});
+
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "",
+    });
+    const handleCloseSnackbar = () =>
+        setSnackbar((prev) => ({ ...prev, open: false }));
 
     useEffect(() => {
-        // change default when screen size changes (desktop opens promoter by default)
         setExpanded(isMobile ? false : "promoter");
     }, [isMobile]);
+
+
+
+    useEffect(() => {
+        if (isEdit && promoterData) {
+            const mappedData = {
+                branchId: promoterData.branchId,
+                enrollmentDate: promoterData.enrollmentDate?.split("T")[0], // ensure date works
+                title: promoterData.title,
+                firstName: promoterData.firstName,
+                middleName: promoterData.middleName,
+                lastName: promoterData.lastName,
+                gender: promoterData.gender,
+                email: promoterData.email,
+                dateOfBirth: promoterData.dateOfBirth?.split("T")[0],
+                occupation: promoterData.occupation,
+                fatherName: promoterData.fatherName,
+                spouseName: promoterData.spouseName,
+                mobileNumber: promoterData.mobileNumber,
+                maritalStatus: promoterData.maritalStatus,
+                // kyc
+                aadhaarNumber: promoterData.aadhaarNumber,
+                panNumber: promoterData.panNumber,
+                meterNumber: promoterData.meterNumber,
+                ciRelation: promoterData.ciRelation,
+                ciNumber: promoterData.ciNumber,
+                voterId: promoterData.voterId,
+                rationCardNumber: promoterData.rationCardNumber,
+                dlNumber: promoterData.dlNumber,
+                // nominee
+                nomineeName: promoterData.nomineeName,
+                nomineeRelation: promoterData.nomineeRelation,
+                nomineeMobileNumber: promoterData.nomineeMobileNumber,
+                nomineeAadhaarNumber: promoterData.nomineeAadhaarNumber,
+                nomineeVoterId: promoterData.nomineeVoterId,
+                nomineePanNumber: promoterData.nomineePanNumber,
+                nomineeAddress: promoterData.nomineeAddress,
+            };
+            reset(mappedData);
+        }
+    }, [isEdit, promoterData, reset]);
+
 
     const handleAccordion = (panel) => (evt, next) => {
         setExpanded(next ? panel : false);
     };
 
-    const onChange = (e) => {
-        const { name, value } = e.target;
-        setForm((s) => ({ ...s, [name]: value }));
-        setErrors((err) => ({ ...err, [name]: false }));
-    };
+    const onSubmit = async (data) => {
+        try {
+            if (isEdit) {
+                response = await updatePromoter({ id, body: data }).unwrap();
+            } else {
+                response = await addPromoter(data).unwrap();
+            }
 
-    const validate = () => {
-        const newErr = {};
-        if (!form.firstName?.trim()) newErr.firstName = "First name required";
-        if (!form.mobile?.trim()) newErr.mobile = "Mobile required";
-        // add any other validations you want
-        setErrors(newErr);
-        return Object.keys(newErr).length === 0;
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!validate()) {
-            // open the section containing first error
-            if (errors.firstName || !form.firstName) setExpanded("promoter");
-            else if (errors.aadhar) setExpanded("kyc");
-            else setExpanded("promoter");
-            return;
+            if (response?.success === true) {
+                setSnackbar({
+                    open: true,
+                    message: response.message || (isEdit ? "Promoter updated!" : "Promoter added!"),
+                    severity: "success",
+                });
+                setTimeout(() => navigate("/promoters"), 500);
+            }
+            else {
+                setSnackbar({ open: true, message: response?.message || 'Error occurred', severity: 'error' });
+            }
+        } catch (err) {
+            setSnackbar({
+                open: true,
+                message: err?.message || "Error occurred",
+                severity: "error",
+            });
         }
-
-        // TODO: replace with supabase/api call
-        console.log("Submit promoter:", form);
-
-        // navigate back to promoters list after successful submit
-        navigate("/promoters");
     };
 
     const headerStyle = (panel) => ({
@@ -124,10 +183,16 @@ export default function AddPromoter() {
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
-            {/* Top row: Title + Back */}
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 3,
+                }}
+            >
                 <Typography variant="h5" fontWeight={600}>
-                    Add Promoter
+                    {isEdit ? "Edit Promoter" : "Add Promoter"}
                 </Typography>
                 <IconButton aria-label="back" onClick={() => navigate(-1)}>
                     <ArrowBackIosNewIcon />
@@ -137,43 +202,69 @@ export default function AddPromoter() {
                 </IconButton>
             </Box>
 
-            <form onSubmit={handleSubmit} noValidate>
-                {/* Top inputs (Branch & Enrollment Date like screenshot) */}
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                {/* Top inputs: Branch & Enrollment Date */}
                 <Grid container spacing={2} sx={{ mb: 2 }}>
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <FormControl fullWidth>
+
+                        <FormControl fullWidth error={!!errors.branch}>
                             <InputLabel id="branch-label">Branch</InputLabel>
-                            <Select
-                                labelId="branch-label"
-                                name="branch"
-                                label="Branch"
-                                value={form.branch}
-                                onChange={onChange}
-                                displayEmpty
-                            >
-                                <MenuItem value="">Select Branch</MenuItem>
-                                <MenuItem value="main">Main Branch</MenuItem>
-                                <MenuItem value="north">North Branch</MenuItem>
-                                {/* add real branches */}
-                            </Select>
+                            <Controller
+                                name="branchId"
+                                control={control}
+                                defaultValue=""
+                                rules={{ required: "Branch is required" }}
+                                render={({ field }) => (
+                                    <Select
+                                        labelId="branch-label"
+                                        label="Branch"
+                                        {...field}
+                                        displayEmpty
+                                        disabled={isBranchesLoading}
+                                    >
+                                        <MenuItem value="">Select Branch</MenuItem>
+                                        {branches.map((branch) => (
+                                            <MenuItem key={branch.id} value={branch.id}>
+                                                {branch.name} ({branch.location})
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                )}
+                            />
+                            {errors.branchId && (
+                                <Typography color="error" variant="caption">
+                                    {errors.branchId.message}
+                                </Typography>
+                            )}
                         </FormControl>
                     </Grid>
 
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                            fullWidth
-                            name="enrollmentDate"
-                            label="Enrollment Date"
-                            type="date"
-                            InputLabelProps={{ shrink: true }}
-                            value={form.enrollmentDate}
-                            onChange={onChange}
-                        />
+                        <FormControl fullWidth error={!!errors.enrollmentDate}>
+                            <InputLabel htmlFor="enrollmentDate">Enrollment Date</InputLabel>
+                            <OutlinedInput
+                                id="enrollmentDate"
+                                type="date"
+                                label="Enrollment Date"
+                                {...register("enrollmentDate", {
+                                    required: "Enrollment Date is required",
+                                })}
+                                labelWidth={110}
+                            />
+                            {errors.enrollmentDate && (
+                                <Typography color="error" variant="caption">
+                                    {errors.enrollmentDate.message}
+                                </Typography>
+                            )}
+                        </FormControl>
                     </Grid>
                 </Grid>
 
                 {/* Promoter Information */}
-                <Accordion expanded={expanded === "promoter"} onChange={handleAccordion("promoter")}>
+                <Accordion
+                    expanded={expanded === "promoter"}
+                    onChange={handleAccordion("promoter")}
+                >
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headerStyle("promoter")}>
                         <Typography fontWeight={600}>Promoter Information</Typography>
                     </AccordionSummary>
@@ -181,103 +272,225 @@ export default function AddPromoter() {
                         <Box sx={{ p: 1 }}>
                             <Grid container spacing={2}>
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <FormControl fullWidth>
+                                    <FormControl fullWidth error={!!errors.title}>
                                         <InputLabel id="title-label">Title</InputLabel>
-                                        <Select
-                                            labelId="title-label"
+                                        <Controller
                                             name="title"
-                                            label="Title"
-                                            value={form.title}
-                                            onChange={onChange}
-                                            displayEmpty
-                                        >
-                                            <MenuItem value="">Select Title</MenuItem>
-                                            {titles.map((t) => (
-                                                <MenuItem value={t} key={t}>
-                                                    {t}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
+                                            control={control}
+                                            defaultValue=""
+                                            rules={{ required: "Title is required" }}
+                                            render={({ field }) => (
+                                                <Select labelId="title-label" label="Title" {...field}>
+                                                    <MenuItem value="">Select Title</MenuItem>
+                                                    {titles.map((t) => (
+                                                        <MenuItem key={t} value={t}>
+                                                            {t}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            )}
+                                        />
+                                        {errors.title && (
+                                            <Typography color="error" variant="caption">
+                                                {errors.title.message}
+                                            </Typography>
+                                        )}
                                     </FormControl>
                                 </Grid>
 
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField
-                                        fullWidth
-                                        name="firstName"
-                                        label="First Name"
-                                        placeholder="Enter First Name"
-                                        value={form.firstName}
-                                        onChange={onChange}
-                                        error={!!errors.firstName}
-                                        helperText={errors.firstName}
-                                    />
-                                </Grid>
-
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField
-                                        fullWidth
-                                        name="middleName"
-                                        label="Middle Name"
-                                        placeholder="Enter Middle Name"
-                                        value={form.middleName}
-                                        onChange={onChange}
-                                    />
-                                </Grid>
-
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="lastName" label="Last Name" placeholder="Enter Last Name" value={form.lastName} onChange={onChange} />
+                                    <FormControl fullWidth error={!!errors.firstName}>
+                                        <InputLabel htmlFor="firstName">First Name</InputLabel>
+                                        <OutlinedInput
+                                            id="firstName"
+                                            placeholder="Enter First Name"
+                                            {...register("firstName", {
+                                                required: "First Name is required",
+                                            })}
+                                            defaultValue=""
+                                        />
+                                        {errors.firstName && (
+                                            <Typography color="error" variant="caption">
+                                                {errors.firstName.message}
+                                            </Typography>
+                                        )}
+                                    </FormControl>
                                 </Grid>
 
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                     <FormControl fullWidth>
+                                        <InputLabel htmlFor="middleName">Middle Name</InputLabel>
+                                        <OutlinedInput
+                                            id="middleName"
+                                            placeholder="Enter Middle Name"
+                                            {...register("middleName")}
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="lastName">Last Name</InputLabel>
+                                        <OutlinedInput
+                                            id="lastName"
+                                            placeholder="Enter Last Name"
+                                            {...register("lastName")}
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <FormControl fullWidth error={!!errors.gender}>
                                         <InputLabel id="gender-label">Gender</InputLabel>
-                                        <Select labelId="gender-label" name="gender" label="Gender" value={form.gender} onChange={onChange}>
-                                            <MenuItem value="">Select Gender</MenuItem>
-                                            {genders.map((g) => (
-                                                <MenuItem value={g} key={g}>
-                                                    {g}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
+                                        <Controller
+                                            name="gender"
+                                            control={control}
+                                            defaultValue=""
+                                            rules={{ required: "Gender is required" }}
+                                            render={({ field }) => (
+                                                <Select labelId="gender-label" label="Gender" {...field}>
+                                                    <MenuItem value="">Select Gender</MenuItem>
+                                                    {genders.map((g) => (
+                                                        <MenuItem key={g} value={g}>
+                                                            {g}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            )}
+                                        />
+                                        {errors.gender && (
+                                            <Typography color="error" variant="caption">
+                                                {errors.gender.message}
+                                            </Typography>
+                                        )}
                                     </FormControl>
                                 </Grid>
 
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="email" label="Email" placeholder="Enter Email Address" value={form.email} onChange={onChange} />
+                                    <FormControl fullWidth error={!!errors.email}>
+                                        <InputLabel htmlFor="email">Email</InputLabel>
+                                        <OutlinedInput
+                                            id="email"
+                                            placeholder="Enter Email Address"
+                                            {...register("email", {
+                                                pattern: {
+                                                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                                    message: "Enter a valid email address",
+                                                },
+                                            })}
+                                        />
+                                        {errors.email && (
+                                            <Typography color="error" variant="caption">
+                                                {errors.email.message}
+                                            </Typography>
+                                        )}
+                                    </FormControl>
                                 </Grid>
 
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth type="date" name="dob" label="Date of Birth" InputLabelProps={{ shrink: true }} value={form.dob} onChange={onChange} />
-                                </Grid>
-
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="occupation" label="Occupation" placeholder="Enter Occupation" value={form.occupation} onChange={onChange} />
-                                </Grid>
-
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="fatherName" label="Father Name" placeholder="Enter Father Name" value={form.fatherName} onChange={onChange} />
-                                </Grid>
-
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="spouseName" label="Husband / Spouse Name" placeholder="Enter Husband/Spouse Name" value={form.spouseName} onChange={onChange} />
-                                </Grid>
-
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="mobile" label="Mobile Number" placeholder="Enter Mobile Number" value={form.mobile} onChange={onChange} error={!!errors.mobile} helperText={errors.mobile} />
+                                    <FormControl fullWidth error={!!errors.dob}>
+                                        <InputLabel htmlFor="dateOfBirth">Date of Birth</InputLabel>
+                                        <OutlinedInput
+                                            id="dateOfBirth"
+                                            type="date"
+                                            label="Date of Birth"
+                                            {...register("dateOfBirth", { required: "Date of Birth is required" })}
+                                            labelWidth={95}
+                                        />
+                                        {errors.dateOfBirth && (
+                                            <Typography color="error" variant="caption">
+                                                {errors.dateOfBirth.message}
+                                            </Typography>
+                                        )}
+                                    </FormControl>
                                 </Grid>
 
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                     <FormControl fullWidth>
+                                        <InputLabel htmlFor="occupation">Occupation</InputLabel>
+                                        <OutlinedInput
+                                            id="occupation"
+                                            placeholder="Enter Occupation"
+                                            {...register("occupation")}
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="fatherName">Father Name</InputLabel>
+                                        <OutlinedInput
+                                            id="fatherName"
+                                            placeholder="Enter Father Name"
+                                            {...register("fatherName")}
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="spouseName">Husband / Spouse Name</InputLabel>
+                                        <OutlinedInput
+                                            id="spouseName"
+                                            placeholder="Enter Husband/Spouse Name"
+                                            {...register("spouseName")}
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <FormControl fullWidth error={!!errors.mobile}>
+                                        <InputLabel htmlFor="mobileNumber">Mobile Number</InputLabel>
+                                        <OutlinedInput
+                                            id="mobileNumber"
+                                            placeholder="Enter Mobile Number"
+                                            startAdornment={
+                                                <InputAdornment position="start">📞</InputAdornment>
+                                            }
+                                            {...register("mobileNumber", {
+                                                required: "Mobile number is required",
+                                                pattern: {
+                                                    value: /^[0-9]{10}$/,
+                                                    message: "Enter a valid 10-digit mobile number",
+                                                },
+                                            })}
+                                        />
+                                        {errors.mobileNumber && (
+                                            <Typography color="error" variant="caption">
+                                                {errors.mobileNumber.message}
+                                            </Typography>
+                                        )}
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <FormControl fullWidth error={!!errors.maritalStatus}>
                                         <InputLabel id="marital-label">Marital Status</InputLabel>
-                                        <Select labelId="marital-label" name="maritalStatus" label="Marital Status" value={form.maritalStatus} onChange={onChange}>
-                                            <MenuItem value="">Select Marital Status</MenuItem>
-                                            {maritalStatuses.map((m) => (
-                                                <MenuItem value={m} key={m}>
-                                                    {m}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
+                                        <Controller
+                                            name="maritalStatus"
+                                            control={control}
+                                            defaultValue=""
+                                            rules={{ required: "Marital Status is required" }}
+                                            render={({ field }) => (
+                                                <Select
+                                                    labelId="marital-label"
+                                                    label="Marital Status"
+                                                    {...field}
+                                                >
+                                                    <MenuItem value="">Select Marital Status</MenuItem>
+                                                    {maritalStatuses.map((m) => (
+                                                        <MenuItem key={m} value={m}>
+                                                            {m}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            )}
+                                        />
+                                        {errors.maritalStatus && (
+                                            <Typography color="error" variant="caption">
+                                                {errors.maritalStatus.message}
+                                            </Typography>
+                                        )}
                                     </FormControl>
                                 </Grid>
                             </Grid>
@@ -286,45 +499,47 @@ export default function AddPromoter() {
                 </Accordion>
 
                 {/* Promoter's KYC */}
-                <Accordion expanded={expanded === "kyc"} onChange={handleAccordion("kyc")}>
+                <Accordion
+                    expanded={expanded === "kyc"}
+                    onChange={handleAccordion("kyc")}
+                >
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headerStyle("kyc")}>
                         <Typography fontWeight={600}>Promoter's KYC</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Box sx={{ p: 1 }}>
                             <Grid container spacing={2}>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="aadhar" label="Aadhar Number" placeholder="Enter Aadhar Number" value={form.aadhar} onChange={onChange} />
-                                </Grid>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="pan" label="PAN Number" placeholder="Enter PAN Number" value={form.pan} onChange={onChange} />
-                                </Grid>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="meter" label="Meter Number" placeholder="Enter Meter Number" value={form.meter} onChange={onChange} />
-                                </Grid>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="ciRelation" label="CI Relation" placeholder="Enter CI Relation" value={form.ciRelation} onChange={onChange} />
-                                </Grid>
-
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="voter" label="Voter ID" placeholder="Enter Voter ID" value={form.voter} onChange={onChange} />
-                                </Grid>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="ration" label="Ration Card Number" placeholder="Enter Ration Card Number" value={form.ration} onChange={onChange} />
-                                </Grid>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="dl" label="DL Number" placeholder="Enter DL Number" value={form.dl} onChange={onChange} />
-                                </Grid>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="ciNumber" label="CI Number" placeholder="Enter CI Number" value={form.ciNumber} onChange={onChange} />
-                                </Grid>
+                                {[
+                                    { name: "aadhaarNumber", label: "Aadhar Number" },
+                                    { name: "panNumber", label: "PAN Number" },
+                                    { name: "meterNumber", label: "Meter Number" },
+                                    { name: "ciRelation", label: "CI Relation" },
+                                    { name: "ciNumber", label: "CI Number" },
+                                    { name: "voterId", label: "Voter ID" },
+                                    { name: "rationCardNumber", label: "Ration Card Number" },
+                                    { name: "dlNumber", label: "DL Number" },
+                                ].map(({ name, label }) => (
+                                    <Grid size={{ xs: 12, sm: 6, md: 3 }} key={name}>
+                                        <FormControl fullWidth>
+                                            <InputLabel htmlFor={name}>{label}</InputLabel>
+                                            <OutlinedInput
+                                                id={name}
+                                                placeholder={`Enter ${label}`}
+                                                {...register(name)}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                ))}
                             </Grid>
                         </Box>
                     </AccordionDetails>
                 </Accordion>
 
                 {/* Nominee Information */}
-                <Accordion expanded={expanded === "nominee"} onChange={handleAccordion("nominee")}>
+                <Accordion
+                    expanded={expanded === "nominee"}
+                    onChange={handleAccordion("nominee")}
+                >
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headerStyle("nominee")}>
                         <Typography fontWeight={600}>Nominee Information</Typography>
                     </AccordionSummary>
@@ -332,27 +547,78 @@ export default function AddPromoter() {
                         <Box sx={{ p: 1 }}>
                             <Grid container spacing={2}>
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="nomineeName" label="Nominee Name" placeholder="Enter Nominee Name" value={form.nomineeName} onChange={onChange} />
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="nomineeName">Nominee Name</InputLabel>
+                                        <OutlinedInput
+                                            id="nomineeName"
+                                            placeholder="Enter Nominee Name"
+                                            {...register("nomineeName")}
+                                        />
+                                    </FormControl>
                                 </Grid>
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="nomineeRelation" label="Nominee Relation" placeholder="Enter Nominee Relation" value={form.nomineeRelation} onChange={onChange} />
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="nomineeRelation">Nominee Relation</InputLabel>
+                                        <OutlinedInput
+                                            id="nomineeRelation"
+                                            placeholder="Enter Nominee Relation"
+                                            {...register("nomineeRelation")}
+                                        />
+                                    </FormControl>
                                 </Grid>
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="nomineeMobile" label="Mobile Number" placeholder="Enter Mobile Number" value={form.nomineeMobile} onChange={onChange} />
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="nomineeMobileNumber">Mobile Number</InputLabel>
+                                        <OutlinedInput
+                                            id="nomineeMobileNumber"
+                                            placeholder="Enter Mobile Number"
+                                            {...register("nomineeMobileNumber")}
+                                        />
+                                    </FormControl>
                                 </Grid>
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="nomineeAadhar" label="Nominee Aadhar Number" placeholder="Enter Nominee Aadhar Number" value={form.nomineeAadhar} onChange={onChange} />
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="nomineeAadhaarNumber">Nominee Aadhar Number</InputLabel>
+                                        <OutlinedInput
+                                            id="nomineeAadhaarNumber"
+                                            placeholder="Enter Nominee Aadhar Number"
+                                            {...register("nomineeAadhaarNumber")}
+                                        />
+                                    </FormControl>
                                 </Grid>
 
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="nomineeVoter" label="Nominee Voter ID Number" placeholder="Enter Nominee Voter ID Number" value={form.nomineeVoter} onChange={onChange} />
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="nomineeVoterId">Nominee Voter ID Number</InputLabel>
+                                        <OutlinedInput
+                                            id="nomineeVoterId"
+                                            placeholder="Enter Nominee Voter ID Number"
+                                            {...register("nomineeVoterId")}
+                                        />
+                                    </FormControl>
                                 </Grid>
                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                    <TextField fullWidth name="nomineePan" label="Nominee Pan Number" placeholder="Enter Nominee Pan Number" value={form.nomineePan} onChange={onChange} />
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="nomineePanNumber">Nominee Pan Number</InputLabel>
+                                        <OutlinedInput
+                                            id="nomineePanNumber"
+                                            placeholder="Enter Nominee Pan Number"
+                                            {...register("nomineePanNumber")}
+                                        />
+                                    </FormControl>
                                 </Grid>
 
-                                <Grid item size={{ xs: 12 }}>
-                                    <TextField fullWidth multiline rows={2} name="nomineeAddress" label="Nominee Address" placeholder="Enter Nominee Address" value={form.nomineeAddress} onChange={onChange} />
+                                <Grid item xs={12}>
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="nomineeAddress">Nominee Address</InputLabel>
+                                        <OutlinedInput
+                                            id="nomineeAddress"
+                                            placeholder="Enter Nominee Address"
+                                            multiline
+                                            rows={2}
+                                            {...register("nomineeAddress")}
+                                        />
+                                    </FormControl>
                                 </Grid>
                             </Grid>
                         </Box>
@@ -360,15 +626,32 @@ export default function AddPromoter() {
                 </Accordion>
 
                 {/* Action Buttons */}
-                <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 3 }}>
+                <Box
+                    sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 3 }}
+                >
                     <Button variant="contained" color="primary" type="submit" sx={{ px: 4 }}>
-                        Add Promoter
+                        {isEdit ? "Update Promoter" : "Add Promoter"}
                     </Button>
-                    <Button variant="outlined" onClick={() => navigate("/promoters")} sx={{ px: 3 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={() => navigate("/promoters")}
+                        sx={{ px: 3 }}
+                    >
                         Cancel
                     </Button>
                 </Box>
             </form>
-        </Container >
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={handleCloseSnackbar}
+            >
+                <Alert severity={snackbar.severity} onClose={handleCloseSnackbar}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
+        </Container>
     );
 }
+

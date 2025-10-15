@@ -25,11 +25,9 @@ export default PageTopContent;
 const FirstContainer = styled("div")({
   width: "100%",
   height: "auto",
-
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-
   gap: "20px",
   borderBottom:"1px solid #DDDDEBBF",
   paddingBottom:"15px"

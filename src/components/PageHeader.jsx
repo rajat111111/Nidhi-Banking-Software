@@ -69,7 +69,7 @@ export default function PageHeader({
             color="#7858C6"
             component={NavLink}
             to={primaryButton.to}
-            onClick={primaryButton.onClick}
+  
           />
         )}
 

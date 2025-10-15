@@ -1,4 +1,7 @@
-import * as React from "react";
+
+
+
+import React from "react";
 import {
   Box,
   Stack,
@@ -10,14 +13,15 @@ import {
   TextField,
   IconButton,
 } from "@mui/material";
-import { Visibility, Edit, Close } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import PageHeader from "../../components/PageHeader";
 import DynamicDataTable from "../../components/DynamicTable";
 import { useNavigate } from "react-router-dom";
 import DynamicButton from "../../components/DynamicButton";
+import { useGetMembersQuery } from "../../features/api/membersApi";
 
-// Styled status button for Active/Inactive
+// Styled status button
 const StatusButton = styled(Button)(({ status }) => ({
   borderRadius: "50px",
   backgroundColor: status === "Active" ? "#DBE9ED" : "#FFD8D8",
@@ -35,6 +39,9 @@ const StatusButton = styled(Button)(({ status }) => ({
 const MemberDetails = () => {
   const navigate = useNavigate();
 
+  // ✅ Fetch members from backend
+  const { data, isLoading, isError } = useGetMembersQuery();
+  console.log(data);
   const columns = [
     { id: "branch", label: "Branch", minWidth: 120 },
     { id: "memberNo", label: "Member No.", minWidth: 100 },
@@ -52,32 +59,44 @@ const MemberDetails = () => {
     { id: "actions", label: "Actions", minWidth: 220, align: "right" },
   ];
 
-  const initialRows = [
-    {
-      id: 1,
-      branch: "Taxhint Advisor",
-      memberNo: "#2365478",
-      applicationNo: "2365478",
-      annualIncomeRange: "₹5,25,256",
-      memberName: "Himani Adlakha",
-      fatherName: "Ramesh Adlakha",
-      email: "himani@gmail.com",
-      contactNo: "9999998254",
+  // ✅ Transform API data to table rows
+  const rows =
+    data?.data?.map((member) => ({
+      id: member.id,
+      branch: member.branch?.name || "-",
+      memberNo: member.memberNo || "-", // if available later
+      applicationNo: member.applicationNumber || "-",
+      annualIncomeRange: member.annualIncomeRange || "-",
+      memberName: `${member.title || ""} ${member.firstName || ""} ${member.lastName || ""}`.trim(),
+      fatherName: member.fatherName || "-",
+      email:
+        member.emails?.find((e) => e.active)?.email ||
+        member.emails?.[0]?.email ||
+        "-",
+      contactNo:
+        member.mobileNumbers?.find((m) => m.active)?.number ||
+        member.mobileNumbers?.[0]?.number ||
+        "-",
       address:
-        "Flat No. 12B, Shanti Apartments Andheri East Mumbai, MH – India",
-      city: "Mumbai",
-      state: "Maharashtra",
-      pinNumber: "400003",
-      statusText: "Active",
-    },
-    // Additional member entries can be added here
-  ];
-
-  const [rows, setRows] = React.useState(
-    initialRows.map((row) => ({
-      ...row,
+        member.correspondenceAddress?.address ||
+        member.permanentAddress?.address ||
+        "-",
+      city:
+        member.correspondenceAddress?.city ||
+        member.permanentAddress?.city ||
+        "-",
+      state:
+        member.correspondenceAddress?.state ||
+        member.permanentAddress?.state ||
+        "-",
+      pinNumber:
+        member.correspondenceAddress?.pinCode ||
+        member.permanentAddress?.pinCode ||
+        "-",
       status: (
-        <StatusButton status={row.statusText}>{row.statusText}</StatusButton>
+        <StatusButton status={member.status || "Active"}>
+          {member.status || "Active"}
+        </StatusButton>
       ),
       actions: (
         <Stack direction="row" spacing={1} justifyContent="flex-end">
@@ -87,14 +106,12 @@ const MemberDetails = () => {
             variant="outlined"
             textColor="#0D6A84"
           />
-
           <DynamicButton
             text="Edit"
             borderColor="#7858C6"
             variant="outlined"
             textColor="#7858C6"
           />
-
           <DynamicButton
             text="Collect Membership Fees"
             borderColor="#7858C6"
@@ -108,34 +125,12 @@ const MemberDetails = () => {
             textColor="#C90303"
           />
         </Stack>
-      ),
-    }))
-  );
+      )
+    })) || [];
 
-  const [open, setOpen] = React.useState(false);
-  const [selectedMember, setSelectedMember] = React.useState(null);
-
-  const handleViewClick = (member) => {
-    setSelectedMember(member);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedMember(null);
-  };
-
-  const handleCollectFees = (member) => {
-    alert(`Collect membership fees for ${member.memberName}`);
-  };
-
-  const handleDelete = (member) => {
-    if (
-      window.confirm(`Are you sure you want to delete ${member.memberName}?`)
-    ) {
-      setRows((prev) => prev.filter((r) => r.id !== member.id));
-    }
-  };
+  // Loading & error handling
+  if (isLoading) return <p>Loading members...</p>;
+  if (isError) return <p>Failed to fetch members.</p>;
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -145,115 +140,13 @@ const MemberDetails = () => {
         onDownload={() => alert("Download clicked")}
         primaryButton={{
           label: "+ Add Member",
-          onClick: () => navigate("/members/add"),
+          to: "/members/add", // ✅ use "to" for NavLink
         }}
       />
       <DynamicDataTable columns={columns} rows={rows} />
-
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>
-          Member Details
-          <IconButton
-            aria-label="close"
-            onClick={handleClose}
-            sx={{ position: "absolute", right: 8, top: 8 }}
-          >
-            <Close />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
-          {selectedMember && (
-            <Stack spacing={2}>
-              <TextField
-                label="Branch"
-                value={selectedMember.branch}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Member No."
-                value={selectedMember.memberNo}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Application No."
-                value={selectedMember.applicationNo}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Annual Income Range"
-                value={selectedMember.annualIncomeRange}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Member Name"
-                value={selectedMember.memberName}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Father's Name"
-                value={selectedMember.fatherName}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Email"
-                value={selectedMember.email}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Contact No."
-                value={selectedMember.contactNo}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Address"
-                value={selectedMember.address}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="City"
-                value={selectedMember.city}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="State"
-                value={selectedMember.state}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Pin Number"
-                value={selectedMember.pinNumber}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                label="Status"
-                value={selectedMember.statusText}
-                fullWidth
-                InputProps={{ readOnly: true }}
-              />
-            </Stack>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button color="primary">Update</Button>
-          <Button onClick={handleClose} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };
 
 export default MemberDetails;
+

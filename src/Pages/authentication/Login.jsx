@@ -21,6 +21,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useLoginUserMutation, useSendOtpMutation } from "../../features/api/authApi";
 
+
+
 export default function Login() {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
@@ -43,8 +45,8 @@ export default function Login() {
         try {
             console.log("hiiii")
             if (useOtp) {
-                // 🔹 Send OTP flow
 
+                // 🔹 Send OTP flow
                 const response = await sendOtp({ email: data.email }).unwrap();
                 if (response?.success === true) {
                     localStorage.setItem("otp_email", data.email); // save email for OTP verify step

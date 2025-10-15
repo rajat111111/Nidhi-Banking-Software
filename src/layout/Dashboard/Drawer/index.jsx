@@ -15,7 +15,6 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 // Icons
-
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
@@ -72,11 +71,11 @@ const menuItems = [
   },
   {
     label: "Share Holdings",
-
     icon: <AssessmentIcon />,
     children: [
       { label: "Share Holdings Details", path: "/share-holding" },
       { label: "Transfer", path: "/share-holding/transfer" },
+      
     ],
   },
   { label: "KYC", path: "/kyc", icon: <PersonIcon /> },
@@ -93,24 +92,15 @@ const menuItems = [
       { label: "Approval", path: "/saving-accounts/approval" },
       { label: "Closure Approval", path: "/saving-accounts/closure-approval" },
       { label: "Receipt Print", path: "/saving-accounts/receipt-print" },
+      { label: "Interest Certificates", path: "/saving-accounts/interest-certificates" },
+      { label: "Closure", path: "/saving-accounts/closure" },
+      { label: "Change Account Plan", path: "/saving-accounts/change-account-plan" },
+      { label: "Change Account Type", path: "/saving-accounts/change-account-type" },
+      { label: "Reports", path: "/saving-accounts/reports" },
     ],
   },
-  {
-    label: "FD Accounts",
-    icon: <AccountBalanceWalletIcon />,
-    children: [
-      { label: "Accounts", path: "/fd-accounts" },
-      { label: "Passbook", path: "/fd-accounts/passbook" },
-    
-      { label: "Enquiry", path: "/fd-accounts/enquiry" },
-      { label: "Approval", path: "/fd-accounts/approval" },
-      { label: "Closure Approval", path: "/fd-accounts/closure-approval" },
-      { label: "Receipt ", path: "/fd-accounts/receipt" },
-      { label: "Change Account Type ", path: "/fd-accounts/change-account-type" },
-    ],
-  },
-
-  { label: "RD Accounts", path: "/rd", icon: <AccountBalanceWalletIcon /> },
+  { label: "FD Accounts", path: "/fd", icon: <AccountBalanceWalletIcon /> },
+  { label: "RD Accounts", path:"/rd", icon: <AccountBalanceWalletIcon /> },
   { label: "DD Accounts", path: "/dd", icon: <AccountBalanceWalletIcon /> },
   { label: "MIS Accounts", path: "/mis", icon: <AssessmentIcon /> },
 
@@ -119,16 +109,19 @@ const menuItems = [
   { label: "Education Loan", path: "/education-loan", icon: <SchoolIcon /> },
   { label: "Group Loan", path: "/group-loan", icon: <GroupIcon /> },
   { label: "Personal Loan", path: "/personal-loan", icon: <PersonIcon /> },
+
   {
     label: "Loan Against Deposit",
     path: "/loan-against-deposit",
     icon: <RequestQuoteIcon />,
   },
+
   {
     label: "Property Loan",
     path: "/property-loan",
     icon: <RealEstateAgentIcon />,
   },
+
   {
     label: "Gold Silver Loan",
     path: "/gold-silver-loan",

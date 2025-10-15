@@ -28,10 +28,8 @@ export default function Layout() {
                 onClose={() => setSidebarOpen(false)}
                 variant={isSmallScreen ? "temporary" : "persistent"}
             />
-
             {/* Main Content */}
             <Box
-
                 sx={{
                     flexGrow: 1,
                     display: "flex",
@@ -44,7 +42,7 @@ export default function Layout() {
                 }}
             >
                 <Header toggleSidebar={toggleSidebar} />
-                {/* <DynamicBreadcrumbs /> */}
+                <DynamicBreadcrumbs />
                 <Box
                     sx={{
                         flex: 1,
