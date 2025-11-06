@@ -37,6 +37,31 @@ import RecieptPrint from "../Pages/savingAccounts/recieptPrint/RecientPrint";
 import CreateReceipt from "../Pages/savingAccounts/recieptPrint/CreateReceipt";
 import UpdateNominee from "../Pages/savingAccounts/accounts/nominee/UpdateNominee";
 import Account from "../Pages/fdAccounts/accounts/Account";
+import AddFdAccount from "../Pages/fdAccounts/accounts/AddFdAccount";
+import ViewSingleFdAccountDetails from "../Pages/fdAccounts/accounts/ViewSingleFdAccountDetails";
+import FdStatement from "../Pages/fdAccounts/statement/FdStatement";
+import FdEnquiry from "../Pages/fdAccounts/enquiry/FdEnquiry";
+import FdApproval from "../Pages/fdAccounts/approval/FdApproval";
+import FdClosureApproval from "../Pages/fdAccounts/closureApproval/FdClosureApproval";
+import FdReciept from "../Pages/fdAccounts/reciept/FdReciept";
+import CreateFdReceipt from "../Pages/fdAccounts/reciept/CreateFdRecipt";
+import ViewFdRecipt from "../Pages/fdAccounts/reciept/ViewFdRecipt";
+import ChangeAccountType from "../Pages/fdAccounts/changeAccountType/ChangeAccountType";
+import RdAccounts from "../Pages/rdAccounts/accounts/RdAccounts";
+import AddRdAccount from "../Pages/rdAccounts/accounts/AddRdAccount";
+import ViewSingleRdAccountDetails from "../Pages/rdAccounts/accounts/ViewSingleRdAccountDetails";
+import UpdateRdNominee from "../Pages/rdAccounts/accounts/nominee/UpdateRdNominee";
+import AddRdNominee from "../Pages/rdAccounts/accounts/nominee/AddRdNominee";
+import AddFdNominee from "../Pages/fdAccounts/accounts/nominee/AddFdNominee";
+import UpdateFdNominee from "../Pages/fdAccounts/accounts/nominee/UpdateFdNominee";
+import RdStatement from "../Pages/rdAccounts/statements/RdStatement";
+import RdEnquiry from "../Pages/rdAccounts/enquiry/RdEnquiry";
+import RdApproval from "../Pages/rdAccounts/approval/RdApproval";
+import RdClosureApproval from "../Pages/rdAccounts/closureApproval/RdClosureApproval";
+import ViewRdReciept from "../Pages/rdAccounts/reciept/ViewRdReciept";
+import RdReciept from "../Pages/rdAccounts/reciept/RdReciept";
+import CreateRdReciept from "../Pages/rdAccounts/reciept/CreateRdReciept";
+import ChangeRdAccountType from "../Pages/rdAccounts/changeAccountType/ChangeRdAccountType";
 
 const MainRoutes = {
   path: "/",
@@ -55,7 +80,10 @@ const MainRoutes = {
             { path: ":id", element: <AddPromoter /> },
             { path: "promoterDetails/:id", element: <PromoterDetails /> },
             { path: "add-share-holder", element: <AddShareHolder /> },
-            { path: "share-holder/:id", element: <ShareHoldingDetailsPromoters /> },
+            {
+              path: "share-holder/:id",
+              element: <ShareHoldingDetailsPromoters />,
+            },
             { path: "minors", element: <MinorDetailsPromoters /> },
             { path: "share-certificates", element: <ShareCertificates /> },
           ],
@@ -95,7 +123,10 @@ const MainRoutes = {
           children: [
             { index: true, element: <Accounts /> },
             { path: "add-new-account", element: <AddNewAccount /> },
-            { path: ":id/account-details", element: <ViewSingleAccountDetails /> },
+            {
+              path: ":id/account-details",
+              element: <ViewSingleAccountDetails />,
+            },
             { path: ":id/add-nominee", element: <AddNominee /> },
             { path: ":id/update-nominee", element: <UpdateNominee /> },
             { path: "deposit", element: <Deposit /> },
@@ -112,7 +143,100 @@ const MainRoutes = {
           path: "fd-accounts",
           children: [
             { index: true, element: <Account /> },
-            
+            { path: "add-new-account", element: <AddFdAccount /> },
+            {
+              path: ":id/account-details",
+              element: <ViewSingleFdAccountDetails />,
+            },
+            {
+              path: "statement",
+              element: <FdStatement />,
+            },
+            {
+              path: "enquiry",
+              element: <FdEnquiry />,
+            },
+            {
+              path: "approval",
+              element: <FdApproval />,
+            },
+            { path: ":id/add-nominee", element: <AddFdNominee /> },
+            { path: ":id/update-nominee", element: <UpdateFdNominee /> },
+            {
+              path: "approval",
+              element: <FdApproval />,
+            },
+            {
+              path: "closure-approval",
+              element: <FdClosureApproval />,
+            },
+            {
+              path: "receipt-print",
+              element: <FdReciept />,
+            },
+            {
+              path: "create-receipt",
+              element: <CreateFdReceipt />,
+            },
+            {
+              path: "view-receipt",
+              element: <ViewFdRecipt />,
+            },
+            {
+              path: "change-account-type",
+              element: <ChangeAccountType />,
+            },
+          ],
+        },
+        {
+          path: "rd-accounts",
+          children: [
+            { index: true, element: <RdAccounts /> },
+            { path: "add-new-account", element: <AddRdAccount /> },
+            {
+              path: ":id/account-details",
+              element: <ViewSingleRdAccountDetails />,
+            },
+            {
+              path: "statement",
+              element: <RdStatement />,
+            },
+            {
+              path: "enquiry",
+              element: <RdEnquiry />,
+            },
+            {
+              path: "approval",
+              element: <RdApproval />,
+            },
+
+            { path: ":id/add-nominee", element: <AddRdNominee /> },
+            { path: ":id/update-nominee", element: <UpdateRdNominee /> },
+
+            {
+              path: "approval",
+              element: <FdApproval />,
+            },
+            {
+              path: "closure-approval",
+              element: <RdClosureApproval />,
+            },
+            {
+              path: "receipt-print",
+              element: <RdReciept />,
+            },
+            {
+              path: "create-receipt",
+              element: <CreateRdReciept />,
+            },
+            {
+              path: "view-receipt",
+              element: <ViewRdReciept />,
+            },
+            {
+              path: "change-account-type",
+              element: <ChangeRdAccountType />,
+            },
           ],
         },
       ],

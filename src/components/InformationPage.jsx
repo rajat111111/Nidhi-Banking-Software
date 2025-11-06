@@ -28,7 +28,7 @@ const InformationPage = ({ key1 = [], pair1 = [], key2 = [], pair2 = [] }) => {
 
 export default InformationPage;
 
-// ✅ Styles
+// Styles
 const InfoPageMainContainer = styled("div")({
   width: "100%",
   display: "flex",

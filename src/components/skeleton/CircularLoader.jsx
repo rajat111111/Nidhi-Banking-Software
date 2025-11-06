@@ -1,5 +1,4 @@
-import React from 'react';
-import { Box, CircularProgress, Backdrop } from '@mui/material';
+import {CircularProgress, Backdrop } from '@mui/material';
 
 // Hash Loader component
 const CircularLoader = () => {

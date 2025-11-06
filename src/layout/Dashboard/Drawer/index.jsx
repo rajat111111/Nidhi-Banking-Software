@@ -11,7 +11,6 @@ import {
   Typography,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 // Icons
@@ -75,7 +74,6 @@ const menuItems = [
     children: [
       { label: "Share Holdings Details", path: "/share-holding" },
       { label: "Transfer", path: "/share-holding/transfer" },
-      
     ],
   },
   { label: "KYC", path: "/kyc", icon: <PersonIcon /> },
@@ -92,15 +90,60 @@ const menuItems = [
       { label: "Approval", path: "/saving-accounts/approval" },
       { label: "Closure Approval", path: "/saving-accounts/closure-approval" },
       { label: "Receipt Print", path: "/saving-accounts/receipt-print" },
-      { label: "Interest Certificates", path: "/saving-accounts/interest-certificates" },
+      {
+        label: "Interest Certificates",
+        path: "/saving-accounts/interest-certificates",
+      },
       { label: "Closure", path: "/saving-accounts/closure" },
-      { label: "Change Account Plan", path: "/saving-accounts/change-account-plan" },
-      { label: "Change Account Type", path: "/saving-accounts/change-account-type" },
+      {
+        label: "Change Account Plan",
+        path: "/saving-accounts/change-account-plan",
+      },
+      {
+        label: "Change Account Type",
+        path: "/saving-accounts/change-account-type",
+      },
       { label: "Reports", path: "/saving-accounts/reports" },
     ],
   },
-  { label: "FD Accounts", path: "/fd", icon: <AccountBalanceWalletIcon /> },
-  { label: "RD Accounts", path:"/rd", icon: <AccountBalanceWalletIcon /> },
+  {
+    label: "FD Accounts",
+    icon: <AccountBalanceWalletIcon />,
+    children: [
+      { label: "Accounts", path: "/fd-accounts" },
+
+      { label: "Statement", path: "/fd-accounts/statement" },
+
+      { label: "Enquiry", path: "/fd-accounts/enquiry" },
+      { label: "Approval", path: "/fd-accounts/approval" },
+      { label: "Closure Approval", path: "/fd-accounts/closure-approval" },
+      { label: "Receipt ", path: "/fd-accounts/receipt-print" },
+
+      {
+        label: "Change Account Type",
+        path: "/fd-accounts/change-account-type",
+      },
+    ],
+  },
+  {
+    label: "Rd Accounts",
+    icon: <AccountBalanceWalletIcon />,
+    children: [
+      { label: "Accounts", path: "/rd-accounts" },
+
+      { label: "Statement", path: "/rd-accounts/statement" },
+
+      { label: "Enquiry", path: "/rd-accounts/enquiry" },
+      { label: "Approval", path: "/rd-accounts/approval" },
+      { label: "Closure Approval", path: "/rd-accounts/closure-approval" },
+      { label: "Receipt ", path: "/rd-accounts/receipt-print" },
+
+      {
+        label: "Change Account Type",
+        path: "/fd-accounts/change-account-type",
+      },
+    ],
+  },
   { label: "DD Accounts", path: "/dd", icon: <AccountBalanceWalletIcon /> },
   { label: "MIS Accounts", path: "/mis", icon: <AssessmentIcon /> },
 

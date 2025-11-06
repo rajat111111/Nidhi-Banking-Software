@@ -1,5 +1,4 @@
-import { capitalize, styled } from "@mui/material";
-import React from "react";
+import { capitalize } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
 import DynamicDataTable from "../../../../components/DynamicTable";
 import PagesMainContainerStyle from "../../../../components/PagesMainContainerStyle";
@@ -8,10 +7,7 @@ import { useParams } from "react-router-dom";
 
 const ViewTransactionDetails = () => {
   const { id } = useParams();
-
-  console.log("id",id)
-
-  const { data, isLoading } = useGetAllAccountTransactionsQuery({ id });
+   const { data, isLoading } = useGetAllAccountTransactionsQuery({ id });
 
   const allTransactionList = data?.data || [];
 
@@ -31,7 +27,7 @@ const ViewTransactionDetails = () => {
     id: i + 1,
     transactionDate: curList?.transactionDate || "N/A",
     transactionId: curList?.transactionId || "N/A",
-    payMode:capitalize(curList?.payMode ) || "N/A",
+    payMode: capitalize(curList?.payMode) || "N/A",
     remark: curList?.remark || "N/A",
     debit: `₹ ${curList?.debit}` || "N/A",
     credit: `₹ ${curList?.credit}` || "N/A",

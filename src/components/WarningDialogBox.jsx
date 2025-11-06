@@ -15,12 +15,12 @@ const WarningDialogBox = ({
   performAction,
   setSnackbar,
   snackbar,
-  id
+  id,
 }) => {
   const handleRemove = async () => {
-    console.log("removeId",id)
+    console.log("removeId", id);
     try {
-      await performAction({id}).unwrap();
+      await performAction({ id }).unwrap();
     } catch (err) {
       console.error("Error removing account:", err);
     }
@@ -116,7 +116,7 @@ const WarningDialogBox = ({
 
 export default WarningDialogBox;
 
-// ✅ Styled Components
+// Styled Components
 const DialogContentContainer = styled("div")({
   width: "100%",
   height: "400px",

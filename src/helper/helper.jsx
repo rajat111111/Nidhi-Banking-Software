@@ -8,7 +8,6 @@ export const changeStringToNumber = (str) => {
   return isNaN(num) ? 0 : num; // returns 0 if conversion fails
 };
 
-
 export const lowerCaseAndRemoveTrailingS = (str) => {
   if (!str) return "";
   const lower = str.toLowerCase();

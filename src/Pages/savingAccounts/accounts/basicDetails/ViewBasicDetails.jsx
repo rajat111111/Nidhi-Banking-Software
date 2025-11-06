@@ -48,8 +48,10 @@ const ViewBasicDetails = () => {
     openDate || "N/A",
     status === "closed" ? (
       <strong style={{ color: "#de1313ff" }}>Closed</strong>
-    ) : (
+    ) :status === "approved" ? (
       <strong style={{ color: "#1F9C00" }}>Active</strong> || "N/A"
+    ): (
+      <strong style={{ color: "#9c4900ff" }}>N/A</strong> || "N/A"
     ),
     nomineeRelation || "N/A",
     branchName || "N/A",

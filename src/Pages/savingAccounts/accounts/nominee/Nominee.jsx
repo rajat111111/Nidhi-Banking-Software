@@ -1,6 +1,4 @@
-import React from "react";
 import PageHeader from "../../../../components/PageHeader";
-import DynamicDataTable from "../../../../components/DynamicTable";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import PagesMainContainerStyle from "../../../../components/PagesMainContainerStyle";
 import InformationPage from "../../../../components/InformationPage";

@@ -45,6 +45,7 @@ const Statement = () => {
     <PagesMainContainerStyle>
       <GetSavingDetailsByAcnt
         title="Statement Details"
+         accntNumberLabel="FD Account No."
         showDetails={showDetails}
         setShowDetails={setShowDetails}
       />

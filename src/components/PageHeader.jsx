@@ -10,8 +10,9 @@ export default function PageHeader({
   extraButtons = [],
   onFilter,
   borderBottom,
-
+  marginTop,
   onDownload,
+  paddingBottom,
 }) {
   const buttonSx = {
     borderRadius: "24px", // pill shaped
@@ -26,9 +27,9 @@ export default function PageHeader({
         justifyContent: "space-between",
         alignItems: { xs: "flex-start", sm: "center" },
         gap: "40px",
-
+        marginTop: marginTop || "0px",
         borderBottom: { borderBottom },
-        paddingBottom: "10px",
+        paddingBottom: paddingBottom || "10px",
       }}
     >
       {/* Title */}
@@ -69,7 +70,6 @@ export default function PageHeader({
             color="#7858C6"
             component={NavLink}
             to={primaryButton.to}
-  
           />
         )}
 
@@ -79,8 +79,8 @@ export default function PageHeader({
             variant={btn?.variant || "contained"}
             startIcon={btn?.startIcon}
             endIcon={btn?.endIcon}
-            textColor={btn?.textColor || !btn?.variant  && "#fff"}
-            color={btn?.color || !btn?.variant  && "#7858C6"}
+            textColor={btn?.textColor || (!btn?.variant && "#fff")}
+            color={btn?.color || (!btn?.variant && "#7858C6")}
           />
         ))}
       </Stack>

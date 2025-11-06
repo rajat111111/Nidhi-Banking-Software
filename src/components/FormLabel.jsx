@@ -1,13 +1,10 @@
-import { styled } from '@mui/material';
+import { styled } from "@mui/material";
 
+const FormLabel = ({ label }) => {
+  return <Lable>{label}</Lable>;
+};
 
-const FormLabel = ({label}) => {
-  return (
-    <Lable>{label}</Lable>
-  )
-}
-
-export default FormLabel
+export default FormLabel;
 
 const Lable = styled("label")({
   font: "400 16px Poppins",

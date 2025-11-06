@@ -1,4 +1,4 @@
-import { Grid, styled } from "@mui/material";
+import { Grid, styled, Switch, FormControlLabel } from "@mui/material";
 import PageTopContent from "../components/PageTopContent";
 import PagesMainContainerStyle from "./PagesMainContainerStyle";
 import DynamicButton from "./DynamicButton";
@@ -44,6 +44,36 @@ const DynamicForm = ({
       <FormContainer onSubmit={formik.handleSubmit}>
         <Grid container spacing={4}>
           {formList.map((curList, i) => {
+            //  Handle grouped switches
+            if (curList.isSwitchGroup) {
+              return (
+                <Grid item xs={12} key={i}>
+                  <FormContent>
+                    <FormLabel />
+                    <Grid container spacing={2} alignItems="center">
+                      {curList.switches.map((sw, idx) => (
+                        <Grid item key={idx}>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={values[sw.name] || false}
+                                onChange={(e) =>
+                                  setFieldValue(sw.name, e.target.checked)
+                                }
+                                color="success"
+                              />
+                            }
+                            label={sw.label}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </FormContent>
+                </Grid>
+              );
+            }
+
+            // Default fields
             const {
               label,
               placeholder,
@@ -65,7 +95,7 @@ const DynamicForm = ({
                 sx={{
                   width:
                     type === "textarea"
-                      ? "100%" // textarea should always be full width
+                      ? "100%"
                       : {
                           xs: "100%",
                           sm: width ? width : "45%",
@@ -97,25 +127,37 @@ const DynamicForm = ({
                       ))}
                     </select>
                   ) : type === "textarea" ? (
-                    <>
-                      <textarea
-                        name={name}
-                        id={id}
-                        placeholder={placeholder}
-                        value={values[name]}
-                        onChange={
-                          onChange
-                            ? (e) =>
-                                onChange(e, handleChange, values, setFieldValue)
-                            : handleChange
-                        }
-                        onBlur={handleBlur}
-                        readOnly={readOnly}
-                        rows={6}
-                        style={{ width: "100%", resize: "vertical" }}
-                        disabled={disabled}
-                      />
-                    </>
+                    <textarea
+                      name={name}
+                      id={id}
+                      placeholder={placeholder}
+                      value={values[name]}
+                      onChange={
+                        onChange
+                          ? (e) =>
+                              onChange(e, handleChange, values, setFieldValue)
+                          : handleChange
+                      }
+                      onBlur={handleBlur}
+                      readOnly={readOnly}
+                      rows={6}
+                      style={{ width: "100%", resize: "vertical" }}
+                      disabled={disabled}
+                    />
+                  ) : type === "switch" ? (
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={values[name] || false}
+                          onChange={(e) =>
+                            setFieldValue(name, e.target.checked)
+                          }
+                          name={name}
+                          color="success"
+                          disabled={disabled}
+                        />
+                      }
+                    />
                   ) : (
                     <input
                       type={type}
@@ -170,7 +212,7 @@ const DynamicForm = ({
 
 export default DynamicForm;
 
-// ✅ Styled Components (unchanged)
+//  Styled Components
 const FormContainer = styled("form")({
   width: "100%",
   height: "auto",
@@ -200,18 +242,15 @@ const FormContent = styled("div")({
     fontSize: "14px",
     outline: "none",
     transition: "0.2s ease",
-
     "&:focus": {
       borderColor: "#7858C6",
       boxShadow: "0 0 4px rgba(120, 88, 198, 0.3)",
     },
-
     "&:disabled": {
       backgroundColor: "#f5f5f5",
       cursor: "not-allowed",
       color: "#999",
     },
-
     "&[readonly]": {
       backgroundColor: "#f9f9f9",
       color: "#555",

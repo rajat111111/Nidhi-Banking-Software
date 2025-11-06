@@ -7,7 +7,7 @@ import DynamicDataTable from "./DynamicTable";
 import ErrorAndSuccessUseEffect from "./ErrorAndSuccessUseEffect";
 import { useLazyGetDeposiListByAccountNumberQuery } from "../features/api/savingAccounts";
 
-const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title }) => {
+const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumberFormLabel,accntNumberLabel }) => {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -21,7 +21,7 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title }) => {
 
   const details = data?.data || {};
 
-  // ✅ Store accountNumber only when showDetails is true
+  // Store accountNumber only when showDetails is true
   useEffect(() => {
     if (showDetails && details?.savingAccountNo) {
       localStorage.setItem("accountNumber", details.savingAccountNo);
@@ -33,10 +33,10 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title }) => {
   const handleCloseSnackbar = () =>
     setSnackbar((prev) => ({ ...prev, open: false }));
 
-  // 🔹 Form Fields
+  //  Form Fields
   const formList = [
     {
-      label: "Account Number",
+      label:AccountNumberFormLabel  || "Account Number",
       placeholder: "Enter Account Number",
       name: "accountNumber",
       id: "accountNumber",
@@ -50,17 +50,19 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title }) => {
     },
   ];
 
-  // 🔹 Table Columns & Rows
+  // Table Columns & Rows
   const columns1 = [
-    { id: "savingAccountNo", label: "Saving Account No.", minWidth: 120 },
+    { id: "accountNo", label:accntNumberLabel, minWidth: 120 },
     { id: "memberName", label: "Member Name", minWidth: 120 },
     { id: "branchName", label: "Branch Name", minWidth: 120 },
     { id: "availableBalance", label: "Available Balance (₹)", minWidth: 120 },
   ];
 
+
+
   const rows1 = [
     {
-      savingAccountNo: details?.savingAccountNo || "N/A",
+      accountNo: details?.savingAccountNo || "N/A",
       memberName: details?.memberName || "N/A",
       branchName: details?.branchName || "N/A",
       availableBalance: details?.availableBalance
@@ -69,13 +71,13 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title }) => {
     },
   ];
 
-  // 🔹 Initial Values
+  // Initial Values
   const initialValues = {
     accountNumber: "",
     memberName: "",
   };
 
-  // 🔹 Validation
+  // Validation
   const validationSchema = Yup.object({
     accountNumber: Yup.string().required("Account number is required"),
     memberName: Yup.string()
@@ -83,7 +85,7 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title }) => {
       .matches(/^[A-Za-z\s]+$/, "Customer name must only contain letters"),
   });
 
-  // 🔹 Submit Handler
+  // Submit Handler
   const handleSubmit = async (values, { resetForm }) => {
     const { accountNumber, memberName } = values;
     setShowDetails(false); // clear old details
@@ -125,7 +127,7 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title }) => {
       {/* 🔹 Details Table */}
       {showDetails && <DynamicDataTable rows={rows1} columns={columns1} />}
 
-      {/* 🔹 Snackbar Notifications */}
+      {/* Snackbar Notifications */}
       <ErrorAndSuccessUseEffect
         isError={isError}
         isSuccess={isSuccess}

@@ -12,7 +12,7 @@ export const authApi = createApi({
   endpoints: (builder) => ({
     registerUser: builder.mutation({
       query: (userData) => ({
-        url: "/register", 
+        url: "/register",
         method: "POST",
         body: userData,
       }),
@@ -47,14 +47,14 @@ export const authApi = createApi({
       query: (data) => ({
         url: "/reset-password",
         method: "POST",
-        body: data, 
+        body: data,
       }),
     }),
     sendOtp: builder.mutation({
       query: (data) => ({
         url: "/send-otp",
         method: "POST",
-        body: data, 
+        body: data,
       }),
     }),
 
@@ -62,14 +62,14 @@ export const authApi = createApi({
       query: (data) => ({
         url: "/login",
         method: "POST",
-        body: data, 
+        body: data,
       }),
     }),
     resendOtp: builder.mutation({
       query: (data) => ({
         url: "/resend-otp",
         method: "POST",
-        body: data, 
+        body: data,
       }),
     }),
   }),
@@ -85,4 +85,3 @@ export const {
   useVerifyOtpMutation,
   useResendOtpMutation,
 } = authApi;
-

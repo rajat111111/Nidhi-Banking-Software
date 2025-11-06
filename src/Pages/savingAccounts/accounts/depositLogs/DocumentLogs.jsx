@@ -9,7 +9,6 @@ import { capitalizeFirstLetter } from "../../../../helper/helper";
 const DocumentLogs = () => {
   const { id } = useParams();
   const { data, isLoading } = useGetAllDepositeLogsOfSingleMemberQuery({ id });
-
   const depositLogsList = data?.transactions || [];
 
   const columns = [
