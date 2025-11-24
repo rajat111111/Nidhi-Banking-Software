@@ -1,7 +1,6 @@
 import { useState } from "react";
 import DynamicForm from "../../../components/DynamicForm";
 import * as Yup from "yup";
-import ForClosureRequrestLater from "../accounts/closeRequestLater/ForClosureRequrestLater";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
@@ -47,7 +46,7 @@ const RecieptPrint = () => {
 
   const validationSchema = Yup.object({
     accountNumber: Yup.string().required("Account number is required"),
-    memberName: Yup.string().required("Customer name is required"),
+    // memberName: Yup.string().required("Customer name is required"),
   });
   const handleSubmit = async (values, { resetForm }) => {
     try {

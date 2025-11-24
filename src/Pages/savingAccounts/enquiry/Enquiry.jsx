@@ -66,7 +66,6 @@ const Enquiry = () => {
     setSetshowDetails(true);
   };
 
-
   return (
     <PagesMainContainerStyle>
       <DynamicForm
@@ -81,7 +80,6 @@ const Enquiry = () => {
       />
       {setshowDetails && (
         <>
-          
           <PageHeader
             title="Enquiry Details"
             extraButtons={[
@@ -127,7 +125,7 @@ const Enquiry = () => {
               },
             ]}
           />
-<DynamicDataTable rows={rows} columns={columns} />
+          <DynamicDataTable rows={rows} columns={columns} />
         </>
       )}
     </PagesMainContainerStyle>

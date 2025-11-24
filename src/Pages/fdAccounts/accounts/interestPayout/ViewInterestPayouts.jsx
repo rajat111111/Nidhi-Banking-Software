@@ -8,9 +8,11 @@ const ViewInterestPayouts = () => {
   const { id } = useParams();
   const { data, isLoading } = useGetUserAllInterestPayoutlistQuery({ id });
 
-  const payoutData = data?.data || [];
+  // API returns a single object, not an array
+  const payoutData = data?.data || {};
+  const payouts = payoutData?.payouts || [];
 
-  console.log("payoutData:", payoutData);
+  console.log("API Response:", payoutData);
 
   return (
     <>
@@ -24,73 +26,42 @@ const ViewInterestPayouts = () => {
             title="Interest Payout Details"
           />
 
-          {payoutData.length > 0 ? (
-            payoutData.map((account, index) => (
-              <div key={index} style={{ marginBottom: "40px" }}>
-                
+          {payouts.length > 0 ? (
+            payouts.map((payout, index) => {
+              const key1 = ["Year", "No. of Days", "Interest", "Net Interest", "Status"];
 
-                {account.payouts?.length > 0 ? (
-                  account.payouts.map((payout, pIndex) => {
-                    const key1 = [
-                      "Year",
-                      "No. of Days",
-                      "Interest",
-                      "Net Interest",
-                      "Status",
-                    ];
-
-                    const pair1 = [
-                      payout.year || "N/A",
-                      payout.noOfDays || "N/A",
-                      `₹ ${payout.interest}` || "N/A",
-                      `₹ ${payout.netInterest}` || "N/A",
-                      payout.status === "Processed" ? (
-                        <strong style={{ color: "#1F9C00" }}>Processed</strong>
-                      ) : (
-                        <strong style={{ color: "#de1313ff" }}>Pending</strong>
-                      ),
-                    ];
-
-                    const key2 = [
-                      "Period",
-                      "Principal",
-                      "TDS",
-                      "Due By",
-                      "Processed",
-                    ];
-
-                    const pair2 = [
-                      payout.period || "N/A",
-                      `₹ ${payout.principal}` || "N/A",
-                      `₹ ${payout.tds}` || "N/A",
-                      payout.dueBy || "N/A",
-                      payout.processed ? "Yes" : "No",
-                    ];
-
-                    return (
-                      <InformationPage
-                        key={pIndex}
-                        key1={key1}
-                        pair1={pair1}
-                        key2={key2}
-                        pair2={pair2}
-                      />
-                    );
-                  })
+              const pair1 = [
+                payout.year || "N/A",
+                payout.noOfDays || "N/A",
+                payout.interest ? `₹ ${payout.interest}` : "N/A",
+                payout.netInterest ? `₹ ${payout.netInterest}` : "N/A",
+                payout.status === "Processed" ? (
+                  <strong style={{ color: "#1F9C00" }}>Processed</strong>
                 ) : (
-                  <div
-                    style={{
-                      padding: "20px",
-                      textAlign: "center",
-                      background: "#fafafa",
-                      borderRadius: "10px",
-                    }}
-                  >
-                    No payouts found for this account.
-                  </div>
-                )}
-              </div>
-            ))
+                  <strong style={{ color: "#de1313ff" }}>Pending</strong>
+                ),
+              ];
+
+              const key2 = ["Period", "Principal", "TDS", "Due By", "Processed"];
+
+              const pair2 = [
+                payout.period || "N/A",
+                payout.principal ? `₹ ${payout.principal}` : "N/A",
+                payout.tds ? `₹ ${payout.tds}` : "N/A",
+                payout.dueBy || "N/A",
+                payout.processed ? "Yes" : "No",
+              ];
+
+              return (
+                <InformationPage
+                  key={index}
+                  key1={key1}
+                  pair1={pair1}
+                  key2={key2}
+                  pair2={pair2}
+                />
+              );
+            })
           ) : (
             <div
               style={{
@@ -101,7 +72,7 @@ const ViewInterestPayouts = () => {
                 fontWeight: 500,
               }}
             >
-              No Data Found
+              No Payouts Found
             </div>
           )}
         </>

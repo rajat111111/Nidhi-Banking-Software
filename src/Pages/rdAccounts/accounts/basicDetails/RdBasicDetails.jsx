@@ -32,6 +32,7 @@ const RdBasicDetails = () => {
     tdsDeduction,
     autoRenew,
     address,
+    closureApprovalId
   } = basicDetails;
 
   const formatDate = (date) =>
@@ -45,6 +46,8 @@ const RdBasicDetails = () => {
     const normalized = status.toLowerCase();
     if (normalized === "closed")
       return <StatusBadge color="#de1313">Closed</StatusBadge>;
+      if (status === "Closure_Approval")
+      return <StatusBadge color="#de7913ff">Closure Request</StatusBadge>;
     if (normalized === "pending")
       return <StatusBadge color="#e6b800">Pending</StatusBadge>;
     return <StatusBadge color="#1F9C00">Active</StatusBadge>;
@@ -92,6 +95,7 @@ const RdBasicDetails = () => {
     "Balance",
     "Interest Payout",
     "TDS Deduction",
+    "Closure Request Id",
     "Auto Renewal",
     "Address",
   ];
@@ -108,6 +112,7 @@ const RdBasicDetails = () => {
     ) : (
       <NoContainer>No</NoContainer>
     ),
+closureApprovalId || "N/A",
     autoRenew ? (
       <YesContainer>Yes</YesContainer>
     ) : (
@@ -130,7 +135,7 @@ const RdBasicDetails = () => {
 export default RdBasicDetails;
 
 const StatusBadge = styled("div")(({ color }) => ({
-  width: "120px",
+  width: "auto",
   height: "30px",
   padding: "0 12px",
   backgroundColor: color,

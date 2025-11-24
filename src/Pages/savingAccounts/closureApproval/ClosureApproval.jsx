@@ -4,10 +4,15 @@ import * as Yup from "yup";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
-import { useLazyGetClosedAccountListByAccountNumberQuery } from "../../../features/api/savingAccounts";
+import {
+  useApproveClosureSavingAccountMutation,
+  useLazyGetClosedAccountListByAccountNumberQuery,
+} from "../../../features/api/savingAccounts";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
 import { Alert, Snackbar } from "@mui/material";
 import { capitalizeFirstLetter } from "../../../helper/helper";
+import DynamicButton from "../../../components/DynamicButton";
+import SubmitButtonLoader from "../../../components/SubmitButtonLoader";
 
 const ClosureApproval = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -17,19 +22,37 @@ const ClosureApproval = () => {
     severity: "",
   });
 
-  const [triggerGetClosedAccounts, { data, isLoading, isError, error, isSuccess }] =
-    useLazyGetClosedAccountListByAccountNumberQuery();
+  const [
+    triggerGetClosedAccounts,
+    { data, isLoading, isError, error, isSuccess },
+  ] = useLazyGetClosedAccountListByAccountNumberQuery();
 
   const listClosedAccounts = data?.data || [];
 
-  // ✅ Search form fields
+  const [
+    approveClosureSavingAccount,
+    {
+      data: approveClosureAccntData,
+      isError: approveClosureAccntIsError,
+      isLoading: approveClosureAccntLoading,
+      error: approveClosureAccntError,
+      isSuccess: approveClosureAccntSuccess,
+    },
+  ] = useApproveClosureSavingAccountMutation();
+
   const formList = [
     {
       label: "Close ID",
-      type:"number",
+      type: "number",
       placeholder: "Enter Close ID",
-      name: "closeAccountId",
-      id: "closeAccountId",
+      name: "closureApprovalId",
+      id: "closureApprovalId",
+    },
+    {
+      label: "Account Number",
+      placeholder: "Enter Account Number",
+      name: "accountNumber",
+      id: "accountNumber",
     },
     {
       label: "Member Name",
@@ -38,76 +61,114 @@ const ClosureApproval = () => {
       name: "memberName",
       id: "memberName",
     },
-    {
-      label: "Account Number",
-      placeholder: "Enter Account Number",
-      name: "accountNumber",
-      id: "accountNumber",
-    },
   ];
 
   const initialValues = {
     accountNumber: "",
     memberName: "",
-    closeAccountId: "",
+    closureApprovalId: "",
   };
 
   const validationSchema = Yup.object({
     accountNumber: Yup.string().required("Account number is required"),
-    memberName: Yup.string().required("Member name is required"),
-    closeAccountId: Yup.number()
-          .required("Close ID is required")
-          .positive("Close ID must be positive")
-          .typeError("Close ID must be a number"),
+    closureApprovalId: Yup.number()
+      .required("Close ID is required")
+      .positive("Close ID must be positive")
+      .typeError("Close ID must be a number"),
   });
 
-  // ✅ Handle Search Submit
   const handleSubmit = async (values, { resetForm }) => {
     try {
       const result = await triggerGetClosedAccounts(values).unwrap();
       if (result?.success || result?.data?.length > 0) {
         setShowDetails(true);
+        resetForm();
       } else {
         setShowDetails(false);
       }
-      resetForm();
     } catch (err) {
       console.error("Error fetching closed accounts:", err);
       setShowDetails(false);
     }
   };
 
-  // ✅ Table columns
+  const handleApproveClosure = async (id) => {
+    console.log("id");
+    try {
+      await approveClosureSavingAccount(id).unwrap();
+    } catch (err) {
+      console.error("Error approving closure:", err);
+    }
+  };
+
   const columns = [
     { id: "id", label: "#", minWidth: 50 },
-    { id: "closeAccountId", label: "Close ID", minWidth: 180 },
+    { id: "closureApprovalId", label: "Close ID", minWidth: 120 },
     { id: "memberId", label: "Member Name", minWidth: 180 },
-    { id: "branchId", label: "Branch Name", minWidth: 120 },
+    { id: "branchId", label: "Branch Name", minWidth: 150 },
     { id: "accountNumber", label: "Account No.", minWidth: 150 },
     { id: "accountType", label: "Account Type", minWidth: 120 },
-    { id: "releaseAmount", label: "Release Amount", minWidth: 120 },
+    { id: "releaseAmount", label: "Release Amount", minWidth: 140 },
     { id: "openDate", label: "Open Date", minWidth: 120 },
     { id: "remark", label: "Remark", minWidth: 120 },
-    { id: "closeTxn", label: "Close TXN. Date", minWidth: 140 },
+    { id: "closeTxn", label: "Close TXN Date", minWidth: 150 },
     { id: "closePaymentMode", label: "Close Payment Mode", minWidth: 140 },
-    { id: "status", label: "Status", minWidth: 120 },
+    { id: "status", label: "Status", minWidth: 140 },
+    { id: "action", label: "Action", minWidth: 140 },
   ];
 
-  // ✅ Table rows
   const rows =
     listClosedAccounts?.map((curList, i) => ({
       id: i + 1,
-      closeAccountId: curList?.id || "N/A",
+      closureApprovalId: curList?.id || "N/A",
       memberId: curList?.memberName || "N/A",
       branchId: curList?.branchName || "N/A",
       accountNumber: curList?.accountNumber || "N/A",
       accountType: capitalizeFirstLetter(curList?.accountType) || "N/A",
-      releaseAmount: `₹ ${curList?.depositAmount }`|| "N/A",
+      releaseAmount: curList?.depositAmount
+        ? `₹ ${Number(curList.depositAmount).toLocaleString("en-IN")}`
+        : "N/A",
       openDate: curList?.openDate || "N/A",
       remark: curList?.closeRemark || "N/A",
       closeTxn: curList?.closeTransactionDate || "N/A",
-      closePaymentMode: capitalizeFirstLetter(curList?.closePaymentMode) || "N/A",
-      status: curList?.status==="closed" && <strong style={{color:"#e91212ff"}} >{capitalizeFirstLetter(curList?.status )}</strong> || "N/A",
+      closePaymentMode:
+        capitalizeFirstLetter(curList?.closePaymentMode) || "N/A",
+      status:
+        curList?.status === "closed" ? (
+          <strong style={{ color: "#e91212ff" }}>Saving Account Closed</strong>
+        ) : curList?.status === "Closure_Approval" ? (
+          <strong style={{ color: "#d86733ff" }}>Pending Approval</strong>
+        ) : (
+          <strong style={{ color: "#0D6A84" }}>
+            {capitalizeFirstLetter(curList?.status || "N/A")}
+          </strong>
+        ),
+      action:
+        curList?.status === "Closure_Approval" ? (
+          <DynamicButton
+            text={
+              <SubmitButtonLoader
+                isLoading={approveClosureAccntLoading}
+                text="Approve"
+                loaderColor="#0D6A84"
+                texting="Please Wait "
+              />
+            }
+            variant="outlined"
+            borderColor="#0D6A84"
+            textColor="#0D6A84"
+            // texting="Approving"
+            // isLoading={approveClosureAccntLoading}
+            onClick={() => handleApproveClosure(curList?.id)}
+          />
+        ) : (
+          <DynamicButton
+            text="View"
+            variant="outlined"
+            borderColor="#0D6A84"
+            textColor="#0D6A84"
+          />
+        ),
     })) || [];
 
   const handleCloseSnackbar = () =>
@@ -115,7 +176,6 @@ const ClosureApproval = () => {
 
   return (
     <PagesMainContainerStyle>
-      {/* 🔹 Search Form */}
       <DynamicForm
         headerTitle="Closure Approval"
         formList={formList}
@@ -129,13 +189,20 @@ const ClosureApproval = () => {
         isLoading={isLoading}
       />
 
-      {/* 🔹 Snackbar Alerts */}
       <ErrorAndSuccessUseEffect
         isError={isError}
         isSuccess={isSuccess}
         error={error}
         data={data}
         setSnackbar={setSnackbar}
+      />
+      <ErrorAndSuccessUseEffect
+        isError={approveClosureAccntIsError}
+        isSuccess={approveClosureAccntSuccess}
+        error={approveClosureAccntError}
+        data={approveClosureAccntData}
+        setSnackbar={setSnackbar}
+        whereToNavigate="/saving-accounts"
       />
 
       <Snackbar
@@ -154,7 +221,6 @@ const ClosureApproval = () => {
         </Alert>
       </Snackbar>
 
-      {/* 🔹 Table Section */}
       {showDetails && (
         <>
           <PageHeader title="Foreclosure Request Letter" />

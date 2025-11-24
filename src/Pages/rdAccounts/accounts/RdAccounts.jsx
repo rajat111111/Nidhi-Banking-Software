@@ -5,10 +5,10 @@ import { styled } from "@mui/material";
 import DynamicButton from "../../../components/DynamicButton";
 import { NavLink } from "react-router-dom";
 import { capitalizeFirstLetter } from "../../../helper/helper";
-import { useGetAllRdAccountsQuery } from "../../../features/api/rdAccounts";
+import { useGetAllRdAccountsQuery, useGetAllRdAccountsWithoutPendingStatusQuery } from "../../../features/api/rdAccounts";
 
 const RdAccounts = () => {
-  const { data, isLoading } = useGetAllRdAccountsQuery();
+  const { data, isLoading } = useGetAllRdAccountsWithoutPendingStatusQuery();
   const rdAccountsList = data?.data || [];
 
   const ActionButtonContainer = styled("div")({
@@ -40,19 +40,16 @@ const RdAccounts = () => {
     id: i + 1,
     rdNo: curList?.accountNumber || "N/A",
     memberNo: curList?.member?.id || "N/A",
-    memberName:
-      `${curList?.member?.title || ""} ${curList?.member?.firstName || ""} ${
-        curList?.member?.lastName || ""
-      }`.trim() || "N/A",
+    memberName:curList?.memberName || "N/A",
     accountType: curList?.member?.accountType || "N/A",
-    branch: curList?.branch?.name || "N/A",
-    agentName: curList?.agent?.name || "N/A",
+    branch: curList?.branchName || "N/A",
+    agentName: curList?.agentName || "N/A",
     planName: curList?.planName || "N/A",
     amount: curList?.amount ? `₹ ${curList?.amount}` : "₹ 0",
     txnDate: curList?.txnDate || "N/A",
     payMode: capitalizeFirstLetter(curList?.paymentMode) || "N/A",
-    openDate: curList?.createdAt
-      ? new Date(curList?.createdAt).toLocaleDateString()
+    openDate: curList?.openDate
+      ? new Date(curList?.openDate).toLocaleDateString()
       : "N/A",
     maturityDate: curList?.maturityDate
       ? new Date(curList?.maturityDate).toLocaleDateString()
@@ -72,7 +69,7 @@ const RdAccounts = () => {
             localStorage.setItem("accountNumber", curList?.accountNumber)
           }
           component={NavLink}
-          to={`/rd-accounts/${curList?.member?.id}/account-details`}
+          to={`/rd-accounts/${curList?.id}/account-details`}
         />
       </ActionButtonContainer>
     ),

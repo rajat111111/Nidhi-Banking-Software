@@ -9,10 +9,8 @@ import {
   TablePagination,
   TableRow,
   IconButton,
-  CircularProgress,
 } from "@mui/material";
 import { Riple } from "react-loading-indicators";
-
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -22,7 +20,6 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const handleChangePage = (event, newPage) => setPage(newPage);
-
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
@@ -55,7 +52,6 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
                   sx={{
                     backgroundColor: "#0D5F76",
                     color: "#000000",
-
                   }}
                 >
                   Actions
@@ -68,7 +64,7 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} align="center">
-              <Riple color="#7d3cd2ff" size="medium" text="" textColor="" />
+                <Riple color="#7d3cd2ff" size="medium" text="" textColor="" />
               </TableCell>
             </TableRow>
           ) : (
@@ -92,7 +88,7 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
                             <TableCell
                               key={column.id}
                               align={column.align || "left"}
-                              sx={{ whiteSpace: "nowrap",color:"#8F8F8F" }}
+                              sx={{ whiteSpace: "nowrap", color: "#8F8F8F" }}
                             >
                               {column.format && typeof value === "number"
                                 ? column.format(value)

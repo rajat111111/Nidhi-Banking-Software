@@ -145,7 +145,25 @@ const menuItems = [
     ],
   },
   { label: "DD Accounts", path: "/dd", icon: <AccountBalanceWalletIcon /> },
-  { label: "MIS Accounts", path: "/mis", icon: <AssessmentIcon /> },
+  {
+    label: "MIS Accounts",
+    icon: <AttachMoneyIcon />,
+    children: [
+      { label: "Accounts", path: "/mis-accounts" },
+
+      { label: "Statement", path: "/mis-accounts/statement" },
+
+      { label: "Enquiry", path: "/mis-accounts/enquiry" },
+      { label: "Approval", path: "/mis-accounts/approval" },
+      { label: "Closure Approval", path: "/mis-accounts/closure-approval" },
+      { label: "Receipt ", path: "/mis-accounts/receipt-print" },
+
+      {
+        label: "Change Account Type",
+        path: "/mis-accounts/change-account-type",
+      },
+    ],
+  },
 
   { label: "Gold Loan", path: "/gold-loan", icon: <AttachMoneyIcon /> },
   { label: "Vehicle Loan", path: "/vehicle-loan", icon: <DirectionsCarIcon /> },

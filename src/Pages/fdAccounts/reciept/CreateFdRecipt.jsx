@@ -18,32 +18,43 @@ const CreateFdReceipt = () => {
     severity: "",
   });
 
+  const handleCloseSnackbar = () =>
+    setSnackbar((prev) => ({ ...prev, open: false }));
+
   const { data } = useGetAllMebersQuery();
   const membersList = data?.data || [];
 
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
+  const [selectedMemberFdAccounts, setSelectedMemberFdAccounts] = useState([]);
 
   const [
     createFdRecieptPrint,
     { data: recieptPrintData, isLoading, isError, error, isSuccess },
   ] = useCreateFdRecieptPrintMutation();
 
+  // 🔧 Handle Form Submit
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      await createFdRecieptPrint(values).unwrap();
+      const payload = {
+        ...values,
+        memberId: changeStringToNumber(values.memberId),
+        amount: Number(values.amount),
+      };
+
+      await createFdRecieptPrint(payload).unwrap();
+
       resetForm();
       setSelectedPaymentMode("");
+      setSelectedMemberFdAccounts([]);
     } catch (error) {
-      console.log(error);
+      console.error("FD Receipt Creation Error:", error);
     }
   };
 
-  const handleCloseSnackbar = () =>
-    setSnackbar((prev) => ({ ...prev, open: false }));
-
-  // Dynamic form fields
+  // 🧠 Dynamic Form Fields
   const formList = useMemo(() => {
     const baseFields = [
+      // SELECT MEMBER
       {
         label: "Member ID",
         type: "select",
@@ -54,6 +65,7 @@ const CreateFdReceipt = () => {
             value: changeStringToNumber(curMember?.id),
             label: `${curMember.firstName} ${curMember.lastName} (${curMember?.id})`,
           })) || [],
+
         onChange: (e, formikHandleChange, formikValues, setFieldValue) => {
           const selectedMemberId = Number(e.target.value);
           setFieldValue("memberId", selectedMemberId);
@@ -61,18 +73,21 @@ const CreateFdReceipt = () => {
           const selectedMember = membersList.find(
             (member) => member.id === selectedMemberId
           );
-          console.log("selectedMember", selectedMember);
 
           if (selectedMember) {
-            setFieldValue(
-              "accountId",
-              selectedMember?.bankAccountDetails?.accountNumber || ""
-            );
+            // Set FD Accounts
+            const fdAccounts = selectedMember?.fdAccounts || [];
+            setSelectedMemberFdAccounts(fdAccounts);
+
+            // Clear dropdown value
+            setFieldValue("accountNumber", "");
+
             setFieldValue(
               "bankName",
               selectedMember?.bankAccountDetails?.bankName || ""
             );
             setFieldValue("branchName", selectedMember?.branch?.name || "");
+
             setFieldValue(
               "memberName",
               `${selectedMember?.firstName || ""} ${
@@ -82,22 +97,36 @@ const CreateFdReceipt = () => {
           }
         },
       },
+
+      // FD ACCOUNT NUMBER (DYNAMIC)
       {
         label: "FD Account Number",
-        type: "number",
-        placeholder: "Auto-filled Account Number",
-        name: "accountId",
-        id: "accountId",
-        disabled: true,
+        type: "select",
+        name: "accountNumber",
+        id: "accountNumber",
+        options:
+          selectedMemberFdAccounts.length > 0
+            ? selectedMemberFdAccounts.map((acc) => ({
+                value: acc.accountNumber,
+                label: acc.accountNumber,
+              }))
+            : [
+                {
+                  label: "No FD Account Found",
+                  value: "",
+                },
+              ],
       },
+
       {
         label: "Member Name",
-        readOnly: true,
-        disabled: true,
-        placeholder: "Auto-filled after selecting Member",
+        type: "text",
         name: "memberName",
         id: "memberName",
+        disabled: true,
+        placeholder: "Auto-filled after selecting Member",
       },
+
       {
         label: "Transaction Type",
         type: "select",
@@ -108,12 +137,14 @@ const CreateFdReceipt = () => {
           { label: "Withdrawal", value: "withdrawal" },
         ],
       },
+
       {
         label: "Receipt Date",
         type: "date",
-        name: "reciptDate",
-        id: "reciptDate",
+        name: "receiptDate",
+        id: "receiptDate",
       },
+
       {
         label: "Amount",
         type: "number",
@@ -121,6 +152,7 @@ const CreateFdReceipt = () => {
         placeholder: "Enter Amount",
         id: "amount",
       },
+
       {
         label: "Mode Of Payment",
         type: "select",
@@ -139,71 +171,63 @@ const CreateFdReceipt = () => {
       },
     ];
 
-    // Conditionally show cheque number if mode is cheque
+    // IF CHEQUE MODE → SHOW CHEQUE FIELD
     if (selectedPaymentMode === "cheque") {
       baseFields.push({
         label: "Cheque Number",
         type: "number",
         name: "chequeNumber",
-        placeholder: "Enter Cheque Number",
         id: "chequeNumber",
+        placeholder: "Enter Cheque Number",
       });
     }
 
-    // Common fields
     baseFields.push(
       {
         label: "Bank Name",
+        type: "text",
         name: "bankName",
+        id: "bankName",
         disabled: true,
         placeholder: "Auto-filled Bank Name",
-        id: "bankName",
       },
       {
         label: "Branch Name",
+        type: "text",
         name: "branchName",
+        id: "branchName",
         disabled: true,
         placeholder: "Auto-filled Branch Name",
-        id: "branchName",
       },
       {
         label: "Remarks",
         type: "textarea",
         name: "remarks",
-        placeholder: "Enter Remarks",
         id: "remarks",
+        placeholder: "Enter Remarks",
       },
       {
         label: "Status",
         type: "select",
         name: "status",
+        id: "status",
         options: [
-          {
-            label: "Pending",
-            value: "pending",
-          },
-          {
-            label: "Approve",
-            value: "approve",
-          },
-          {
-            label: "Reject",
-            value: "reject",
-          },
+          { label: "Pending", value: "pending" },
+          { label: "Approve", value: "approve" },
+          { label: "Reject", value: "reject" },
         ],
       }
     );
 
     return baseFields;
-  }, [membersList, selectedPaymentMode]);
+  }, [membersList, selectedPaymentMode, selectedMemberFdAccounts]);
 
-  // Validation schema
+  // ✔ VALIDATION
   const validationSchema = Yup.object({
     memberId: Yup.number().required("Member is required"),
-    accountId: Yup.string().required("Account number is required"),
+    accountNumber: Yup.string().required("FD Account Number is required"),
     transactionType: Yup.string().required("Transaction type is required"),
     amount: Yup.number()
-      .typeError("Amount must be a number")
       .positive("Amount must be positive")
       .required("Amount is required"),
     paymentMode: Yup.string().required("Mode of payment is required"),
@@ -213,25 +237,25 @@ const CreateFdReceipt = () => {
     }),
   });
 
-  // Initial form values
+  // ✔ INITIAL VALUES
   const initialValues = {
     memberId: "",
-    accountId: "",
+    accountNumber: "",
     memberName: "",
     transactionType: "",
-    reciptDate: "",
+    receiptDate: "",
     amount: "",
     paymentMode: "",
     chequeNumber: "",
     bankName: "",
     branchName: "",
     remarks: "",
-    status:""
+    status: "",
   };
 
   return (
     <PagesMainContainerStyle>
-      <PageTopContent title="Create Receipt" />
+      <PageTopContent title="Create FD Receipt" />
 
       <DynamicForm
         formList={formList}

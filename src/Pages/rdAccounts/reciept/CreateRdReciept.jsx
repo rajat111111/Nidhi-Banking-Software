@@ -4,9 +4,9 @@ import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle
 import DynamicForm from "../../../components/DynamicForm";
 import PageTopContent from "../../../components/PageTopContent";
 import {
-  useCreateRecieptMutation,
   useGetAllMebersQuery,
 } from "../../../features/api/savingAccounts";
+import { useCreateRdRecieptPrintMutation } from "../../../features/api/rdAccounts";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
 import { Alert, Snackbar } from "@mui/material";
 import { changeStringToNumber } from "../../../helper/helper";
@@ -22,17 +22,19 @@ const CreateRdReciept = () => {
   const membersList = data?.data || [];
 
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
+  const [selectedMemberAccounts, setSelectedMemberAccounts] = useState([]);
 
   const [
     createReciept,
     { data: recieptPrintData, isLoading, isError, error, isSuccess },
-  ] = useCreateRecieptMutation();
+  ] = useCreateRdRecieptPrintMutation();
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
       await createReciept(values).unwrap();
       resetForm();
       setSelectedPaymentMode("");
+      setSelectedMemberAccounts([]);
     } catch (error) {
       console.log(error);
     }
@@ -41,9 +43,9 @@ const CreateRdReciept = () => {
   const handleCloseSnackbar = () =>
     setSnackbar((prev) => ({ ...prev, open: false }));
 
-  // ✅ Dynamic form fields
   const formList = useMemo(() => {
     const baseFields = [
+      // SELECT MEMBER
       {
         label: "Member ID",
         type: "select",
@@ -54,20 +56,21 @@ const CreateRdReciept = () => {
             value: changeStringToNumber(curMember?.id),
             label: `${curMember.firstName} ${curMember.lastName} (${curMember?.id})`,
           })) || [],
+
         onChange: (e, formikHandleChange, formikValues, setFieldValue) => {
           const selectedMemberId = Number(e.target.value);
-                    setFieldValue("memberId", selectedMemberId);
+          setFieldValue("memberId", selectedMemberId);
 
           const selectedMember = membersList.find(
             (member) => member.id === selectedMemberId
           );
-          console.log("selectedMember",selectedMember)
 
           if (selectedMember) {
-            setFieldValue(
-              "accountId",
-              selectedMember?.bankAccountDetails?.accountNumber || ""
-            );
+            // --- STORE RD ACCOUNTS FOR THE DROPDOWN ---
+            const rdAccounts = selectedMember?.rdAccounts || [];
+            setSelectedMemberAccounts(rdAccounts);
+
+            // Auto populate values
             setFieldValue(
               "bankName",
               selectedMember?.bankAccountDetails?.bankName || ""
@@ -79,25 +82,44 @@ const CreateRdReciept = () => {
                 selectedMember?.lastName || ""
               }`
             );
+
+            // Reset accountNumber so user can choose from dropdown
+            setFieldValue("accountNumber", "");
           }
         },
       },
-      {
-        label: "RD Account Number",
-        type: "number",
-        placeholder: "Auto-filled Account Number",
-        name: "accountId",
-        id: "accountId",
-        disabled: true,
-      },
+
+      // RD ACCOUNT NUMBER DROPDOWN (FILLED DYNAMICALLY)
+     {
+  label: "RD Account Number",
+  type: "select",
+  placeholder: "Select RD Account",
+  name: "accountNumber",
+  id: "accountNumber",
+  options:
+    selectedMemberAccounts.length > 0
+      ? selectedMemberAccounts.map((acc) => ({
+          value: acc.accountNumber,
+          label: acc.accountNumber,
+        }))
+      : [
+          {
+            label: "No RD Account Found",
+            value: "",
+          },
+        ],
+},
+
+
       {
         label: "Member Name",
         readOnly: true,
         disabled: true,
-        placeholder: "Auto-filled after selecting Member",
+        placeholder: "Auto-filled",
         name: "memberName",
         id: "memberName",
       },
+
       {
         label: "Transaction Type",
         type: "select",
@@ -121,6 +143,8 @@ const CreateRdReciept = () => {
         placeholder: "Enter Amount",
         id: "amount",
       },
+
+      // PAYMENT MODE
       {
         label: "Mode Of Payment",
         type: "select",
@@ -139,7 +163,7 @@ const CreateRdReciept = () => {
       },
     ];
 
-    // ✅ Conditionally show cheque number if mode is cheque
+    // CHEQUE FIELD IF USER SELECTS CHEQUE
     if (selectedPaymentMode === "cheque") {
       baseFields.push({
         label: "Cheque Number",
@@ -150,20 +174,20 @@ const CreateRdReciept = () => {
       });
     }
 
-    // ✅ Common fields
+    // AUTO FILLED FIELDS
     baseFields.push(
       {
         label: "Bank Name",
         name: "bankName",
         disabled: true,
-        placeholder: "Auto-filled Bank Name",
+        placeholder: "Bank Name",
         id: "bankName",
       },
       {
         label: "Branch Name",
         name: "branchName",
         disabled: true,
-        placeholder: "Auto-filled Branch Name",
+        placeholder: "Branch Name",
         id: "branchName",
       },
       {
@@ -176,28 +200,26 @@ const CreateRdReciept = () => {
     );
 
     return baseFields;
-  }, [membersList, selectedPaymentMode]);
+  }, [membersList, selectedPaymentMode, selectedMemberAccounts]);
 
-  // ✅ Validation schema
   const validationSchema = Yup.object({
     memberId: Yup.number().required("Member is required"),
-    accountId: Yup.string().required("Account number is required"),
+    accountNumber: Yup.string().required("Account number is required"),
     transactionType: Yup.string().required("Transaction type is required"),
     amount: Yup.number()
       .typeError("Amount must be a number")
       .positive("Amount must be positive")
       .required("Amount is required"),
-    paymentMode: Yup.string().required("Mode of payment is required"),
+    paymentMode: Yup.string().required("Payment mode is required"),
     chequeNumber: Yup.string().when("paymentMode", {
       is: "cheque",
-      then: (schema) => schema.required("Cheque Number is required"),
+      then: (schema) => schema.required("Cheque number is required"),
     }),
   });
 
-  // ✅ Initial form values
   const initialValues = {
     memberId: "",
-    accountId: "",
+    accountNumber: "",
     memberName: "",
     transactionType: "",
     reciptDate: "",
@@ -211,7 +233,7 @@ const CreateRdReciept = () => {
 
   return (
     <PagesMainContainerStyle>
-      <PageTopContent title="Create Receipt" />
+      <PageTopContent title="Create RD Receipt" />
 
       <DynamicForm
         formList={formList}
@@ -229,7 +251,7 @@ const CreateRdReciept = () => {
         isSuccess={isSuccess}
         data={recieptPrintData}
         setSnackbar={setSnackbar}
-        whereToNavigate="/saving-accounts/receipt-print"
+        whereToNavigate="/rd-accounts/receipt-print"
       />
 
       <Snackbar

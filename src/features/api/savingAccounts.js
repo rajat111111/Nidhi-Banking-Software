@@ -21,6 +21,7 @@ export const savingAccounts = createApi({
     "GET_SAVING_ACCOUNT_ALL_STATUS_LIST",
     "GET_DEPOSITELIST_BY_ACCOUNT_NUMBER",
     "GET_RECIEPT_PRINT_LATEST_LIST",
+    "GET_LATEST_CLOSURE_APPROVALS",
   ],
 
   endpoints: (builder) => ({
@@ -40,7 +41,7 @@ export const savingAccounts = createApi({
     }),
     getAllMebers: builder.query({
       query: () => ({
-        url: `/members`,
+        url: `/members/all`,
         method: "GET",
       }),
     }),
@@ -220,7 +221,7 @@ export const savingAccounts = createApi({
     }),
     getRecieptPrintList: builder.query({
       query: ({ memberName, accountNumber }) => ({
-        url: `saving-account/receipt-print/all`,
+        url: `saving-receipt-print/search`,
         method: "GET",
         params: {
           memberName,
@@ -231,23 +232,39 @@ export const savingAccounts = createApi({
     }),
     createReciept: builder.mutation({
       query: (values) => ({
-        url: `saving-account/receipt-print`,
+        url: `saving-receipt-print`,
         method: "POST",
         body: values,
       }),
       invalidatesTags: ["GET_RECIEPT_PRINT_LATEST_LIST"],
     }),
     getClosedAccountListByAccountNumber: builder.query({
-      query: ({ closeAccountId, memberName, accountNumber }) => ({
-        url: `saving-account/closed`,
+      query: ({ closureApprovalId, memberName, accountNumber }) => ({
+        url: `saving-account/closure-approvals`,
         method: "GET",
-        params: {
-          closeAccountId,
-          memberName,
-          accountNumber,
-        },
+        params: { closureApprovalId, memberName, accountNumber },
       }),
+      providesTags: ["GET_LATEST_CLOSURE_APPROVALS"],
     }),
+
+    approveClosureSavingAccount: builder.mutation({
+      query: (id) => ({
+        url: `saving-account/approve-closure/${id}`,
+        method: "PUT",
+      }),
+      invalidatesTags: [
+        "GET_LATEST_CLOSURE_APPROVALS",
+        "GET_LATEST_SAVING_DATA_LIST",
+        "GET_ACCOUNT_DETAILS",
+      ],
+    }),
+    submitSavingAccountDocs:builder.mutation({
+      query:({values,id})=>({
+        url:`saving-accounts/documents/${id}`,
+        method:"POST",
+        body:values
+      })
+    })
   }),
 });
 
@@ -276,4 +293,6 @@ export const {
   useLazyGetRecieptPrintListQuery,
   useCreateRecieptMutation,
   useLazyGetClosedAccountListByAccountNumberQuery,
+  useApproveClosureSavingAccountMutation,
+  useSubmitSavingAccountDocsMutation
 } = savingAccounts;

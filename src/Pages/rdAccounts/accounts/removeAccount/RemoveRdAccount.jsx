@@ -5,8 +5,8 @@ import SubmitButtonLoader from "../../../../components/SubmitButtonLoader";
 import PagesMainContainerStyle from "../../../../components/PagesMainContainerStyle";
 import WarningDialogBox from "../../../../components/WarningDialogBox";
 import { useState } from "react";
-import { useRemoveSavingAccountMutation } from "../../../../features/api/savingAccounts";
 import { useParams } from "react-router-dom";
+import { useRemoveRdAccountMutation } from "../../../../features/api/rdAccounts";
 
 const listOfThings = [
   "Remove Saving Account and all its transactions.",
@@ -26,8 +26,9 @@ const RemoveRdAccount = () => {
   });
 
   const { id } = useParams();
-  const [removeSavingAccount, { data, isLoading, isError, isSuccess, error }] =
-    useRemoveSavingAccountMutation();
+  console.log("rdId",id)
+  const [removeRdAccount, { data, isLoading, isError, isSuccess, error }] =
+    useRemoveRdAccountMutation();
 
   return (
     <>
@@ -73,9 +74,10 @@ const RemoveRdAccount = () => {
         error={error}
         data={data}
         snackbar={snackbar}
+        whereToNavigate="/rd-accounts"
         isLoading={isLoading}
         id={id}
-        performAction={removeSavingAccount}
+        performAction={removeRdAccount}
         setSnackbar={setSnackbar}
       />
     </>

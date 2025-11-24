@@ -4,32 +4,63 @@ import * as Yup from "yup";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
-import { useLazyGetClosedAccountListByAccountNumberQuery } from "../../../features/api/savingAccounts";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
 import { Alert, Snackbar } from "@mui/material";
 import { capitalizeFirstLetter } from "../../../helper/helper";
+import { useApproveClosureRdAccountMutation, useFetchRdClosedAcntByFdAcntNoAndMemberNameMutation } from "../../../features/api/rdAccounts";
+import SubmitButtonLoader from "../../../components/SubmitButtonLoader";
+import DynamicButton from "../../../components/DynamicButton";
 
 const RdClosureApproval = () => {
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "",
   });
 
-  const [triggerGetClosedAccounts, { data, isLoading, isError, error, isSuccess }] =
-    useLazyGetClosedAccountListByAccountNumberQuery();
+  const [
+    fetchRdClosedAcntByFdAcntNoAndMemberName,
+    { data, isLoading, isError, error, isSuccess },
+  ] = useFetchRdClosedAcntByFdAcntNoAndMemberNameMutation();
 
   const listClosedAccounts = data?.data || [];
 
-  // ✅ Search form fields
+
+    const [
+      approveClosureRdAccount,
+      {
+        data: approveClosureAccntData,
+        isError: approveClosureAccntIsError,
+        isLoading: approveClosureAccntLoading,
+        error: approveClosureAccntError,
+        isSuccess: approveClosureAccntSuccess,
+      },
+    ] = useApproveClosureRdAccountMutation();
+
+      const handleApproveClosure = async (id) => {
+    console.log("id");
+    try {
+      await approveClosureRdAccount(id).unwrap();
+    } catch (err) {
+      console.error("Error approving closure:", err);
+    }
+  };
+  
+
   const formList = [
     {
       label: "Close ID",
-      type:"number",
+      type: "number",
       placeholder: "Enter Close ID",
-      name: "closeAccountId",
-      id: "closeAccountId",
+      name: "closureApprovalId",
+      id: "closureApprovalId",
+    },
+    {
+      label: "RD Account Number",
+      placeholder: "Enter Account Number",
+      name: "accountNumber",
+      id: "accountNumber",
     },
     {
       label: "CusterName Name",
@@ -38,33 +69,28 @@ const RdClosureApproval = () => {
       name: "memberName",
       id: "memberName",
     },
-    {
-      label: "RD Account Number",
-      placeholder: "Enter Account Number",
-      name: "rdAccountNumber",
-      id: "rdAccountNumber",
-    },
   ];
 
   const initialValues = {
     accountNumber: "",
     memberName: "",
-    closeAccountId: "",
+    closureApprovalId: "",
   };
 
   const validationSchema = Yup.object({
     accountNumber: Yup.string().required("Account number is required"),
-    memberName: Yup.string().required("Member name is required"),
-    closeAccountId: Yup.number()
-          .required("Close ID is required")
-          .positive("Close ID must be positive")
-          .typeError("Close ID must be a number"),
+    // memberName: Yup.string().required("Member name is required"),
+    closureApprovalId: Yup.number()
+      .required("Close ID is required")
+      .positive("Close ID must be positive")
+      .typeError("Close ID must be a number"),
   });
 
-  // ✅ Handle Search Submit
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      const result = await triggerGetClosedAccounts(values).unwrap();
+      const result = await fetchRdClosedAcntByFdAcntNoAndMemberName(
+        values
+      ).unwrap();
       if (result?.success || result?.data?.length > 0) {
         setShowDetails(true);
       } else {
@@ -77,12 +103,11 @@ const RdClosureApproval = () => {
     }
   };
 
-  // ✅ Table columns
   const columns = [
     { id: "id", label: "#", minWidth: 50 },
-    { id: "closeAccountId", label: "Close ID", minWidth: 180 },
-    { id: "memberId", label: "Member ID", minWidth: 180 },
-    { id: "branchId", label: "Branch ID", minWidth: 120 },
+    { id: "closureApprovalId", label: "Close ID", minWidth: 180 },
+    { id: "memberId", label: "Member Name", minWidth: 180 },
+    { id: "branchId", label: "Branch Name", minWidth: 120 },
     { id: "rdAccountNumber", label: "RD Account No.", minWidth: 150 },
     { id: "interestRate", label: "Interest Rate", minWidth: 120 },
     { id: "tenure", label: "Tenure (Months)", minWidth: 120 },
@@ -95,21 +120,52 @@ const RdClosureApproval = () => {
     { id: "action", label: "Action", minWidth: 120 },
   ];
 
-  // ✅ Table rows
   const rows =
     listClosedAccounts?.map((curList, i) => ({
       id: i + 1,
-      closeAccountId: curList?.id || "N/A",
+      closureApprovalId: curList?.closeId || "N/A",
       memberId: curList?.memberName || "N/A",
       branchId: curList?.branchName || "N/A",
-      accountNumber: curList?.accountNumber || "N/A",
-      accountType: capitalizeFirstLetter(curList?.accountType) || "N/A",
-      releaseAmount: `₹ ${curList?.depositAmount }`|| "N/A",
-      openDate: curList?.openDate || "N/A",
-      remark: curList?.closeRemark || "N/A",
-      closeTxn: curList?.closeTransactionDate || "N/A",
-      closePaymentMode: capitalizeFirstLetter(curList?.closePaymentMode) || "N/A",
-      status: curList?.status==="closed" && <strong style={{color:"#e91212ff"}} >{capitalizeFirstLetter(curList?.status )}</strong> || "N/A",
+      rdAccountNumber: curList?.accountNumber || "N/A",
+      interestRate: curList?.annualInterestRate || "N/A",
+      tenure: curList?.tenure || "N/A",
+      startDate: new Date(curList?.startDate).toLocaleString() || "N/A",
+      maturityDate: new Date(curList?.maturityDate).toLocaleString() || "N/A",
+      releaseAmount: `₹ ${curList?.depositAmount}` || "N/A",
+      approvedDate:
+        new Date(curList?.approvedDate).toLocaleDateString() || "N/A",
+      approvedBy: curList?.approvedBy || "N/A",
+    status:
+
+          <strong style={{ color: "#e91212ff" }}>
+            {capitalizeFirstLetter(curList?.status)}
+          </strong>
+         ||
+        "N/A",
+      action:
+        curList?.status === "Closure_Approval" ? (
+          <DynamicButton
+            text={
+              <SubmitButtonLoader
+                isLoading={approveClosureAccntLoading}
+                text="Approve"
+                loaderColor="#0D6A84"
+                texting="Please Wait "
+              />
+            }
+            variant="outlined"
+            borderColor="#0D6A84"
+            textColor="#0D6A84"
+            onClick={() => handleApproveClosure(curList?.id)}
+          />
+        ) : (
+          <DynamicButton
+            text="View"
+            variant="outlined"
+            borderColor="#0D6A84"
+            textColor="#0D6A84"
+          />
+        ),
     })) || [];
 
   const handleCloseSnackbar = () =>
@@ -117,7 +173,6 @@ const RdClosureApproval = () => {
 
   return (
     <PagesMainContainerStyle>
-      {/* 🔹 Search Form */}
       <DynamicForm
         headerTitle="Closure Approval"
         formList={formList}
@@ -131,13 +186,21 @@ const RdClosureApproval = () => {
         isLoading={isLoading}
       />
 
-      {/* 🔹 Snackbar Alerts */}
       <ErrorAndSuccessUseEffect
         isError={isError}
         isSuccess={isSuccess}
         error={error}
         data={data}
         setSnackbar={setSnackbar}
+      />
+
+    <ErrorAndSuccessUseEffect
+        isError={approveClosureAccntIsError}
+        isSuccess={approveClosureAccntSuccess}
+        error={approveClosureAccntError}
+        data={approveClosureAccntData}
+        setSnackbar={setSnackbar}
+        whereToNavigate="/rd-accounts"
       />
 
       <Snackbar
@@ -156,7 +219,6 @@ const RdClosureApproval = () => {
         </Alert>
       </Snackbar>
 
-      {/* 🔹 Table Section */}
       {showDetails && (
         <>
           <PageHeader title="Foreclosure Request Letter" />

@@ -22,6 +22,7 @@ const CreateReceipt = () => {
   const membersList = data?.data || [];
 
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
+  const [selectedMemberSavingAccounts, setSelectedMemberSavingAccounts] = useState([]);
 
   const [
     createReciept,
@@ -33,6 +34,7 @@ const CreateReceipt = () => {
       await createReciept(values).unwrap();
       resetForm();
       setSelectedPaymentMode("");
+      setSelectedMemberSavingAccounts([]);
     } catch (error) {
       console.log(error);
     }
@@ -41,9 +43,12 @@ const CreateReceipt = () => {
   const handleCloseSnackbar = () =>
     setSnackbar((prev) => ({ ...prev, open: false }));
 
-  // ✅ Dynamic form fields
+  // ---------------------------------------
+  //  Dynamic Form Fields
+  // ---------------------------------------
   const formList = useMemo(() => {
     const baseFields = [
+      // MEMBER ID FIELD
       {
         label: "Member ID",
         type: "select",
@@ -54,25 +59,26 @@ const CreateReceipt = () => {
             value: changeStringToNumber(curMember?.id),
             label: `${curMember.firstName} ${curMember.lastName} (${curMember?.id})`,
           })) || [],
+
         onChange: (e, formikHandleChange, formikValues, setFieldValue) => {
           const selectedMemberId = Number(e.target.value);
-                    setFieldValue("memberId", selectedMemberId);
+          setFieldValue("memberId", selectedMemberId);
 
           const selectedMember = membersList.find(
-            (member) => member.id === selectedMemberId
+            (m) => m.id === selectedMemberId
           );
-          console.log("selectedMember",selectedMember)
 
           if (selectedMember) {
-            setFieldValue(
-              "accountId",
-              selectedMember?.bankAccountDetails?.accountNumber || ""
-            );
+            const savingAccounts = selectedMember?.savingAccounts || [];
+            setSelectedMemberSavingAccounts(savingAccounts);
+
+            setFieldValue("accountId", "");
             setFieldValue(
               "bankName",
               selectedMember?.bankAccountDetails?.bankName || ""
             );
             setFieldValue("branchName", selectedMember?.branch?.name || "");
+
             setFieldValue(
               "memberName",
               `${selectedMember?.firstName || ""} ${
@@ -82,14 +88,27 @@ const CreateReceipt = () => {
           }
         },
       },
+
+      // ACCOUNT NUMBER FIELD (Now SELECT)
       {
         label: "Account Number",
-        type: "number",
-        placeholder: "Auto-filled Account Number",
+        type: "select",
         name: "accountId",
         id: "accountId",
-        disabled: true,
+        options:
+          selectedMemberSavingAccounts.length > 0
+            ? selectedMemberSavingAccounts.map((acc) => ({
+                value: acc.accountNumber,
+                label: acc.accountNumber,
+              }))
+            : [
+                {
+                  label: "No Saving Account Found",
+                  value: "",
+                },
+              ],
       },
+
       {
         label: "Member Name",
         readOnly: true,
@@ -98,6 +117,7 @@ const CreateReceipt = () => {
         name: "memberName",
         id: "memberName",
       },
+
       {
         label: "Transaction Type",
         type: "select",
@@ -108,12 +128,14 @@ const CreateReceipt = () => {
           { label: "Withdrawal", value: "withdrawal" },
         ],
       },
+
       {
         label: "Receipt Date",
         type: "date",
         name: "reciptDate",
         id: "reciptDate",
       },
+
       {
         label: "Amount",
         type: "number",
@@ -121,6 +143,8 @@ const CreateReceipt = () => {
         placeholder: "Enter Amount",
         id: "amount",
       },
+
+      // PAYMENT MODE
       {
         label: "Mode Of Payment",
         type: "select",
@@ -139,7 +163,7 @@ const CreateReceipt = () => {
       },
     ];
 
-    // ✅ Conditionally show cheque number if mode is cheque
+    // CHEQUE NUMBER FIELD IF CHEQUE SELECTED
     if (selectedPaymentMode === "cheque") {
       baseFields.push({
         label: "Cheque Number",
@@ -150,7 +174,7 @@ const CreateReceipt = () => {
       });
     }
 
-    // ✅ Common fields
+    // Common fields
     baseFields.push(
       {
         label: "Bank Name",
@@ -176,15 +200,16 @@ const CreateReceipt = () => {
     );
 
     return baseFields;
-  }, [membersList, selectedPaymentMode]);
+  }, [membersList, selectedPaymentMode, selectedMemberSavingAccounts]);
 
-  // ✅ Validation schema
+  // ---------------------------------------
+  //  Validation Schema
+  // ---------------------------------------
   const validationSchema = Yup.object({
     memberId: Yup.number().required("Member is required"),
     accountId: Yup.string().required("Account number is required"),
     transactionType: Yup.string().required("Transaction type is required"),
     amount: Yup.number()
-      .typeError("Amount must be a number")
       .positive("Amount must be positive")
       .required("Amount is required"),
     paymentMode: Yup.string().required("Mode of payment is required"),
@@ -194,7 +219,9 @@ const CreateReceipt = () => {
     }),
   });
 
-  // ✅ Initial form values
+  // ---------------------------------------
+  //  Initial Values
+  // ---------------------------------------
   const initialValues = {
     memberId: "",
     accountId: "",

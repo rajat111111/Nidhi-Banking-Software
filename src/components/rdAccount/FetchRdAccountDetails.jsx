@@ -1,13 +1,13 @@
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
 import { Alert, Snackbar } from "@mui/material";
-import DynamicForm from "../components/DynamicForm";
-import PagesMainContainerStyle from "../components/PagesMainContainerStyle";
-import DynamicDataTable from "./DynamicTable";
-import ErrorAndSuccessUseEffect from "./ErrorAndSuccessUseEffect";
-import { useLazyGetDeposiListByAccountNumberQuery } from "../features/api/savingAccounts";
+import DynamicForm from "../DynamicForm";
+import PagesMainContainerStyle from "../PagesMainContainerStyle";
+import DynamicDataTable from "../DynamicTable";
+import ErrorAndSuccessUseEffect from "../ErrorAndSuccessUseEffect";
+import { useLazyFetchRdAccontStatementsByFdAccountQuery } from "../../features/api/rdAccounts";
 
-const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumberFormLabel,accntNumberLabel }) => {
+const FetchRdAccountDetails = ({ setShowDetails, showDetails, title }) => {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -15,9 +15,9 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumb
   });
 
   const [
-    triggerGetDeposiList,
+    triggerGetFdDetails,
     { data, isLoading, isError, isSuccess, error },
-  ] = useLazyGetDeposiListByAccountNumberQuery();
+  ] = useLazyFetchRdAccontStatementsByFdAccountQuery();
 
   const details = data?.data || {};
 
@@ -36,8 +36,8 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumb
   //  Form Fields
   const formList = [
     {
-      label:AccountNumberFormLabel  || "Account Number",
-      placeholder: "Enter Account Number",
+      label:"RD Account Number",
+      placeholder: "Enter RD Account Number",
       name: "accountNumber",
       id: "accountNumber",
     },
@@ -52,7 +52,7 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumb
 
   // Table Columns & Rows
   const columns1 = [
-    { id: "accountNo", label:accntNumberLabel, minWidth: 120 },
+    { id: "accountNo", label:"RD Account No.", minWidth: 120 },
     { id: "memberName", label: "Member Name", minWidth: 120 },
     { id: "branchName", label: "Branch Name", minWidth: 120 },
     { id: "availableBalance", label: "Available Balance (₹)", minWidth: 120 },
@@ -62,7 +62,7 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumb
 
   const rows1 = [
     {
-      accountNo: details?.savingAccountNo || "N/A",
+      accountNo: details?.accountNumber || "N/A",
       memberName: details?.memberName || "N/A",
       branchName: details?.branchName || "N/A",
       availableBalance: details?.availableBalance
@@ -80,21 +80,22 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumb
   // Validation
   const validationSchema = Yup.object({
     accountNumber: Yup.string().required("Account number is required"),
-    memberName: Yup.string()
-      .required("Member name is required")
-      .matches(/^[A-Za-z\s]+$/, "Customer name must only contain letters"),
+    // memberName: Yup.string()
+    //   .required("Member name is required")
+    //   .matches(/^[A-Za-z\s]+$/, "Customer name must only contain letters"),
   });
 
   // Submit Handler
   const handleSubmit = async (values, { resetForm }) => {
     const { accountNumber, memberName } = values;
-    setShowDetails(false);
+    setShowDetails(false); 
 
     try {
-      const result = await triggerGetDeposiList({
+      const result = await triggerGetFdDetails({
         accountNumber,
         memberName,
       }).unwrap();
+
 
       if (result?.success || result?.data) {
         setShowDetails(true);
@@ -110,7 +111,7 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumb
 
   return (
     <PagesMainContainerStyle>
-      {/* Account Search Form */}
+      {/* 🔹 Account Search Form */}
       <DynamicForm
         headerTitle={title}
         formList={formList}
@@ -122,7 +123,7 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumb
         texting="Searching"
       />
 
-      {/*  Details Table */}
+      {/* 🔹 Details Table */}
       {showDetails && <DynamicDataTable rows={rows1} columns={columns1} />}
 
       {/* Snackbar Notifications */}
@@ -155,4 +156,4 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumb
   );
 };
 
-export default GetSavingDetailsByAcnt;
+export default FetchRdAccountDetails;

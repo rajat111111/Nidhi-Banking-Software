@@ -1,12 +1,17 @@
 import { Alert, Snackbar, styled } from "@mui/material";
+import { useMemo, useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import * as Yup from "yup";
+
 import PageTopHeader from "../../../../components/PageTopContent";
 import DynamicForm from "../../../../components/DynamicForm";
-import { useMemo, useState } from "react";
-import * as Yup from "yup";
-import { useAddNomineeOfASingleMemberMutation } from "../../../../features/api/savingAccounts";
-import { useParams } from "react-router-dom";
 import ErrorAndSuccessUseEffect from "../../../../components/ErrorAndSuccessUseEffect";
 
+import { useAddNomineeOfASingleMemberMutation } from "../../../../features/api/savingAccounts";
+
+// ───────────────────────────────────────────────
+// Component
+// ───────────────────────────────────────────────
 const AddNominee = () => {
   const { id } = useParams();
   const [snackbar, setSnackbar] = useState({
@@ -15,111 +20,97 @@ const AddNominee = () => {
     severity: "",
   });
 
-  const [
-    addNomineeOfASingleMember,
-    { data, isLoading, isError, isSuccess, error },
-  ] = useAddNomineeOfASingleMemberMutation();
+  const [addNominee, { data, isLoading, isError, isSuccess, error }] =
+    useAddNomineeOfASingleMemberMutation();
 
-  const formList = useMemo(() => {
-    const baseFields = [
-      {
-        label: "Nominee Name",
-        placeholder: "Enter Nominee Name",
-        name: "nomineeName",
-      },
-      {
-        label: "Nominee Relation",
-        placeholder: "Enter Nominee Relation",
-        name: "nomineeRelation",
-      },
-      {
-        label: "Mobile Number",
-        placeholder: "Enter Mobile Number",
-        name: "nomineeMobile",
-        type: "number",
-      },
-      {
-        label: "Nominee Aadhar Number",
-        placeholder: "Enter Aadhar Number",
-        name: "nomineeAadhar",
-        type: "number",
-      },
-      {
-        label: "Nominee Voter ID Number",
-        placeholder: "Enter Voter ID Number",
-        name: "nomineeVoterId",
-      },
-      {
-        label: "Nominee Pan Number",
-        placeholder: "Enter Pan Number",
-        name: "nomineePan",
-      },
-      {
-        label: "Nominee Ration Card Number",
-        placeholder: "Enter Ration Card Number",
-        name: "nomineeRationCard",
-      },
-      {
-        label: "Nominee Address",
-        placeholder: "Enter Nominee Address Details",
-        name: "nomineeAddress",
-      },
-    ];
-    return baseFields;
-  }, []);
+  // ───────────────────────────────────────────────
+  // Form Fields (memoized for performance)
+  // ───────────────────────────────────────────────
+  const formList = useMemo(
+    () => [
+      { label: "Nominee Name", name: "nomineeName", placeholder: "Enter Nominee Name" },
+      { label: "Nominee Relation", name: "nomineeRelation", placeholder: "Enter Nominee Relation" },
+      { label: "Mobile Number", name: "nomineeMobile", placeholder: "Enter Mobile Number", type: "number" },
+      { label: "Nominee Aadhar Number", name: "nomineeAadhar", placeholder: "Enter Aadhar Number", type: "number" },
+      { label: "Nominee Voter ID Number", name: "nomineeVoterId", placeholder: "Enter Voter ID Number" },
+      { label: "Nominee PAN Number", name: "nomineePan", placeholder: "Enter PAN Number" },
+      { label: "Nominee Ration Card Number", name: "nomineeRationCard", placeholder: "Enter Ration Card Number" },
+      { label: "Nominee Address", name: "nomineeAddress", placeholder: "Enter Address Details" },
+    ],
+    []
+  );
 
-  const initialValues = {
-    nomineeName: "",
-    nomineeRelation: "",
-    nomineeMobile: "",
-    nomineeAadhar: "",
-    nomineeVoterId: "",
-    nomineePan: "",
-    nomineeRationCard: "",
-    nomineeAddress: "",
-  };
+  // ───────────────────────────────────────────────
+  // Initial Values & Validation Schema
+  // ───────────────────────────────────────────────
+  const initialValues = useMemo(
+    () => ({
+      nomineeName: "",
+      nomineeRelation: "",
+      nomineeMobile: "",
+      nomineeAadhar: "",
+      nomineeVoterId: "",
+      nomineePan: "",
+      nomineeRationCard: "",
+      nomineeAddress: "",
+    }),
+    []
+  );
 
-  const validationSchema = Yup.object({
-    nomineeName: Yup.string().required("Nominee Name is required"),
-    nomineeRelation: Yup.string().required("Nominee Relation is required"),
+  const validationSchema = useMemo(
+    () =>
+      Yup.object({
+        nomineeName: Yup.string().required("Nominee Name is required"),
+        nomineeRelation: Yup.string().required("Nominee Relation is required"),
 
-    nomineeMobile: Yup.string()
-      .required("Mobile Number is required")
-      .matches(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
+        nomineeMobile: Yup.string()
+          .required("Mobile Number is required")
+          .matches(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
 
-    nomineeAadhar: Yup.string()
-      .required("Aadhar Number is required")
-      .matches(/^\d{12}$/, "Aadhar Number must be a valid 12-digit number"),
+        nomineeAadhar: Yup.string()
+          .required("Aadhar Number is required")
+          .matches(/^\d{12}$/, "Aadhar Number must be 12 digits"),
 
-    nomineePan: Yup.string()
-      .required("PAN Number is required")
-      .matches(
-        /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
-        "Enter a valid PAN number (e.g., ABCDE1234F)"
-      ),
+        nomineePan: Yup.string()
+          .required("PAN Number is required")
+          .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Enter valid PAN (e.g., ABCDE1234F)"),
 
-    nomineeVoterId: Yup.string()
-      .nullable()
-      .matches(/^[A-Z]{3}[0-9]{7}$/, {
-        message: "Enter a valid Voter ID (e.g., ABC1234567)",
-        excludeEmptyString: true,
+        nomineeVoterId: Yup.string()
+          .nullable()
+          .matches(/^[A-Z]{3}[0-9]{7}$/, {
+            message: "Enter valid Voter ID (e.g., ABC1234567)",
+            excludeEmptyString: true,
+          }),
       }),
-  });
+    []
+  );
 
-  const handleSubmit = async (values) => {
-    try {
-      await addNomineeOfASingleMember({ values, id });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // ───────────────────────────────────────────────
+  // Handlers
+  // ───────────────────────────────────────────────
+  const handleSubmit = useCallback(
+    async (values) => {
+      try {
+        await addNominee({ values, id }).unwrap();
+      } catch (err) {
+        console.error("Failed to add nominee:", err);
+      }
+    },
+    [addNominee, id]
+  );
 
-  const handleCloseSnackbar = () =>
-    setSnackbar((prev) => ({ ...prev, open: false }));
+  const handleCloseSnackbar = useCallback(
+    () => setSnackbar((prev) => ({ ...prev, open: false })),
+    []
+  );
 
+  // ───────────────────────────────────────────────
+  // Render
+  // ───────────────────────────────────────────────
   return (
-    <AddNomineeMainContainer>
+    <MainContainer>
       <PageTopHeader title="Add New Nominee" />
+
       <DynamicForm
         handleSubmit={handleSubmit}
         formList={formList}
@@ -129,6 +120,7 @@ const AddNominee = () => {
         texting="Adding"
         isLoading={isLoading}
       />
+
       <ErrorAndSuccessUseEffect
         isError={isError}
         setSnackbar={setSnackbar}
@@ -138,33 +130,34 @@ const AddNominee = () => {
         whereToNavigate="/saving-accounts"
       />
 
-      {snackbar && (
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={4000}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
           onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          variant="filled"
+          severity={snackbar.severity}
+          sx={{ width: "100%", color: "#fff" }}
         >
-          <Alert
-            onClose={handleCloseSnackbar}
-            variant="filled"
-            severity={snackbar.severity}
-            sx={{ width: "100%", color: "#fff" }}
-          >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
-      )}
-    </AddNomineeMainContainer>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </MainContainer>
   );
 };
 
 export default AddNominee;
 
-const AddNomineeMainContainer = styled("div")({
+// ───────────────────────────────────────────────
+// Styled Component
+// ───────────────────────────────────────────────
+const MainContainer = styled("div")(({ theme }) => ({
   width: "100%",
-  height: "auto",
   display: "flex",
   flexDirection: "column",
-  gap: "25px",
-});
+  gap: theme.spacing(3),
+  paddingBottom: theme.spacing(4),
+}));

@@ -1,57 +1,64 @@
 import React from "react";
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
-import { Button, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import DynamicButton from "../../../components/DynamicButton";
 import { NavLink } from "react-router-dom";
-import { useGetAllFdAccountsListQuery } from "../../../features/api/fdAccounts";
+import { useGetFdAccountsWithApprovalStatusQuery } from "../../../features/api/fdAccounts";
 import { capitalizeFirstLetter } from "../../../helper/helper";
 
 const Account = () => {
-  const { data, isLoading } = useGetAllFdAccountsListQuery();
+  // Fetch approved FD accounts using RTK Query
+  const { data, isLoading } = useGetFdAccountsWithApprovalStatusQuery();
 
-  const fdAccountsList = data?.data || [];
+  // Handle nested structure from API
+  const fdAccountsList = data?.data?.data || [];
 
+  // Action button container styling
   const ActionButtonContainer = styled("div")({
     display: "flex",
     gap: "10px",
     alignItems: "center",
   });
 
+  // Table columns based on API response
   const columns = [
     { id: "id", label: "#", minWidth: 50 },
-    { id: "fdNo", label: "FD No", minWidth: 120 },
-    { id: "memberNo", label: "Member No", minWidth: 120 },
-    // { id: "planName", label: "Plan Name", minWidth: 150 },
-    { id: "memberName", label: "Member Name", minWidth: 120 },
-    { id: "branch", label: "Branch", minWidth: 180 },
-    { id: "agentName", label: "Agent Name", minWidth: 180 },
-    { id: "planName", label: "Plan Name", minWidth: 180 },
-    { id: "amount", label: "Amount", minWidth: 180 },
-    { id: "payMode", label: "Pay Mode", minWidth: 180 },
-    { id: "openDate", label: "Open Date", minWidth: 180 },
-    { id: "maturityDate", label: "Maturity Date", minWidth: 180 },
-    { id: "IntPayout", label: "Int. Payout", minWidth: 180 },
-    { id: "status", label: "Staus", minWidth: 180 },
-    { id: "action", label: "Actions", minWidth: 180 },
+    { id: "fdAccountNumber", label: "FD Account No.", minWidth: 160 },
+    { id: "memberName", label: "Member Name", minWidth: 180 },
+    { id: "branchName", label: "Branch", minWidth: 180 },
+    { id: "agentName", label: "Agent Name", minWidth: 160 },
+    { id: "accountType", label: "Account Type", minWidth: 130 },
+    { id: "depositAmount", label: "Deposit Amount", minWidth: 150 },
+    { id: "paymentMode", label: "Payment Mode", minWidth: 130 },
+    { id: "startDate", label: "Start Date", minWidth: 130 },
+    { id: "maturityDate", label: "Maturity Date", minWidth: 130 },
+    { id: "approvedBy", label: "Approved By", minWidth: 150 },
+    { id: "status", label: "Status", minWidth: 120 },
+    { id: "action", label: "Actions", minWidth: 160 },
   ];
 
-  const rows = fdAccountsList.map((curList, i) => ({
-    id: i + 1,
-    fdNo: curList?.id || "N/A",
-    memberNo: curList?.member?.id || "N/A",
-    memberName: curList?.member?.name || "N/A",
-    branch: curList?.branch?.name || "N/A",
-    agentName: curList?.agent?.name || "N/A",
-    planName: curList?.openDate || "N/A",
-    amount: curList?.depositAmount ? `₹ ${curList?.depositAmount}` : `₹ ${0}`,
-    payMode: capitalizeFirstLetter(curList?.paymentMode) || "N/A",
-    openDate: curList?.startDate || "N/A",
-    maturityDate: curList?.maturityDate || "N/A",
-    IntPayout: curList?.netAmountToRelease
-      ? `₹ ${curList?.netAmountToRelease}`
-      : `₹ ${0}` || "N/A",
-    status: curList?.status === "closed" ? "Closed" : "Approved",
+  //  Prepare table rows dynamically
+  const rows = fdAccountsList.map((account, index) => ({
+    id: index + 1,
+    fdAccountNumber: account?.fdAccountNumber || "N/A",
+    memberName: account?.member?.name || "N/A",
+    branchName: account?.branch?.name || "N/A",
+    agentName: account?.agent?.name || "N/A",
+    accountType: capitalizeFirstLetter(account?.accountType) || "N/A",
+    depositAmount: account?.depositAmount
+      ? `₹ ${account.depositAmount}`
+      : "₹ 0.00",
+    paymentMode: capitalizeFirstLetter(account?.paymentMode) || "N/A",
+    startDate: account?.startDate || "N/A",
+    maturityDate: account?.maturityDate || "N/A",
+    approvedBy: account?.approvedBy?.name || "N/A",
+    status:
+      account?.status === "approved"
+        ? "Approved"
+        : account?.status === "closed"
+        ? "Closed"
+        : "⏳ Pending",
     action: (
       <ActionButtonContainer>
         <DynamicButton
@@ -61,10 +68,10 @@ const Account = () => {
           borderColor="#0D6A84"
           borderRadius="5px"
           onClick={() =>
-            localStorage.setItem("accountNumber", curList?.accountNumber)
+            localStorage.setItem("accountNumber", account?.fdAccountNumber)
           }
           component={NavLink}
-          to={`/fd-accounts/${curList?.member?.id}/account-details`}
+          to={`/fd-accounts/${account?.id}/account-details`}
         />
       </ActionButtonContainer>
     ),
@@ -72,19 +79,21 @@ const Account = () => {
 
   return (
     <>
+      {/* Page Header with Add New button */}
       <PageHeader
-        title="Account Details"
+        title="FD Account Details"
         onDownload
         onFilter
         primaryButton={{
           label: "Add New",
           variant: "contained",
           component: { NavLink },
-
           to: "/fd-accounts/add-new-account",
           color: "secondary",
         }}
       />
+
+      {/* Data Table */}
       <DynamicDataTable isLoading={isLoading} rows={rows} columns={columns} />
     </>
   );

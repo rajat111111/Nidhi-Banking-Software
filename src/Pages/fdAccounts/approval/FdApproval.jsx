@@ -1,18 +1,17 @@
-import DynamicDataTable from "../../../components/DynamicTable";
+import { useState } from "react";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
 import PageHeader from "../../../components/PageHeader";
-import { Alert, Snackbar, styled } from "@mui/material";
+import DynamicDataTable from "../../../components/DynamicTable";
 import DynamicButton from "../../../components/DynamicButton";
+import SubmitButtonLoader from "../../../components/SubmitButtonLoader";
+import { Alert, Snackbar, styled } from "@mui/material";
 import { NavLink, useParams } from "react-router-dom";
-import {
-  useApproveSavingAccountMutation,
-
-} from "../../../features/api/savingAccounts";
 import { capitalizeFirstLetter } from "../../../helper/helper";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
-import { useState } from "react";
-import SubmitButtonLoader from "../../../components/SubmitButtonLoader";
-import { useApproveFdAccountQuery } from "../../../features/api/fdAccounts";
+import {
+  useApproveFdAccountMutation,
+  useGetAllFdAccountsListQuery,
+} from "../../../features/api/fdAccounts";
 
 const FdApproval = () => {
   const [snackbar, setSnackbar] = useState({
@@ -20,27 +19,29 @@ const FdApproval = () => {
     message: "",
     severity: "",
   });
-  const {id}=useParams()
-  const { isLoading, data } = useApproveFdAccountQuery(id);
+
+  const { id } = useParams();
+  const { isLoading, data } = useGetAllFdAccountsListQuery(id);
 
   const [
-    approveSavingAccount,
+    approveFdAccount,
     {
-      data: approveSavingData,
-      isLoading: approveSavingLoading,
+      data: approveFdAccountData,
+      isLoading: approveFdLoading,
       isError,
       isSuccess,
       error,
     },
-  ] = useApproveSavingAccountMutation();
+  ] = useApproveFdAccountMutation();
 
   const savingAccountApprovalList = data?.data || [];
 
+  // handle approval button click
   const handleApproved = async (id) => {
     try {
-      await approveSavingAccount(id);
-    } catch (error) {
-      console.log(error);
+      await approveFdAccount(id).unwrap();
+    } catch (err) {
+      console.error("Approval failed:", err);
     }
   };
 
@@ -49,105 +50,101 @@ const FdApproval = () => {
     gap: "10px",
     alignItems: "center",
   });
+
+  // Table columns
   const columns = [
     { id: "id", label: "#", minWidth: 50 },
-    { id: "memberName", label: "FD Account No.", minWidth: 120 },
-    { id: "branchId", label: "Branch ID ", minWidth: 150 },
-    { id: "agentId", label: "Agent ID", minWidth: 120 },
+    { id: "accountNumber", label: "Account No.", minWidth: 180 },
+    { id: "memberName", label: "Member Name", minWidth: 150 },
+    { id: "branchName", label: "Branch Name", minWidth: 180 },
+    { id: "agentName", label: "Agent Name", minWidth: 150 },
     { id: "depositAmount", label: "Deposit Amount", minWidth: 120 },
-    { id: "interestRate", label: "Interest Rate", minWidth: 120 },
-    { id: "tanure", label: "Tenure (Months)", minWidth: 120 },
-    { id: "startDate", label: "Start Date", minWidth: 120 },
-    { id: "maturityDate", label: "Maturity Date", minWidth: 120 },
-    { id: "approvedDate", label: "Approved Date", minWidth: 120 },
-    { id: "approvedBy", label: "Approved By", minWidth: 120 },
+    { id: "openDate", label: "Open Date", minWidth: 120 },
+    { id: "paymentMode", label: "Payment Mode", minWidth: 120 },
+    { id: "balance", label: "Balance", minWidth: 120 },
     { id: "status", label: "Status", minWidth: 120 },
-    { id: "action", label: "Action", minWidth: 120 },
+    { id: "action", label: "Action", minWidth: 200 },
   ];
 
-  const rows =
-    savingAccountApprovalList &&
-    savingAccountApprovalList.map((curList, i) => ({
-      id: i + 1,
-      memberId: curList?.id || "N/A",
-      branchName: curList?.branchName || "N/A",
-      agentName: curList?.agentName || "N/A",
-      accountType: capitalizeFirstLetter(curList?.accountType) || "N/A",
-      depositAmount: `₹ ${curList?.depositAmount}` || "0",
-      openDate: curList?.openDate || "N/A",
-      transactionDate: curList?.transactionDate || "N/A",
-      paymentMode: capitalizeFirstLetter(curList?.paymentMode) || "N/A",
-      approvedDate: curList?.approvedDate || "N/A",
-      approvedBy: curList?.approvedBy || "N/A",
-      status: capitalizeFirstLetter(curList?.status) || "N/A",
-      action: (
-        <ActionButtonContainer>
+  // Table rows
+  const rows = savingAccountApprovalList.map((curList, i) => ({
+    id: i + 1,
+    accountNumber: curList?.accountNumber || "N/A",
+    memberName: curList?.memberName || "N/A",
+    branchName: curList?.branchName || "N/A",
+    agentName: curList?.agentName || "N/A",
+    depositAmount: curList?.depositAmount
+      ? `₹ ${curList.depositAmount}`
+      : "₹ 0",
+    openDate: curList?.startDate || "N/A",
+    paymentMode: capitalizeFirstLetter(curList?.paymentMode) || "N/A",
+    balance: curList?.balance ? `₹ ${curList.balance}` : "₹ 0",
+    status: capitalizeFirstLetter(curList?.status) || "N/A",
+    action: (
+      <ActionButtonContainer>
+        <DynamicButton
+          text="View"
+          variant="outlined"
+          textColor="#7858C6"
+          borderColor="#7858C6"
+          borderRadius="5px"
+          component={NavLink}
+          to={`/fd-accounts/${curList?.id}/account-details`}
+        />
 
-            <DynamicButton
-              text="View"
-              variant="outlined"
-              textColor="#7858C6"
-              borderColor="#7858C6"
-              borderRadius="5px"
-              component={NavLink}
-              to={`/saving-accounts/${curList?.id}/account-details`}
-            />
-
-          {curList.status === "pending" && (
-            <>
-              <DynamicButton
-                text={
-                  <SubmitButtonLoader
-                    isLoading={approveSavingLoading}
-                    text="Approved"
-                    loaderColor="#0D6A84"
-                    texting="Please Wait "
-                  />
-                }
-                variant="outlined"
-                textColor="#0D6A84"
-                onClick={() => handleApproved(curList?.id)}
-                borderColor="#0D6A84"
-                borderRadius="5px"
+        {curList.status === "pending" && (
+          <DynamicButton
+            text={
+              <SubmitButtonLoader
+                isLoading={approveFdLoading}
+                text="Approve"
+                loaderColor="#0D6A84"
+                texting="Please Wait"
               />
-              
-            </>
-          )}
-        </ActionButtonContainer>
-      ),
-    }));
+            }
+            variant="outlined"
+            textColor="#0D6A84"
+            onClick={() => handleApproved(curList?.id)}
+            borderColor="#0D6A84"
+            borderRadius="5px"
+          />
+        )}
+      </ActionButtonContainer>
+    ),
+  }));
 
   const handleCloseSnackbar = () =>
     setSnackbar((prev) => ({ ...prev, open: false }));
 
   return (
     <PagesMainContainerStyle>
-      <PageHeader title="Approval" onFilter onDownload />
+      <PageHeader title="Saving Account Approvals" onFilter onDownload />
+
       <DynamicDataTable isLoading={isLoading} rows={rows} columns={columns} />
+
       <ErrorAndSuccessUseEffect
         isError={isError}
         error={error}
-        data={approveSavingData}
+        data={approveFdAccountData}
         isSuccess={isSuccess}
         setSnackbar={setSnackbar}
       />
-      {snackbar && (
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={4000}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
           onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          variant="filled"
+          severity={snackbar.severity}
+          sx={{ width: "100%", color: "#fff" }}
         >
-          <Alert
-            onClose={handleCloseSnackbar}
-            variant="filled"
-            severity={snackbar.severity}
-            sx={{ width: "100%", color: "#fff" }}
-          >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
-      )}
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </PagesMainContainerStyle>
   );
 };

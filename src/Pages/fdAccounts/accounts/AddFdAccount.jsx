@@ -2,10 +2,8 @@ import { useState, useMemo } from "react";
 import * as Yup from "yup";
 import PageTopContent from "../../../components/PageTopContent";
 import DynamicForm from "../../../components/DynamicForm";
-import {
-  useAddNewSavingAccountMutation,
-  useGetAllMebersQuery,
-} from "../../../features/api/savingAccounts";
+import { useGetAllMebersQuery } from "../../../features/api/savingAccounts";
+import { useCreateFdAccountMutation } from "../../../features/api/fdAccounts";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
 import { Alert, Snackbar } from "@mui/material";
 import {
@@ -20,64 +18,54 @@ const AddFdAccount = () => {
     severity: "",
   });
   const [paymentMode, setPaymentMode] = useState("");
+  const [showNominee, setShowNominee] = useState(false);
+
   const { data: membersData } = useGetAllMebersQuery();
   const [
-    addNewSavingAccount,
-    { data: addNewSavingAccountData, isLoading, isSuccess, isError, error },
-  ] = useAddNewSavingAccountMutation();
+    createFdAccount,
+    { data: newFdAccountData, isLoading, isSuccess, isError, error },
+  ] = useCreateFdAccountMutation();
 
   const membersList = membersData?.data || [];
-
-  // ✅ Validation Schema
   const validationSchema = Yup.object({
     memberId: Yup.number().required("Member is required"),
     branchId: Yup.string().required("Branch name is required"),
     agentId: Yup.string().required("Agent name is required"),
     accountType: Yup.string().required("Account type is required"),
-    depositAmount: Yup.number().required("Deposit amount is required"),
-    openDate: Yup.date().required("Open date is required"),
-    transactionDate: Yup.date().required("Transaction date is required"),
+    depositAmount: Yup.number()
+      .required("Deposit amount is required")
+      .positive(),
+    startDate: Yup.date().required("Start date is required"),
+    maturityDate: Yup.date().required("Maturity date is required"),
+    interestRate: Yup.number().required("Interest rate is required"),
     paymentMode: Yup.string().required("Select a payment mode"),
-    cashAmount: Yup.string().when("paymentMode", {
-      is: "cash",
-      then: (schema) => schema.required("Cash Amount is required"),
-    }),
-    checkNumber: Yup.string().when("paymentMode", {
-      is: "cheque",
-      then: (schema) => schema.required("Cheque Number is required"),
-    }),
-    checkDate: Yup.string().when("paymentMode", {
-      is: "cheque",
-      then: (schema) => schema.required("Cheque Date is required"),
-    }),
-    bankName: Yup.string().when("paymentMode", {
-      is: "cheque",
-      then: (schema) => schema.required("Bank Name is required"),
-    }),
-    onlineTransactionDate: Yup.string().when("paymentMode", {
-      is: "online",
-      then: (schema) => schema.required("Online Transaction Date is required"),
-    }),
-    onlineTransactionNumber: Yup.string().when("paymentMode", {
-      is: "online",
-      then: (schema) =>
-        schema.required("Online Transaction Number is required"),
-    }),
-    onlineTransctionMode: Yup.string().when("paymentMode", {
-      is: "online",
-      then: (schema) => schema.required("Online Transaction Mode is required"),
+    ...(showNominee && {
+      nomineeName: Yup.string().required("Nominee name is required"),
+      nomineeRelation: Yup.string().required("Nominee relation is required"),
+      nomineeMobile: Yup.string()
+        .matches(/^[0-9]{10}$/, "Enter a valid 10-digit mobile number")
+        .required("Nominee mobile is required"),
+      nomineeAadhar: Yup.string()
+        .matches(/^[0-9]{12}$/, "Enter a valid 12-digit Aadhar number")
+        .required("Nominee Aadhar is required"),
+      nomineeVoterId: Yup.string().required("Nominee Voter ID is required"),
+      nomineePan: Yup.string()
+        .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}/, "Enter a valid PAN number")
+        .required("Nominee PAN is required"),
+      nomineeRationCard: Yup.string().required(
+        "Nominee Ration Card is required"
+      ),
     }),
   });
-
-  // ✅ Initial Values
   const initialValues = {
     memberId: "",
     branchId: "",
     agentId: "",
     accountType: "",
     depositAmount: "",
-    openDate: "",
-    transactionDate: "",
+    startDate: "",
+    maturityDate: "",
+    interestRate: "",
     paymentMode: "",
     cashAmount: "",
     checkNumber: "",
@@ -85,16 +73,44 @@ const AddFdAccount = () => {
     bankName: "",
     onlineTransactionDate: "",
     onlineTransactionNumber: "",
-    onlineTransctionMode: "",
+    onlineTransactionMode: "",
+    deductTds: false,
+    autoRenew: false,
+    accountOnHold: false,
+    isSeniorCitizen: false,
+    isJointAccount: false,
+    nomineeName: "",
+    nomineeRelation: "",
+    nomineeMobile: "",
+    nomineeAadhar: "",
+    nomineeVoterId: "",
+    nomineePan: "",
+    nomineeRationCard: "",
   };
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      await addNewSavingAccount(values).unwrap();
+      const payload = {
+        ...values,
+        ...(showNominee
+          ? {}
+          : {
+              nomineeName: null,
+              nomineeRelation: null,
+              nomineeMobile: null,
+              nomineeAadhar: null,
+              nomineeVoterId: null,
+              nomineePan: null,
+              nomineeRationCard: null,
+            }),
+      };
+
+      await createFdAccount(payload).unwrap();
       resetForm();
       setPaymentMode("");
-    } catch (error) {
-      console.log(error);
+      setShowNominee(false);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -109,17 +125,16 @@ const AddFdAccount = () => {
         placeholder: "Select Member",
         type: "select",
         options:
-          membersList?.map((curMember) => ({
-            value: changeStringToNumber(curMember?.id),
-            label: `${curMember.firstName} ${curMember.lastName} (${curMember?.id})`,
+          membersList?.map((member) => ({
+            value: changeStringToNumber(member?.id),
+            label: `${member.firstName} ${member.lastName} (${member?.id})`,
           })) || [],
-
         onChange: (e, formikHandleChange, formikValues, setFieldValue) => {
           const selectedMemberId = Number(e.target.value);
           setFieldValue("memberId", selectedMemberId);
 
           const selectedMember = membersList.find(
-            (member) => member.id === selectedMemberId
+            (m) => m.id === selectedMemberId
           );
 
           if (selectedMember) {
@@ -141,13 +156,13 @@ const AddFdAccount = () => {
         },
       },
       {
-        label: "Branch ID",
+        label: "Branch",
         name: "branchId",
         placeholder: "Branch Name",
         disabled: true,
       },
       {
-        label: "Agent ID",
+        label: "Agent",
         name: "agentId",
         placeholder: "Agent Name",
         disabled: true,
@@ -155,8 +170,8 @@ const AddFdAccount = () => {
       {
         label: "Account Type",
         name: "accountType",
-        placeholder: "Account Type",
-        disabled: true,
+        placeholder: "Enter Account Type",
+        disabled: false,
       },
       {
         label: "Deposit Amount",
@@ -165,14 +180,37 @@ const AddFdAccount = () => {
         type: "number",
       },
       {
-        label: "Open Date",
-        name: "openDate",
+        label: "Start Date",
+        name: "startDate",
         type: "date",
       },
       {
-        label: "Transaction Date",
-        name: "transactionDate",
+        label: "Maturity Date",
+        name: "maturityDate",
         type: "date",
+      },
+      {
+        label: "Interest Rate (%)",
+        name: "interestRate",
+        placeholder: "Enter Interest Rate",
+        type: "number",
+      },
+      {
+        label: "Account Settings",
+        isSwitchGroup: true,
+        switches: [
+          { label: "Deduct TDS", name: "deductTds" },
+          { label: "Auto Renew", name: "autoRenew" },
+          { label: "Account on Hold", name: "accountOnHold" },
+          { label: "Senior Citizen", name: "isSeniorCitizen" },
+          { label: "Joint Account", name: "isJointAccount" },
+          {
+            label: "Add Nominee",
+            name: "showNominee",
+            customSwitchHandler: (checked) => setShowNominee(checked),
+            checked: showNominee,
+          },
+        ],
       },
       {
         label: "Payment Mode",
@@ -190,7 +228,6 @@ const AddFdAccount = () => {
       },
     ];
 
-    // Conditional Fields
     if (paymentMode === "cash") {
       baseFields.push({
         label: "Cash Amount",
@@ -207,16 +244,8 @@ const AddFdAccount = () => {
           name: "checkNumber",
           placeholder: "Enter Cheque Number",
         },
-        {
-          label: "Cheque Date",
-          name: "checkDate",
-          type: "date",
-        },
-        {
-          label: "Bank Name",
-          name: "bankName",
-          placeholder: "Enter Bank Name",
-        }
+        { label: "Cheque Date", name: "checkDate", type: "date" },
+        { label: "Bank Name", name: "bankName", placeholder: "Enter Bank Name" }
       );
     }
 
@@ -230,23 +259,69 @@ const AddFdAccount = () => {
         {
           label: "Online Transaction Number",
           name: "onlineTransactionNumber",
-          placeholder: "Enter Transaction Number",
-          type: "number",
+          placeholder: "Enter Online Transaction Number",
+          type: "text",
         },
         {
           label: "Online Transaction Mode",
-          name: "onlineTransctionMode",
-          placeholder: "Enter Transaction Mode",
+          name: "onlineTransactionMode",
+          type: "select",
+          options: [
+            { label: "UPI", value: "upi" },
+            { label: "Card", value: "card" },
+          ],
+        }
+      );
+    }
+
+    if (showNominee) {
+      baseFields.push(
+        {
+          label: "Nominee Name",
+          name: "nomineeName",
+          placeholder: "Enter Nominee Name",
+        },
+        {
+          label: "Nominee Relation",
+          name: "nomineeRelation",
+          placeholder: "Enter Relation",
+        },
+        {
+          label: "Nominee Mobile",
+          name: "nomineeMobile",
+          placeholder: "Enter Nominee Mobile",
+          type: "number",
+        },
+        {
+          label: "Nominee Aadhar",
+          name: "nomineeAadhar",
+          placeholder: "Enter Aadhar Number",
+          type: "number",
+        },
+        {
+          label: "Nominee Voter ID",
+          name: "nomineeVoterId",
+          placeholder: "Enter Voter ID",
+        },
+        {
+          label: "Nominee PAN",
+          name: "nomineePan",
+          placeholder: "Enter PAN Number",
+        },
+        {
+          label: "Nominee Ration Card",
+          name: "nomineeRationCard",
+          placeholder: "Enter Ration Card Number",
         }
       );
     }
 
     return baseFields;
-  }, [paymentMode, membersList]);
+  }, [paymentMode, membersList, showNominee]);
 
   return (
     <div style={{ padding: "20px" }}>
-      <PageTopContent title="New Fix Deposit" />
+      <PageTopContent title="New Fixed Deposit" />
       <DynamicForm
         headerTitle=""
         formList={formList}
@@ -259,13 +334,13 @@ const AddFdAccount = () => {
       />
       <ErrorAndSuccessUseEffect
         setSnackbar={setSnackbar}
-        data={addNewSavingAccountData}
+        data={newFdAccountData}
         error={error}
         isSuccess={isSuccess}
         isError={isError}
-        whereToNavigate="/saving-accounts/approval"
+        whereToNavigate="/fd-accounts/approval"
       />
-      {snackbar && (
+      {snackbar.open && (
         <Snackbar
           open={snackbar.open}
           autoHideDuration={4000}

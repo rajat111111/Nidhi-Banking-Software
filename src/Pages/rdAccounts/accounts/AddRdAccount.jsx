@@ -2,16 +2,14 @@ import { useState, useMemo } from "react";
 import * as Yup from "yup";
 import PageTopContent from "../../../components/PageTopContent";
 import DynamicForm from "../../../components/DynamicForm";
-import {
-  useAddNewSavingAccountMutation,
-  useGetAllMebersQuery,
-} from "../../../features/api/savingAccounts";
+import { useGetAllMebersQuery } from "../../../features/api/savingAccounts";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
 import { Alert, Snackbar } from "@mui/material";
 import {
   changeStringToNumber,
   lowerCaseAndRemoveTrailingS,
 } from "../../../helper/helper";
+import { useCreateRdAccountMutation } from "../../../features/api/rdAccounts";
 
 const AddRdAccount = () => {
   const [snackbar, setSnackbar] = useState({
@@ -19,35 +17,60 @@ const AddRdAccount = () => {
     message: "",
     severity: "",
   });
+
   const [paymentMode, setPaymentMode] = useState("");
+  const [showNominee, setShowNominee] = useState(false);
+
   const { data: membersData } = useGetAllMebersQuery();
+
   const [
-    addNewSavingAccount,
-    { data: addNewSavingAccountData, isLoading, isSuccess, isError, error },
-  ] = useAddNewSavingAccountMutation();
+    createRdAccount,
+    { data: newRdAccountData, isLoading, isSuccess, isError, error },
+  ] = useCreateRdAccountMutation();
 
   const membersList = membersData?.data || [];
 
-  // ✅ Validation Schema
+  // ---------------------- VALIDATION SCHEMA ----------------------
   const validationSchema = Yup.object({
     memberId: Yup.number().required("Member is required"),
     branchId: Yup.string().required("Branch name is required"),
     agentId: Yup.string().required("Agent name is required"),
     accountType: Yup.string().required("Account type is required"),
-    depositAmount: Yup.number().required("Deposit amount is required"),
-    openDate: Yup.date().required("Open date is required"),
+    amount: Yup.number().required("Deposit amount is required").positive(),
+    startDate: Yup.date().required("Start date is required"),
     transactionDate: Yup.date().required("Transaction date is required"),
     paymentMode: Yup.string().required("Select a payment mode"),
+
+    ...(showNominee && {
+      nomineeName: Yup.string().required("Nominee name is required"),
+      nomineeRelation: Yup.string().required("Nominee relation is required"),
+      nomineeMobile: Yup.string()
+        .matches(/^[0-9]{10}$/, "Enter a valid 10-digit mobile number")
+        .required("Nominee mobile is required"),
+      nomineeAadhar: Yup.string()
+        .matches(/^[0-9]{12}$/, "Enter a valid 12-digit Aadhar number")
+        .required("Nominee Aadhar is required"),
+      nomineeVoterId: Yup.string().required("Nominee Voter ID is required"),
+      nomineePan: Yup.string()
+        .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}/, "Enter a valid PAN number")
+        .required("Nominee PAN is required"),
+      nomineeRationCard: Yup.string().required(
+        "Nominee Ration Card is required"
+      ),
+    }),
   });
 
-  // ✅ Initial Values
+  // ---------------------- INITIAL VALUES ----------------------
   const initialValues = {
     memberId: "",
     branchId: "",
     agentId: "",
+    cspId: null,
+    employeeId: null,
     accountType: "",
-    depositAmount: "",
-    openDate: "",
+
+    amount: "",
+    startDate: "",
     transactionDate: "",
     paymentMode: "",
     cashAmount: "",
@@ -56,30 +79,53 @@ const AddRdAccount = () => {
     bankName: "",
     onlineTransactionDate: "",
     onlineTransactionNumber: "",
-    onlineTransctionMode: "",
-    // ✅ Switch group initial values
-    openLessMinAmount: false,
+    onlineTransactionMode: "",
     deductTds: false,
     autoRenew: false,
-    accountOnHold: false,
+    onHold: false,
     seniorCitizen: false,
     jointAccount: false,
-    nominee: false,
+
+    nomineeName: "",
+    nomineeRelation: "",
+    nomineeMobile: "",
+    nomineeAadhar: "",
+    nomineeVoterId: "",
+    nomineePan: "",
+    nomineeRationCard: "",
   };
 
+  // ---------------------- HANDLE SUBMIT ----------------------
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      await addNewSavingAccount(values).unwrap();
+      const payload = {
+        ...values,
+        ...(showNominee
+          ? {}
+          : {
+              nomineeName: null,
+              nomineeRelation: null,
+              nomineeMobile: null,
+              nomineeAadhar: null,
+              nomineeVoterId: null,
+              nomineePan: null,
+              nomineeRationCard: null,
+            }),
+      };
+
+      await createRdAccount(payload).unwrap();
       resetForm();
       setPaymentMode("");
-    } catch (error) {
-      console.log(error);
+      setShowNominee(false);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleCloseSnackbar = () =>
     setSnackbar((prev) => ({ ...prev, open: false }));
 
+  // ---------------------- FORM FIELDS ----------------------
   const formList = useMemo(() => {
     const baseFields = [
       {
@@ -88,16 +134,16 @@ const AddRdAccount = () => {
         placeholder: "Select Member",
         type: "select",
         options:
-          membersList?.map((curMember) => ({
-            value: changeStringToNumber(curMember?.id),
-            label: `${curMember.firstName} ${curMember.lastName} (${curMember?.id})`,
+          membersList?.map((member) => ({
+            value: changeStringToNumber(member?.id),
+            label: `${member.firstName} ${member.lastName} (${member?.id})`,
           })) || [],
-        onChange: (e, formikHandleChange, formikValues, setFieldValue) => {
+        onChange: (e, handleChange, values, setFieldValue) => {
           const selectedMemberId = Number(e.target.value);
           setFieldValue("memberId", selectedMemberId);
 
           const selectedMember = membersList.find(
-            (member) => member.id === selectedMemberId
+            (m) => m.id === selectedMemberId
           );
 
           if (selectedMember) {
@@ -118,59 +164,37 @@ const AddRdAccount = () => {
           }
         },
       },
-      {
-        label: "Branch ID",
-        name: "branchId",
-        placeholder: "Branch Name",
-        disabled: true,
-      },
-      {
-        label: "Agent ID",
-        name: "agentId",
-        placeholder: "Agent Name",
-        disabled: true,
-      },
-      {
-        label: "Plan Name",
-        name: "planName",
-        type: "select",
-        options: [],
-      },
-      {
-        label: "Open RD with Less than Minimum Amount",
-        name: "openLessMinAmount",
-        type: "switch",
-      },
+
+      { label: "Branch", name: "branchId", disabled: true },
+      { label: "Agent", name: "agentId", disabled: true },
+
       {
         label: "Amount",
         name: "amount",
         placeholder: "Enter Amount",
+        type: "number",
       },
-      
-       {
-        label: "Open Date",
-        name: "openDate",
-        type: "date",
-      },
+      { label: "Open Date", name: "startDate", type: "date" },
+      { label: "Transaction Date", name: "transactionDate", type: "date" },
+
       {
         label: "Account Settings",
         isSwitchGroup: true,
-        
         switches: [
           { label: "Deduct TDS", name: "deductTds" },
           { label: "Auto Renew", name: "autoRenew" },
-          { label: "Account on Hold", name: "accountOnHold" },
+          { label: "On Hold", name: "onHold" },
           { label: "Senior Citizen", name: "seniorCitizen" },
           { label: "Joint Account", name: "jointAccount" },
-          { label: "Nominee", name: "nominee" },
+          {
+            label: "Add Nominee",
+            name: "showNominee",
+            customSwitchHandler: (checked) => setShowNominee(checked),
+            checked: showNominee,
+          },
         ],
       },
 
-      {
-        label: "Transaction Date",
-        name: "transactionDate",
-        type: "date",
-      },
       {
         label: "Payment Mode",
         name: "paymentMode",
@@ -180,22 +204,24 @@ const AddRdAccount = () => {
           { label: "Cheque", value: "cheque" },
           { label: "Online Transaction", value: "online" },
         ],
-        onChange: (e, formikHandleChange) => {
+        onChange: (e, handleChange) => {
           setPaymentMode(e.target.value);
-          formikHandleChange(e);
+          handleChange(e);
         },
       },
     ];
 
+    // ---------------------- CASH ----------------------
     if (paymentMode === "cash") {
       baseFields.push({
         label: "Cash Amount",
         name: "cashAmount",
-        placeholder: "Enter Cash Amount",
         type: "number",
+        placeholder: "Enter Cash Amount",
       });
     }
 
+    // ---------------------- CHEQUE ----------------------
     if (paymentMode === "cheque") {
       baseFields.push(
         {
@@ -208,56 +234,95 @@ const AddRdAccount = () => {
       );
     }
 
+    // ---------------------- ONLINE ----------------------
     if (paymentMode === "online") {
       baseFields.push(
         {
           label: "Online Transaction Date",
           name: "onlineTransactionDate",
-          
           type: "date",
         },
         {
           label: "Online Transaction Number",
           name: "onlineTransactionNumber",
-          placeholder:"Enter Online Transaction Number ",
+          placeholder: "Enter Online Transaction Number",
+        },
+        {
+          label: "Online Mode",
+          name: "onlineTransactionMode",
+          type: "select",
+          options: [
+            { label: "UPI", value: "upi" },
+            { label: "Card", value: "card" },
+          ],
+        }
+      );
+    }
+
+    // ---------------------- NOMINEE ----------------------
+    if (showNominee) {
+      baseFields.push(
+        {
+          label: "Nominee Name",
+          name: "nomineeName",
+        },
+        {
+          label: "Nominee Relation",
+          name: "nomineeRelation",
+        },
+        {
+          label: "Nominee Mobile",
+          name: "nomineeMobile",
           type: "number",
         },
-        { label: "Online Transaction Mode", type:"select",options:[
-            {
-                label:"UPI",value:"upi"
-            },
-            {
-                label:"Card",value:"card"
-            },
-        ] ,name: "onlineTransctionMode" }
+        {
+          label: "Nominee Aadhar",
+          name: "nomineeAadhar",
+          type: "number",
+        },
+        {
+          label: "Nominee Voter ID",
+          name: "nomineeVoterId",
+        },
+        {
+          label: "Nominee PAN",
+          name: "nomineePan",
+        },
+        {
+          label: "Nominee Ration Card",
+          name: "nomineeRationCard",
+        }
       );
     }
 
     return baseFields;
-  }, [paymentMode, membersList]);
+  }, [paymentMode, membersList, showNominee]);
 
   return (
     <div style={{ padding: "20px" }}>
-      <PageTopContent title="New Recurring Deposit" />
+      <PageTopContent title="New RD Account" />
+
       <DynamicForm
         headerTitle=""
         formList={formList}
         initialValues={initialValues}
         validationSchema={validationSchema}
         handleSubmit={handleSubmit}
-        actionButtonText="Create Account"
+        actionButtonText="Create RD Account"
         texting="Creating"
         isLoading={isLoading}
       />
+
       <ErrorAndSuccessUseEffect
         setSnackbar={setSnackbar}
-        data={addNewSavingAccountData}
+        data={newRdAccountData}
         error={error}
         isSuccess={isSuccess}
         isError={isError}
-        whereToNavigate="/saving-accounts/approval"
+        whereToNavigate="/rd-accounts/approval"
       />
-      {snackbar && (
+
+      {snackbar.open && (
         <Snackbar
           open={snackbar.open}
           autoHideDuration={4000}

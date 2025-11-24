@@ -179,7 +179,7 @@ const MainRoutes = {
               element: <CreateFdReceipt />,
             },
             {
-              path: "view-receipt",
+              path: ":id/view-receipt",
               element: <ViewFdRecipt />,
             },
             {
@@ -230,7 +230,7 @@ const MainRoutes = {
               element: <CreateRdReciept />,
             },
             {
-              path: "view-receipt",
+              path: ":id/view-receipt",
               element: <ViewRdReciept />,
             },
             {

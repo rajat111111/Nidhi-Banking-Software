@@ -4,27 +4,19 @@ import DynamicForm from "../../../../components/DynamicForm";
 import { useMemo, useState } from "react";
 import * as Yup from "yup";
 import ErrorAndSuccessUseEffect from "../../../../components/ErrorAndSuccessUseEffect";
-import {
-  useForFdCloseAccountMutation,
-  useGetBasicFdAccountDetailsQuery,
-} from "../../../../features/api/fdAccounts";
 import { Alert, Snackbar } from "@mui/material";
 import { useParams } from "react-router-dom";
+import { useForRdCloseAccountMutation } from "../../../../features/api/rdAccounts";
 
-const FdForClose = ({ setActiveTab }) => {
+const RdForClose = ({ setActiveTab }) => {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "",
   });
   const { id } = useParams();
-  const [forFdCloseAccount, { data, isError, error, isLoading, isSuccess }] =
-    useForFdCloseAccountMutation();
-
-  const { data: fdAccountBasicDetails } = useGetBasicFdAccountDetailsQuery({
-    id,
-  });
-  const fdAccountId = fdAccountBasicDetails?.data?.fdId || "N/A";
+  const [forRdCloseAccount, { data, isError, error, isLoading, isSuccess }] =
+    useForRdCloseAccountMutation();
 
   const forCloseFormList = useMemo(
     () => [
@@ -107,7 +99,7 @@ const FdForClose = ({ setActiveTab }) => {
     interestLeftToPay: "",
   };
   const handleSubmit = async (values) => {
-    await forFdCloseAccount({ values, id: fdAccountId }).unwrap();
+    await forRdCloseAccount({ values, id }).unwrap();
   };
 
   const handleCloseSnackbar = () =>
@@ -156,4 +148,4 @@ const FdForClose = ({ setActiveTab }) => {
   );
 };
 
-export default FdForClose;
+export default RdForClose;

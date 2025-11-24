@@ -9,37 +9,28 @@ import { capitalizeFirstLetter } from "../../../helper/helper";
 import PageHeader from "../../../components/PageHeader";
 import DynamicForm from "../../../components/DynamicForm";
 import * as Yup from "yup";
+import { useGetRdSingleReciptDetailsQuery } from "../../../features/api/rdAccounts";
 
 const ViewRdReciept = () => {
   const { id } = useParams();
-  const { data, isLoading } = useGetBasicFdAccountDetailsQuery({ id });
+  const { data, isLoading } = useGetRdSingleReciptDetailsQuery({ id });
 
   const basicDetails = data?.data || {};
   console.log("basicDetails", basicDetails);
 
   // Destructure safely from API
   const {
-    member,
-    memberNo,
-    agentName,
-    principalAmount,
-    openDate,
-    annualInterestRate,
-    maturityDate,
-    status,
-    seniorCitizen,
-    approvedBy,
-    approvedDate,
-    fdNumber,
-    branchName,
-    plan,
+    memberId,
+    accountNumber,
+    transactionType,
+    amount,
+    chequeNumber,
     paymentMode,
-    maturityAmount,
-    balance,
-    interestPayout,
-    tdsDeduction,
-    autoRenewal,
-    address,
+    bankName,
+    branchName,
+    receiptDate,
+    memberName
+    
   } = basicDetails;
 
   const key2 = ["Member Name", "Amount", "Payment Mode", "Status"];
@@ -50,35 +41,23 @@ const ViewRdReciept = () => {
     "Transaction ID",
   ];
 
-  const pair1 = [
-    member || "N/A",
-    memberNo || "N/A",
-    agentName || "N/A",
-    `₹ ${principalAmount}` || "N/A",
-    openDate || "N/A",
-    annualInterestRate || "N/A",
-    maturityDate || "N/A",
-    status === "closed" ? (
-      <strong style={{ color: "#de1313" }}>Closed</strong>
-    ) : (
-      <strong style={{ color: "#1F9C00" }}>Active</strong>
-    ),
-    seniorCitizen || "N/A",
-    approvedBy || "N/A",
-    approvedDate ? new Date(approvedDate).toLocaleDateString() : "N/A",
+  const pair2 = [
+    memberName || "N/A",
+    `₹ ${    amount}` || "N/A",
+    capitalizeFirstLetter( paymentMode) || "N/A",
+    // status === "closed" ? (
+    //   <strong style={{ color: "#de1313" }}>Closed</strong>
+    // ) : (
+    //   <strong style={{ color: "#1F9C00" }}>Active</strong>
+    // ),
+   
   ];
 
-  const pair2 = [
-    fdNumber || "N/A",
-    branchName || "N/A",
-    capitalizeFirstLetter(plan) || "N/A",
-    capitalizeFirstLetter(paymentMode) || "N/A",
-    `₹ ${maturityAmount}` || "N/A",
-    `₹ ${balance}` || "N/A",
-    interestPayout || "N/A",
-    tdsDeduction || "N/A",
-    autoRenewal || "N/A",
-    address || "N/A",
+  const pair1 = [
+    memberId || "N/A",
+    accountNumber || "N/A",
+
+    new Date(receiptDate).toLocaleString() || "N/A",
   ];
 
   const initialValues = {

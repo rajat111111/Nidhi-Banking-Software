@@ -56,12 +56,12 @@ const PrintPassbook = () => {
     id: i + 1,
     transactionDate: curTran?.transactionDate || "N/A",
     transactionId: curTran?.transactionId || "N/A",
-    payMode: capitalizeFirstLetter( curTran?.payMode) || "N/A",
+    payMode: capitalizeFirstLetter(curTran?.payMode) || "N/A",
     remark: curTran?.remark || "N/A",
     debit: `₹ ${curTran?.debit}` || "N/A",
-    credit: `₹ ${curTran?.credit}`|| "N/A",
-    balance: `₹ ${curTran?.balance}`|| "N/A",
-    status: curTran?.status==="success" ? "Success":"Rejected" || "N/A",
+    credit: `₹ ${curTran?.credit}` || "N/A",
+    balance: `₹ ${curTran?.balance}` || "N/A",
+    status: curTran?.status === "success" ? "Success" : "Rejected" || "N/A",
   }));
   return (
     <>

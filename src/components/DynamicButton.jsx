@@ -13,7 +13,7 @@ const DynamicButton = ({
   type,
   sx,
   to,
-  borderRadius
+  borderRadius,
 }) => {
   return (
     <DepartmentalUsesButtonMainContainer
@@ -38,7 +38,7 @@ const DynamicButton = ({
 export default DynamicButton;
 
 const DepartmentalUsesButtonMainContainer = styled(Button)(
-  ({ customcolor, textColor, borderColor,borderRadius }) => ({
+  ({ customcolor, textColor, borderColor, borderRadius }) => ({
     borderRadius: `${borderRadius}`,
     width: "auto",
     height: "auto",

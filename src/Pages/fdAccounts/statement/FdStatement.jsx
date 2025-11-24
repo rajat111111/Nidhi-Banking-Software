@@ -1,19 +1,28 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
-import GetSavingDetailsByAcnt from "../../../components/GetSavingDetailsByAcnt";
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
-import { styled } from "@mui/material";
+import { Alert, Snackbar, styled } from "@mui/material";
 import FormLabel from "../../../components/FormLabel";
-import { useGetBankStatementByAccountNumberQuery } from "../../../features/api/savingAccounts";
 import { capitalizeFirstLetter } from "../../../helper/helper";
+import FetchFdAccountDetails from "../../../components/fdAccount/FetchFdAccountDetails";
+import { useLazyFetchFdAccontStatementsByFdAccountQuery } from "../../../features/api/fdAccounts";
+import DynamicButton from "../../../components/DynamicButton";
+import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
 
 const FdStatement = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const accountNumber=localStorage.getItem("accountNumber")
-  const { data, isLoading } = useGetBankStatementByAccountNumberQuery({fromDate,toDate,accountNumber});
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+
+  const [triggerGetFdDetails, { data, isLoading, isError, isSuccess, error }] =
+    useLazyFetchFdAccontStatementsByFdAccountQuery({ fromDate, toDate });
+
   const bankStatementList = data?.data?.transactions || [];
 
   const columns = [
@@ -29,25 +38,37 @@ const FdStatement = () => {
     { id: "status", label: "Status", minWidth: 120 },
   ];
 
-  const rows = bankStatementList && bankStatementList.map((curStatement,i)=>({
-    id:i+1,
-    transactionDate:curStatement?.transactionDate || 'N/A',
-    transactionID:curStatement?.transactionId || 'N/A',
-    transactionType:capitalizeFirstLetter(curStatement?.transactionType) || 'N/A',
-    remark:curStatement?.remark || 'N/A',
-    debit:`₹ ${curStatement?.debit}` || 'N/A',
-    credit:`₹ ${curStatement?.credit}`|| 'N/A',
-    balance:`₹ ${curStatement?.balance}`|| 'N/A',
-    status:capitalizeFirstLetter(curStatement?.status) || 'N/A',
-  }));
+  const rows =
+    bankStatementList &&
+    bankStatementList.map((curStatement, i) => ({
+      id: i + 1,
+      transactionDate: curStatement?.transactionDate || "N/A",
+      transactionID: curStatement?.transactionId || "N/A",
+      transactionType:
+        capitalizeFirstLetter(curStatement?.transactionType) || "N/A",
+      remark: curStatement?.remark || "N/A",
+      debit: `₹ ${curStatement?.debit}` || "N/A",
+      credit: `₹ ${curStatement?.credit}` || "N/A",
+      balance: `₹ ${curStatement?.balance}` || "N/A",
+      status: capitalizeFirstLetter(curStatement?.status) || "N/A",
+    }));
+
+  const handleFetchStatements = async () => {
+    try {
+      await triggerGetFdDetails({ fromDate, toDate });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleCloseSnackbar = () =>
+    setSnackbar((prev) => ({ ...prev, open: false }));
 
   return (
     <PagesMainContainerStyle>
-      <GetSavingDetailsByAcnt
+      <FetchFdAccountDetails
         title="Statement Details"
-        accntNumberLabel="FD Account No."
         showDetails={showDetails}
-        AccountNumberFormLabel="FD Account Number"
         setShowDetails={setShowDetails}
       />
       {showDetails && (
@@ -73,6 +94,13 @@ const FdStatement = () => {
                 onChange={(e) => setToDate(e.target.value)}
               />
             </FormContent>
+            <DynamicButton
+              onClick={handleFetchStatements}
+              text="Show"
+              color="#7858C6"
+              textColor="#FFFFFF"
+              sx={{ marginTop: "35px" }}
+            />
           </FilterByDate>
           <PageHeader
             title="Print Transaction Details"
@@ -91,6 +119,31 @@ const FdStatement = () => {
             rows={rows}
             columns={columns}
           />
+          <ErrorAndSuccessUseEffect
+            isError={isError}
+            isSuccess={isSuccess}
+            data={data}
+            error={error}
+            setSnackbar={setSnackbar}
+          />
+
+          {snackbar && (
+            <Snackbar
+              open={snackbar.open}
+              autoHideDuration={4000}
+              onClose={handleCloseSnackbar}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+              <Alert
+                onClose={handleCloseSnackbar}
+                variant="filled"
+                severity={snackbar.severity}
+                sx={{ width: "100%", color: "#fff" }}
+              >
+                {snackbar.message}
+              </Alert>
+            </Snackbar>
+          )}
         </>
       )}
     </PagesMainContainerStyle>

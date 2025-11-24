@@ -3,7 +3,7 @@ import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle
 import PageTopContent from "../../../components/PageTopContent";
 import PageLoader from "../../../components/PageLoader";
 import InformationPage from "../../../components/InformationPage";
-import { useGetBasicFdAccountDetailsQuery } from "../../../features/api/fdAccounts";
+import { useGetFdSingleReciptDetailsQuery } from "../../../features/api/fdAccounts";
 import { useParams } from "react-router-dom";
 import { capitalizeFirstLetter } from "../../../helper/helper";
 import PageHeader from "../../../components/PageHeader";
@@ -12,75 +12,46 @@ import * as Yup from "yup";
 
 const ViewFdRecipt = () => {
   const { id } = useParams();
-  const { data, isLoading } = useGetBasicFdAccountDetailsQuery({ id });
+  const { data, isLoading } = useGetFdSingleReciptDetailsQuery({ id });
 
-  const basicDetails = data?.data || {};
-  console.log("basicDetails", basicDetails);
+  // Handle API response
+  const reciptDetails = data?.data?.data || {}; // based on your nested API structure
+
+  console.log("reciptDetails", reciptDetails);
 
   // Destructure safely from API
   const {
-    member,
-    memberNo,
-    agentName,
-    principalAmount,
-    openDate,
-    annualInterestRate,
-    maturityDate,
-    status,
-    seniorCitizen,
-    approvedBy,
-    approvedDate,
-    fdNumber,
+    id: receiptId,
+    accountNumber,
+    memberId,
+    memberName,
     branchName,
-    plan,
+    transactionType,
+    amount,
     paymentMode,
-    maturityAmount,
-    balance,
-    interestPayout,
-    tdsDeduction,
-    autoRenewal,
-    address,
-  } = basicDetails;
+    receiptDate,
+  } = reciptDetails;
 
-  const key2 = ["Member Name", "Amount", "Payment Mode", "Status"];
-  const key1 = [
-    "Member ID",
-    "FD Account Number",
-    "Receipt Date",
-    "Transaction ID",
-  ];
-
+  // 🧾 Define keys and values for InformationPage
+  const key1 = ["Member ID", "Member Name", "FD Account Number", "Branch Name"];
   const pair1 = [
-    member || "N/A",
-    memberNo || "N/A",
-    agentName || "N/A",
-    `₹ ${principalAmount}` || "N/A",
-    openDate || "N/A",
-    annualInterestRate || "N/A",
-    maturityDate || "N/A",
-    status === "closed" ? (
-      <strong style={{ color: "#de1313" }}>Closed</strong>
-    ) : (
-      <strong style={{ color: "#1F9C00" }}>Active</strong>
-    ),
-    seniorCitizen || "N/A",
-    approvedBy || "N/A",
-    approvedDate ? new Date(approvedDate).toLocaleDateString() : "N/A",
-  ];
-
-  const pair2 = [
-    fdNumber || "N/A",
+    memberId || "N/A",
+    memberName || "N/A",
+    accountNumber || "N/A",
     branchName || "N/A",
-    capitalizeFirstLetter(plan) || "N/A",
-    capitalizeFirstLetter(paymentMode) || "N/A",
-    `₹ ${maturityAmount}` || "N/A",
-    `₹ ${balance}` || "N/A",
-    interestPayout || "N/A",
-    tdsDeduction || "N/A",
-    autoRenewal || "N/A",
-    address || "N/A",
   ];
 
+  const key2 = ["Transaction Type", "Amount", "Payment Mode", "Receipt Date"];
+  const pair2 = [
+    capitalizeFirstLetter(transactionType) || "N/A",
+    amount ? `₹ ${parseFloat(amount).toLocaleString("en-IN")}` : "N/A",
+    capitalizeFirstLetter(paymentMode) || "N/A",
+    receiptDate
+      ? new Date(receiptDate).toLocaleString("en-IN")
+      : "N/A",
+  ];
+
+  // 🧩 Form setup for changing status
   const initialValues = {
     status: "",
   };
@@ -94,33 +65,43 @@ const ViewFdRecipt = () => {
       label: "Status",
       type: "select",
       name: "status",
+      id: "status",
       options: [
-        {
-          label: "Appove",
-          value: "approve",
-        },
-        {
-          label: "Pending",
-          value: "pending",
-        },
+        { label: "Approve", value: "approve" },
+        { label: "Pending", value: "pending" },
+        { label: "Reject", value: "reject" },
       ],
     },
   ];
 
+  const handleSubmit = (values) => {
+    console.log("Status Update:", values);
+    // 🧠 Here you can integrate mutation for status update
+  };
+
   return (
     <PagesMainContainerStyle>
       <PageTopContent title="Receipt Details" />
+
       {isLoading ? (
         <PageLoader />
       ) : (
-        <InformationPage key1={key1} pair1={pair1} key2={key2} pair2={pair2} />
+        <InformationPage
+          key1={key1}
+          pair1={pair1}
+          key2={key2}
+          pair2={pair2}
+        />
       )}
+
       <PageHeader title="Change Receipt Status" paddingBottom="0px" />
+
       <DynamicForm
         formList={formList}
-        actionButtonText="Upgrade"
         initialValues={initialValues}
         validationSchema={validationSchema}
+        actionButtonText="Update Status"
+        handleSubmit={handleSubmit}
       />
     </PagesMainContainerStyle>
   );

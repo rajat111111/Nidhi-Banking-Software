@@ -10,7 +10,6 @@ const FdBasics = () => {
   const { data, isLoading } = useGetBasicFdAccountDetailsQuery({ id });
 
   const basicDetails = data?.data || {};
-  console.log("basicDetails", basicDetails);
 
   // Destructure safely from API
   const {
@@ -28,6 +27,7 @@ const FdBasics = () => {
     fdNumber,
     branchName,
     plan,
+    fdId,
     paymentMode,
     maturityAmount,
     balance,
@@ -35,6 +35,7 @@ const FdBasics = () => {
     tdsDeduction,
     autoRenewal,
     address,
+    closureApprovalId,
   } = basicDetails;
 
   // 🔹 Left section
@@ -47,6 +48,7 @@ const FdBasics = () => {
     "Annual Interest Rate",
     "Maturity Date",
     "Status",
+    "Closure Request Id",
     "Senior Citizen",
     "Approved By",
     "Approved Date",
@@ -62,10 +64,13 @@ const FdBasics = () => {
     maturityDate || "N/A",
     status === "closed" ? (
       <strong style={{ color: "#de1313" }}>Closed</strong>
+    ) : status === "Closure_Approval" ? (
+      <strong style={{ color: "#e47b1fff" }}>Pending For Closure</strong>
     ) : (
       <strong style={{ color: "#1F9C00" }}>Active</strong>
     ),
-   seniorCitizen === "Yes" ? (
+    closureApprovalId || "N/A",
+    seniorCitizen === "Yes" ? (
       <YesContainer>Yes</YesContainer>
     ) : (
       <NoContainer>No</NoContainer>
@@ -76,7 +81,8 @@ const FdBasics = () => {
 
   // 🔹 Right section
   const key2 = [
-    "FD Number",
+    "FD Account Number",
+    "FD Id",
     "Branch Name",
     "Plan",
     "Payment Mode",
@@ -90,18 +96,19 @@ const FdBasics = () => {
 
   const pair2 = [
     fdNumber || "N/A",
+    fdId || "N/A",
     branchName || "N/A",
     capitalizeFirstLetter(plan) || "N/A",
     capitalizeFirstLetter(paymentMode) || "N/A",
     `₹ ${maturityAmount}` || "N/A",
     `₹ ${balance}` || "N/A",
     interestPayout || "N/A",
-   tdsDeduction === "Yes" ? (
+    tdsDeduction === "Yes" ? (
       <YesContainer>Yes</YesContainer>
     ) : (
       <NoContainer>No</NoContainer>
     ),
-   autoRenewal === "Yes" ? (
+    autoRenewal === "Yes" ? (
       <YesContainer>Yes</YesContainer>
     ) : (
       <NoContainer>No</NoContainer>
@@ -142,4 +149,3 @@ const YesContainer = styled("div")({
   color: "white",
   borderRadius: "5px",
 });
-

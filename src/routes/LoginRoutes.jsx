@@ -8,15 +8,15 @@ import ResetPassword from "../Pages/authentication/ResetPassword";
 // import ResetPassword from "../Pages/authentication/ResetPassword";
 
 const LoginRoutes = {
-    path: "/",
-    children: [
-        { path: "login", element: <Login /> },
-        { path: "register", element: <Register /> },
-        { path: "otp-verification", element: <OtpVerification /> },
-        { path: "forgot-password", element: <ForgotPassword /> },
-        { path: "forgot-password-otp", element: <ForgotPasswordOtp /> },
-        { path: "reset-password", element: <ResetPassword /> },
-    ],
+  path: "/",
+  children: [
+    { path: "login", element: <Login /> },
+    { path: "register", element: <Register /> },
+    { path: "otp-verification", element: <OtpVerification /> },
+    { path: "forgot-password", element: <ForgotPassword /> },
+    { path: "forgot-password-otp", element: <ForgotPasswordOtp /> },
+    { path: "reset-password", element: <ResetPassword /> },
+  ],
 };
 
 export default LoginRoutes;

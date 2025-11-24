@@ -4,12 +4,14 @@ import * as Yup from "yup";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
-import { useLazyGetRecieptPrintListQuery } from "../../../features/api/savingAccounts";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
-import { Alert, Snackbar } from "@mui/material";
+import { Alert, IconButton, Snackbar } from "@mui/material";
 import { capitalizeFirstLetter } from "../../../helper/helper";
 import NotFound from "../../NotFound";
-import { useLazyGetFdReciptPrintByAcntNumberAndMemberNameQuery } from "../../../features/api/fdAccounts";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import BackspaceOutlinedIcon from "@mui/icons-material/BackspaceOutlined";
+import { useFetchFdReciptsByFdAcntNoAndMemberNameMutation } from "../../../features/api/fdAccounts";
+import { NavLink } from "react-router-dom";
 
 const FdReciept = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -19,17 +21,17 @@ const FdReciept = () => {
     severity: "",
   });
   const [
-    getFdReciptPrintByAcntNumberAndMemberName,
+    fetchFdReciptsByFdAcntNoAndMemberName,
     { data, isLoading, isError, error, isSuccess },
-  ] = useLazyGetFdReciptPrintByAcntNumberAndMemberNameQuery();
+  ] = useFetchFdReciptsByFdAcntNoAndMemberNameMutation();
   const recieptPrintList = data?.data || [];
   const formList = [
-    {
-      label: "Enquiry ID",
-      placeholder: "Enter Enquiry ID ",
-      name: "enquiryId",
-      id: "enquiryId",
-    },
+    // {
+    //   label: "Enquiry ID",
+    //   placeholder: "Enter Enquiry ID ",
+    //   name: "enquiryId",
+    //   id: "enquiryId",
+    // },
     {
       label: "FD Account Number",
       placeholder: "Enter Account Number",
@@ -55,11 +57,11 @@ const FdReciept = () => {
   const validationSchema = Yup.object({
     accountNumber: Yup.string().required("Account number is required"),
     // enquiryId: Yup.string().required("EnquiryId  is required"),
-    memberName: Yup.string().required("Customer name is required"),
+    // memberName: Yup.string().required("Customer name is required"),
   });
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      const result = await getFdReciptPrintByAcntNumberAndMemberName(
+      const result = await fetchFdReciptsByFdAcntNoAndMemberName(
         values
       ).unwrap();
       if (result?.success || result?.data?.length > 0) {
@@ -87,8 +89,7 @@ const FdReciept = () => {
     { id: "amount", label: "Amount", minWidth: 120 },
     { id: "receiptDate", label: "Receipt Date", minWidth: 120 },
     { id: "paymentMode", label: "Payment Mode", minWidth: 120 },
-    // { id: "txnId", label: "TxnId", minWidth: 120 },
-    { id: "status", label: "Status", minWidth: 120 },
+
     { id: "action", label: "Action", minWidth: 120 },
   ];
   const rows =
@@ -98,9 +99,9 @@ const FdReciept = () => {
       receiptId: curPrint?.id || "N/A",
 
       memberName: curPrint
-        ? `${curPrint?.member?.title || ""} ${curPrint?.member?.firstName || ""} ${
-            curPrint?.member?.lastName || ""
-          }`.trim()
+        ? `${curPrint?.member?.title || ""} ${
+            curPrint?.member?.firstName || ""
+          } ${curPrint?.member?.lastName || ""}`.trim()
         : "N/A",
       accountNo: curPrint?.accountNumber || "N/A",
       accountType: capitalizeFirstLetter(curPrint?.accountType) || "N/A",
@@ -109,8 +110,23 @@ const FdReciept = () => {
         ? new Date(curPrint.receiptDate).toLocaleDateString("en-GB")
         : "N/A",
       paymentMode: capitalizeFirstLetter(curPrint?.paymentMode) || "N/A",
-      // txnId: capitalizeFirstLetter(curPrint?.transactionType) || "N/A",
-      status: capitalizeFirstLetter(curPrint?.status) || "N/A",
+      action: (
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <IconButton component={NavLink} to={`/fd-accounts/${curPrint?.id}/view-receipt`} >
+            <VisibilityOutlinedIcon  sx={{ color: "#7858C6" }} />
+          </IconButton>
+          <IconButton>
+            <BackspaceOutlinedIcon color="error" />
+          </IconButton>
+        </div>
+      ),
     }));
   return (
     <PagesMainContainerStyle>
@@ -127,7 +143,7 @@ const FdReciept = () => {
           isLoading={isLoading}
         />
       ) : (
-        <NotFound />
+        <NotFound to="/fd-accounts/create-receipt" />
       )}
       <ErrorAndSuccessUseEffect
         setSnackbar={setSnackbar}

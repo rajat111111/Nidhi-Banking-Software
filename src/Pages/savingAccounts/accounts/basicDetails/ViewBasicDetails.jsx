@@ -1,8 +1,6 @@
-import React from "react";
 import InformationPage from "../../../../components/InformationPage";
 import { useGetBasicAccountDetailsQuery } from "../../../../features/api/savingAccounts";
 import { useParams } from "react-router-dom";
-import { CircularProgress } from "@mui/material";
 import PageLoader from "../../../../components/PageLoader";
 import { capitalizeFirstLetter } from "../../../../helper/helper";
 
@@ -29,6 +27,7 @@ const ViewBasicDetails = () => {
     approvedBy,
     address,
     approvedDate,
+    closureApprovalId
   } = basicDetails;
 
   const key1 = [
@@ -47,8 +46,10 @@ const ViewBasicDetails = () => {
     capitalizeFirstLetter(accountType) || "N/A",
     openDate || "N/A",
     status === "closed" ? (
-      <strong style={{ color: "#de1313ff" }}>Closed</strong>
-    ) :status === "approved" ? (
+      <strong style={{ color: "#de1313ff" }}>Account Closed</strong>
+    ) :  status === "Closure_Approval" ? (
+      <strong style={{ color: "#de1313ff" }}>Pending For Closure Approval</strong>
+    ): status === "approved" ? (
       <strong style={{ color: "#1F9C00" }}>Active</strong> || "N/A"
     ): (
       <strong style={{ color: "#9c4900ff" }}>N/A</strong> || "N/A"
@@ -63,6 +64,7 @@ const ViewBasicDetails = () => {
     "Account Number",
     "Principal Amount",
     "Balance",
+  "Closure Request Id",
     "On Hold",
     "Nominee Name",
     "Lockin Amount",
@@ -73,6 +75,7 @@ const ViewBasicDetails = () => {
     accountNumber || "N/A",
     `₹ ${principalAmount}` || "N/A",
     `₹ ${balance}` || "N/A",
+    closureApprovalId && closureApprovalId,
     onHold === false ? "No" : "Yes" || "N/A",
     nomineeName || "N/A",
     `₹ ${lockinAmount}` || "N/A",

@@ -1,16 +1,15 @@
-import React from "react";
 import PageHeader from "../../../../components/PageHeader";
 import DynamicDataTable from "../../../../components/DynamicTable";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import PagesMainContainerStyle from "../../../../components/PagesMainContainerStyle";
-import InformationPage from "../../../../components/InformationPage";
-import { useGetNomineeDetailsQuery } from "../../../../features/api/savingAccounts";
-import PageLoader from "../../../../components/PageLoader";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { IconButton, styled } from "@mui/material";
 import ColorizeOutlinedIcon from "@mui/icons-material/ColorizeOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import { useGetSingleUserFdNonineeDetailsQuery } from "../../../../features/api/fdAccounts";
+import {
+  useGetBasicFdAccountDetailsQuery,
+  useGetSingleUserFdNonineeDetailsQuery,
+} from "../../../../features/api/fdAccounts";
 
 const ActionButtonContainer = styled("div")({
   width: "100%",
@@ -21,12 +20,11 @@ const ActionButtonContainer = styled("div")({
 
 const FdNominee = () => {
   const { id } = useParams();
+  const { data: basicFdDetails } = useGetBasicFdAccountDetailsQuery({ id });
+  const memberId = basicFdDetails?.data?.memberNo;
   const { isLoading, data } = useGetSingleUserFdNonineeDetailsQuery({ id });
 
   const nomineeDeatails = data?.data || {};
-
-  const nomineeDetails = data?.data || {};
-
   const {
     nomineeName,
     nomineeRelation,
@@ -36,7 +34,7 @@ const FdNominee = () => {
     nomineePan,
     nomineeRationCard,
     nomineeAddress,
-  } = nomineeDetails;
+  } = nomineeDeatails;
 
   const columns = [
     { id: "id", label: "#", minWidth: 50 },
@@ -51,10 +49,9 @@ const FdNominee = () => {
     { id: "action", label: "Action", minWidth: 120 },
   ];
 
-  // ✅ Sample Data
   const rows = [
     {
-      id: id,
+      id: 1,
       nomineeName: nomineeDeatails?.nomineeName || "N/A",
       relation: nomineeDeatails?.nomineeRelation || "N/A",
       mobileNumber: nomineeDeatails?.nomineeMobile || "N/A",

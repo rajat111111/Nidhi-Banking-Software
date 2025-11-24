@@ -11,6 +11,7 @@ import RemoveRdAccount from "./removeAccount/RemoveRdAccount";
 import UpdateRdAccountType from "./updateAccountType/UpdateRdAccountType";
 import RdFdBond from "./fdBond/RdFdBond";
 import RdDocuments from "./documents/RdDocuments";
+import RdForClose from "./forClose/RdForClose";
 
 const ViewSingleRdAccountDetails = () => {
   const [activeTab, setActiveTab] = useState("basic");
@@ -40,7 +41,7 @@ const ViewSingleRdAccountDetails = () => {
 
   return (
     <ViewSingleAccountDetailsMainContainer>
-      <PageTopContent title="Saving Account Information" />
+      <PageTopContent title="RD Account Information" />
 
       <GroupOfButton buttonsList={buttonsList} borderColor="#DDDDEBBF" />
 
@@ -49,9 +50,10 @@ const ViewSingleRdAccountDetails = () => {
           { key: "basic", text: "Basic Details" },
           { key: "viewTransaction", text: "View Transaction" },
           { key: "nominee", text: "Nominee" },
+          { key: "forClose", text: "For Close" },
           { key: "removeAccount", text: "Remove Account" },
           { key: "upgradeAccountType", text: "Upgrade Account Type" },
-          { key: "fdBond", text: "FD Bond" },
+          { key: "fdBond", text: "RD Bond" },
 
           { key: "documents", text: "Documents" },
         ].map((btn) => (
@@ -72,7 +74,7 @@ const ViewSingleRdAccountDetails = () => {
       {activeTab === "basic" && <RdBasicDetails />}
       {activeTab === "viewTransaction" && <ViewRdTransactions />}
       {activeTab === "nominee" && <RdNominee setActiveTab={setActiveTab} />}
-
+      {activeTab === "forClose" && <RdForClose setActiveTab={setActiveTab} />}
       {activeTab === "removeAccount" && (
         <RemoveRdAccount setActiveTab={setActiveTab} />
       )}

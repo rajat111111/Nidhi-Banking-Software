@@ -4,11 +4,15 @@ import * as Yup from "yup";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
-import { useLazyGetRecieptPrintListQuery } from "../../../features/api/savingAccounts";
 import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
-import { Alert, Snackbar } from "@mui/material";
+import { Alert, IconButton, Snackbar } from "@mui/material";
 import { capitalizeFirstLetter } from "../../../helper/helper";
 import NotFound from "../../NotFound";
+import { NavLink } from "react-router-dom";
+
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import BackspaceOutlinedIcon from "@mui/icons-material/BackspaceOutlined";
+import { useFetchRdReciptsByRdAcntNoAndMemberNameMutation } from "../../../features/api/rdAccounts";
 
 const RdReciept = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -18,16 +22,22 @@ const RdReciept = () => {
     severity: "",
   });
   const [
-    triggerGetClosedAccounts,
+    fetchRdReciptsByRdAcntNoAndMemberName,
     { data, isLoading, isError, error, isSuccess },
-  ] = useLazyGetRecieptPrintListQuery();
+  ] = useFetchRdReciptsByRdAcntNoAndMemberNameMutation();
   const recieptPrintList = data?.data || [];
   const formList = [
-       {
-      label: "Enquiry ID",
-      placeholder: "Enter Enquiry ID ",
-      name: "enquiryId",
-      id: "enquiryId",
+    //    {
+    //   label: "Enquiry ID",
+    //   placeholder: "Enter Enquiry ID ",
+    //   name: "enquiryId",
+    //   id: "enquiryId",
+    // },
+     {
+      label: "RD Account Number",
+      placeholder: "Enter Account Number",
+      name: "accountNumber",
+      id: "accountNumber",
     },
     {
       label: "Member Name",
@@ -36,28 +46,23 @@ const RdReciept = () => {
       name: "memberName",
       id: "memberName",
     },
-     {
-      label: "RD Account Number",
-      placeholder: "Enter Account Number",
-      name: "rdAccountNumber",
-      id: "rdAccountNumber",
-    },
+    
   ];
 
   const initialValues = {
-    rdAccountNumber: "",
+    accountNumber: "",
     memberName: "",
     enquiryId:""
   };
 
   const validationSchema = Yup.object({
-    rdAccountNumber: Yup.string().required("Rd Account number is required"),
+ accountNumber: Yup.string().required("Rd Account number is required"),
     // enquiryId: Yup.string().required("EnquiryId  is required"),
-    memberName: Yup.string().required("Member name is required"),
+    // memberName: Yup.string().required("Member name is required"),
   });
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      const result = await triggerGetClosedAccounts(values).unwrap();
+      const result = await fetchRdReciptsByRdAcntNoAndMemberName(values).unwrap();
       if (result?.success || result?.data?.length > 0) {
         setShowDetails(true);
       } else {
@@ -83,8 +88,8 @@ const RdReciept = () => {
     { id: "amount", label: "Amount", minWidth: 120 },
     { id: "mode", label: "Mode", minWidth: 120 },
     { id: "receiptDate", label: "Receipt Date", minWidth: 120 },
-    { id: "receiptDate", label: "Payment Mode", minWidth: 120 },
-    { id: "receiptDate", label: "Txn. ID", minWidth: 120 },
+    // { id: "receiptDate", label: "Payment Mode", minWidth: 120 },
+    // { id: "receiptDate", label: "Txn. ID", minWidth: 120 },
     { id: "status", label: "Status", minWidth: 120 },
     { id: "action", label: "Action", minWidth: 120 },
   ];
@@ -105,6 +110,23 @@ const RdReciept = () => {
 
       status: capitalizeFirstLetter("Success") || "N/A",
       // receiptId:curPrint?.receiptId || 'N/A',
+       action: (
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <IconButton component={NavLink} to={`/rd-accounts/${curPrint?.receiptId}/view-receipt`} >
+            <VisibilityOutlinedIcon  sx={{ color: "#7858C6" }} />
+          </IconButton>
+          <IconButton>
+            <BackspaceOutlinedIcon color="error" />
+          </IconButton>
+        </div>
+      ),
     }));
   return (
     <PagesMainContainerStyle>
@@ -119,7 +141,7 @@ const RdReciept = () => {
         handleSubmit={handleSubmit}
         texting="Fetching"
         isLoading={isLoading}
-      />:<NotFound/>
+      />:<NotFound to="/rd-accounts/create-receipt" />
      }
       <ErrorAndSuccessUseEffect
         setSnackbar={setSnackbar}
@@ -149,7 +171,7 @@ const RdReciept = () => {
             title="Receipt Print"
             primaryButton={{
               label: "Create Receipt",
-              to: "/fd-accounts/create-receipt",
+              to: "/rd-accounts/create-receipt",
               onClick: handleCreateReciept,
             }}
           />

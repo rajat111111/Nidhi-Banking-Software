@@ -1,26 +1,38 @@
 import React, { useState } from "react";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
-import GetSavingDetailsByAcnt from "../../../components/GetSavingDetailsByAcnt";
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
-import { styled } from "@mui/material";
+import { Alert, Snackbar, styled } from "@mui/material";
 import FormLabel from "../../../components/FormLabel";
-import { useGetBankStatementByAccountNumberQuery } from "../../../features/api/savingAccounts";
 import { capitalizeFirstLetter } from "../../../helper/helper";
+import FetchRdAccountDetails from "../../../components/rdAccount/FetchRdAccountDetails";
+import DynamicButton from "../../../components/DynamicButton";
+import {
+  useLazyFetchRdAccontStatementsByFdAccountQuery,
+} from "../../../features/api/rdAccounts";
+import ErrorAndSuccessUseEffect from "../../../components/ErrorAndSuccessUseEffect";
+import SubmitButtonLoader from "../../../components/SubmitButtonLoader";
 
 const RdStatement = () => {
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const accountNumber=localStorage.getItem("accountNumber")
-  const { data, isLoading } = useGetBankStatementByAccountNumberQuery({fromDate,toDate,accountNumber});
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+
+  const [triggerGetFdDetails, { data, isLoading, isError, isSuccess, error }] =
+    useLazyFetchRdAccontStatementsByFdAccountQuery({ fromDate, toDate });
+
   const bankStatementList = data?.data?.transactions || [];
 
   const columns = [
     { id: "id", label: "#", minWidth: 50 },
     { id: "rdAccountNumber", label: "RD A/c No", minWidth: 120 },
-    { id: "transactionDate", label: "Member No", minWidth: 120 },
-    { id: "transactionDate", label: "Member Name", minWidth: 120 },
+    { id: "memberNo", label: "Member No", minWidth: 120 },
+    { id: "memberName", label: "Member Name", minWidth: 120 },
     { id: "transactionType", label: "Transaction Type", minWidth: 120 },
     { id: "txnDate", label: "Txn. Date", minWidth: 120 },
     { id: "transactionMode", label: "Transaction Mode", minWidth: 150 },
@@ -31,25 +43,38 @@ const RdStatement = () => {
     { id: "status", label: "Status", minWidth: 120 },
   ];
 
-  const rows = bankStatementList && bankStatementList.map((curStatement,i)=>({
-    id:i+1,
-    transactionDate:curStatement?.transactionDate || 'N/A',
-    transactionID:curStatement?.transactionId || 'N/A',
-    transactionType:capitalizeFirstLetter(curStatement?.transactionType) || 'N/A',
-    remark:curStatement?.remark || 'N/A',
-    debit:`₹ ${curStatement?.debit}` || 'N/A',
-    credit:`₹ ${curStatement?.credit}`|| 'N/A',
-    balance:`₹ ${curStatement?.balance}`|| 'N/A',
-    status:capitalizeFirstLetter(curStatement?.status) || 'N/A',
-  }));
+  const rows =
+    bankStatementList &&
+    bankStatementList.map((curStatement, i) => ({
+      id: i + 1,
+      rdAccountNumber: curStatement?.accountNumber ||  data?.data?.accountNumber || "N/A",
+      memberNo: curStatement?.membeNo|| "N/A",
+transactionType:curStatement?.transactionType,
+txnDate:new Date(curStatement?.transactionDate).toLocaleString(),
+      memberName:  data?.data?.memberName|| "N/A",
+        transactionMode: capitalizeFirstLetter( curStatement?.mode)|| "N/A",
+      debit: `₹ ${curStatement?.debit}` || "N/A",
+      credit: `₹ ${curStatement?.credit}` || "N/A",
+      balance: `₹ ${curStatement?.balance}` || "N/A",
+      status: capitalizeFirstLetter(curStatement?.status) || "N/A",
+    }));
+
+  const handleFetchStatements = async () => {
+    try {
+      await triggerGetFdDetails({ fromDate, toDate });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleCloseSnackbar = () =>
+    setSnackbar((prev) => ({ ...prev, open: false }));
 
   return (
     <PagesMainContainerStyle>
-      <GetSavingDetailsByAcnt
+      <FetchRdAccountDetails
         title="Statement Details"
-        accntNumberLabel="RD Account No."
         showDetails={showDetails}
-        AccountNumberFormLabel="RD Account Number"
         setShowDetails={setShowDetails}
       />
       {showDetails && (
@@ -63,6 +88,7 @@ const RdStatement = () => {
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
                 id="fromDate"
+     
               />
             </FormContent>
             <FormContent>
@@ -71,10 +97,20 @@ const RdStatement = () => {
                 type="date"
                 name="toDate"
                 id="toDate"
+  
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
               />
             </FormContent>
+            <DynamicButton
+              onClick={handleFetchStatements}
+              text={
+                <SubmitButtonLoader text="Show" texting="Showing" isLoading={isLoading}  />
+              }
+              color="#7858C6"
+              textColor="#FFFFFF"
+              sx={{ marginTop: "35px" }}
+            />
           </FilterByDate>
           <PageHeader
             title="Account Details"
@@ -88,11 +124,32 @@ const RdStatement = () => {
               },
             ]}
           />
-          <DynamicDataTable
-            isLoading={isLoading}
-            rows={rows}
-            columns={columns}
+          <DynamicDataTable rows={rows} columns={columns} />
+          <ErrorAndSuccessUseEffect
+            isError={isError}
+            isSuccess={isSuccess}
+            data={data}
+            error={error}
+            setSnackbar={setSnackbar}
           />
+
+          {snackbar && (
+            <Snackbar
+              open={snackbar.open}
+              autoHideDuration={4000}
+              onClose={handleCloseSnackbar}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+              <Alert
+                onClose={handleCloseSnackbar}
+                variant="filled"
+                severity={snackbar.severity}
+                sx={{ width: "100%", color: "#fff" }}
+              >
+                {snackbar.message}
+              </Alert>
+            </Snackbar>
+          )}
         </>
       )}
     </PagesMainContainerStyle>

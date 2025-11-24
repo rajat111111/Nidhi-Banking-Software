@@ -1,4 +1,3 @@
-import React from "react";
 import PagesMainContainerStyle from "../../../../components/PagesMainContainerStyle";
 import PageHeader from "../../../../components/PageHeader";
 import DynamicDataTable from "../../../../components/DynamicTable";

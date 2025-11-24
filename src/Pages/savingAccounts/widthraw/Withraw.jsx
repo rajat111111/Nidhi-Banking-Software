@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import * as Yup from "yup";
 import DynamicForm from "../../../components/DynamicForm";
 import PagesMainContainerStyle from "../../../components/PagesMainContainerStyle";
@@ -18,7 +18,6 @@ const Withdraw = () => {
     severity: "",
   });
 
-  // 🔹 Sync account number after showDetails changes
   useEffect(() => {
     const storedAccNo = localStorage.getItem("accountNumber");
     if (storedAccNo) {

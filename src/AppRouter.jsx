@@ -6,12 +6,13 @@ import LoginRoutes from "./routes/LoginRoutes";
 import ErrorRoutes from "./routes/ErrorRoutes";
 
 export default function AppRouter() {
-    const token = useSelector((state) => state.auth.token) || localStorage.getItem("token");
+  const token =
+    useSelector((state) => state.auth.token) || localStorage.getItem("token");
 
-    const router = createBrowserRouter(
-        token ? [MainRoutes, ErrorRoutes] : [LoginRoutes],
-        { basename: "/" }
-    );
+  const router = createBrowserRouter(
+    token ? [MainRoutes, ErrorRoutes] : [LoginRoutes],
+    { basename: "/" }
+  );
 
-    return <RouterProvider router={router} />;
+  return <RouterProvider router={router} />;
 }

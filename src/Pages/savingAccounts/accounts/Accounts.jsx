@@ -1,18 +1,15 @@
-import React from "react";
+
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
-import { Button, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import DynamicButton from "../../../components/DynamicButton";
 import { NavLink } from "react-router-dom";
 import { useGetAllSavingAccountsListQuery } from "../../../features/api/savingAccounts";
 
 const Accounts = () => {
-
-
   const { data, isLoading } = useGetAllSavingAccountsListQuery();
 
   const savingAccountsList = data?.data || [];
-
 
   const ActionButtonContainer = styled("div")({
     display: "flex",
@@ -38,7 +35,6 @@ const Accounts = () => {
     { id: "action", label: "Actions", minWidth: 180 },
   ];
 
-
   const rows = savingAccountsList.map((curList, i) => ({
     id: i + 1,
     branchName: curList?.branch?.name || "N/A",
@@ -53,20 +49,26 @@ const Accounts = () => {
     availableBalance: `₹ ${curList?.depositAmount}` || "N/A",
     lockinAmount: curList?.lockinAmount || "N/A",
     passbookNumber: curList?.passbookNumber || "N/A",
-    status: curList?.status ==="closed" ? "Closed":"Approved",
+    status:
+      curList?.status === "closed"
+        ? "Closed"
+        : curList?.status === "Closure_Approval"
+        ? "Closure Request"
+        : "Approved",
     action: (
       <ActionButtonContainer>
-  <DynamicButton
+        <DynamicButton
           text="View"
           variant="outlined"
           textColor="#0D6A84"
           borderColor="#0D6A84"
           borderRadius="5px"
-          onClick={()=>localStorage.setItem("accountNumber",curList?.accountNumber)}
+          onClick={() =>
+            localStorage.setItem("accountNumber", curList?.accountNumber)
+          }
           component={NavLink}
-          to={`/saving-accounts/${curList?.member?.id}/account-details`}
+          to={`/saving-accounts/${curList?.id}/account-details`}
         />
-      
       </ActionButtonContainer>
     ),
   }));
@@ -81,10 +83,9 @@ const Accounts = () => {
           label: "Add New",
           variant: "contained",
           component: { NavLink },
-        
+
           to: "/saving-accounts/add-new-account",
           color: "secondary",
-        
         }}
       />
       <DynamicDataTable isLoading={isLoading} rows={rows} columns={columns} />

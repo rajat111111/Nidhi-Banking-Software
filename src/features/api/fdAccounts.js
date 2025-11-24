@@ -20,6 +20,10 @@ export const fdAccounts = createApi({
     "GET_FD_LATEST_DEPOSIT_LOGS",
     "APPROVE_FD_ACCOUNT_LIST",
     "GET_FD_RECIPT_PRINTS",
+    "GET_FD_LATEST_BONDS",
+    "GET_LATEST_FD_ACCOUNT_LIST_OF_APPROVAL",
+    "GET_LATEST_FD_CLOSURE_APPROVALS",
+    "GET_FD_RECIEPT_PRINT_LATEST_LIST",
   ],
   endpoints: (builder) => ({
     getAllFdAccountsList: builder.query({
@@ -27,7 +31,25 @@ export const fdAccounts = createApi({
         url: `/fd-account/all`,
         method: "GET",
       }),
-      providesTags: ["GET_LATEST_FD_DATA_LIST"],
+      providesTags: [
+        "GET_LATEST_FD_DATA_LIST",
+        "GET_LATEST_FD_ACCOUNT_LIST_OF_APPROVAL",
+      ],
+    }),
+    createFdAccount: builder.mutation({
+      query: (values) => ({
+        url: `fd-account/add`,
+        method: "POST",
+        body: values,
+      }),
+      invalidatesTags: ["GET_LATEST_FD_DATA_LIST"],
+    }),
+    getFdAccountsWithApprovalStatus: builder.query({
+      query: () => ({
+        url: `/fd-account/approved`,
+        method: "GET",
+      }),
+      providesTags: ["GET_LATEST_FD_ACCOUNT_LIST_OF_APPROVAL"],
     }),
     getBasicFdAccountDetails: builder.query({
       query: ({ id }) => ({
@@ -44,7 +66,7 @@ export const fdAccounts = createApi({
     }),
     viewSingleUserFdTransaction: builder.query({
       query: ({ id }) => ({
-        url: `/fd-transactions/member/${id}`,
+        url: `/fd-transactions/getTransactions/${id}`,
         method: "GET",
       }),
       providesTags: ["GET_FD_TRANSACTION_DETAILS"],
@@ -71,7 +93,7 @@ export const fdAccounts = createApi({
     forFdCloseAccount: builder.mutation({
       query: ({ values, id }) => ({
         url: `fd-account/close/${id}`,
-        method: "PATCH",
+        method: "PUT",
         body: values,
       }),
       invalidatesTags: [
@@ -116,20 +138,6 @@ export const fdAccounts = createApi({
       }),
       providesTags: ["GET_FD_LATEST_DEPOSIT_LOGS"],
     }),
-    getFdStatementsByAccnNumberAndMemberId: builder.mutation({
-      query: ({ id, values }) => ({
-        url: ``,
-        method: "GET",
-        body: values,
-      }),
-    }),
-    approveFdAccount: builder.query({
-      query: (id) => ({
-        url: `fd-account/approve/${id}`,
-        method: "GET",
-      }),
-      providesTags: ["APPROVE_FD_ACCOUNT_LIST"],
-    }),
     getFdReciptPrintByAcntNumberAndMemberName: builder.query({
       query: ({ accountNumber, memberName }) => ({
         url: `fd-receipt-print/search?accountNumber=${accountNumber}&memberName=${memberName}`,
@@ -139,12 +147,87 @@ export const fdAccounts = createApi({
     }),
     createFdRecieptPrint: builder.mutation({
       query: (values) => ({
-        url: `fd-account/receipt-print`,
+        url: `fd-receipt-print`,
         method: "POST",
         body: values,
       }),
-      invalidatesTags: ["GET_FD_RECIPT_PRINTS"],
+      invalidatesTags: ["GET_FD_RECIEPT_PRINT_LATEST_LIST"],
     }),
+    getFdBonds: builder.query({
+      query: (id) => ({
+        url: `fd-account/bonds/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["GET_FD_LATEST_BONDS"],
+    }),
+    fetchFdAccontStatementsByFdAccount: builder.query({
+      query: ({ accountNumber, fromDate, toDate, page = 1, limit = 10 }) => ({
+        url: `fd-account-statement/statement`,
+        method: "GET",
+        params: {
+          accountNumber,
+          fromDate,
+          toDate,
+          toDate,
+          page,
+          limit,
+        },
+      }),
+    }),
+    fetchFdReciptsByFdAcntNoAndMemberName: builder.mutation({
+      query: ({ accountNumber, memberName }) => ({
+        url: `fd-receipt-print/search`,
+        method: "GET",
+        params: {
+          accountNumber,
+          memberName,
+        },
+      }),
+      providesTags: ["GET_FD_RECIEPT_PRINT_LATEST_LIST"],
+    }),
+    fetchFdClosedAcntByFdAcntNoAndMemberName: builder.mutation({
+      query: ({ closeAccountId, accountNumber, memberName }) => ({
+        url: `fd-account/closed`,
+        method: "GET",
+        params: {
+          accountNumber,
+          memberName,
+          closeAccountId,
+        },
+        providesTags: ["GET_LATEST_FD_CLOSURE_APPROVALS"],
+      }),
+    }),
+    approveFdAccount: builder.mutation({
+      query: (id) => ({
+        url: `fd-account/approve/${id}`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["GET_LATEST_FD_ACCOUNT_LIST_OF_APPROVAL"],
+    }),
+    approveClosureFdAccount: builder.mutation({
+      query: (id) => ({
+        url: `fd-account/approve-closure/${id}`,
+        method: "PUT",
+      }),
+      invalidatesTags: [
+        "GET_LATEST_FD_CLOSURE_APPROVALS",
+        "GET_LATEST_FD_DATA_LIST",
+        "GET_FD_BASIC_ACCOUNT_DETAILS",
+      ],
+    }),
+    getFdSingleReciptDetails: builder.query({
+      query: ({ id }) => ({
+        url: `/fd-receipt-print/${id}`,
+        method: "GET",
+      }),
+    }),
+    submitFdAccountDocs:builder.mutation({
+      query:({values,id})=>({
+        url:`fd-accounts/documents/${id}`,
+        method:"PUT",
+        body:values
+      })
+    })
   }),
 });
 
@@ -160,7 +243,16 @@ export const {
   useCreditOrDebitFdInterestMutation,
   useDeductOrReverseTdsMutation,
   useGetFdDepositLogsQuery,
-  useApproveFdAccountQuery,
   useLazyGetFdReciptPrintByAcntNumberAndMemberNameQuery,
   useCreateFdRecieptPrintMutation,
+  useGetFdBondsQuery,
+  useLazyFetchFdAccontStatementsByFdAccountQuery,
+  useFetchFdReciptsByFdAcntNoAndMemberNameMutation,
+  useGetFdAccountsWithApprovalStatusQuery,
+  useApproveFdAccountMutation,
+  useFetchFdClosedAcntByFdAcntNoAndMemberNameMutation,
+  useApproveClosureFdAccountMutation,
+  useGetFdSingleReciptDetailsQuery,
+  useCreateFdAccountMutation,
+  useSubmitFdAccountDocsMutation
 } = fdAccounts;

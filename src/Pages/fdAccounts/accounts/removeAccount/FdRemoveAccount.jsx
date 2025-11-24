@@ -6,7 +6,10 @@ import PagesMainContainerStyle from "../../../../components/PagesMainContainerSt
 import WarningDialogBox from "../../../../components/WarningDialogBox";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useGetBasicFdAccountDetailsQuery, useRemoveFdAccountMutation } from "../../../../features/api/fdAccounts";
+import {
+  useGetBasicFdAccountDetailsQuery,
+  useRemoveFdAccountMutation,
+} from "../../../../features/api/fdAccounts";
 
 const listOfThings = [
   "Remove Saving Account and all its transactions.",
@@ -28,8 +31,12 @@ const FdRemoveAccount = () => {
   const { id } = useParams();
   const [removeFdAccount, { data, isLoading, isError, isSuccess, error }] =
     useRemoveFdAccountMutation();
-    const {data:basicFdAccountDetails}=useGetBasicFdAccountDetailsQuery(id)
-    console.log("basicFdAccountDetails",basicFdAccountDetails)
+
+  const { data: fdAccountBasicDetails } = useGetBasicFdAccountDetailsQuery({
+    id,
+  });
+
+  const fdAccountId = fdAccountBasicDetails?.data?.fdId || "N/A";
 
   return (
     <>
@@ -76,7 +83,8 @@ const FdRemoveAccount = () => {
         data={data}
         snackbar={snackbar}
         isLoading={isLoading}
-        id={id}
+        whereToNavigate="/fd-accounts"
+        id={fdAccountId}
         performAction={removeFdAccount}
         setSnackbar={setSnackbar}
       />
