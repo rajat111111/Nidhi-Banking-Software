@@ -68,7 +68,7 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} align="center">
-              <Riple color="#7d3cd2ff" size="medium" text="" textColor="" />
+                <Riple color="#7d3cd2ff" size="medium" text="" textColor="" />
               </TableCell>
             </TableRow>
           ) : (
@@ -92,7 +92,7 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
                             <TableCell
                               key={column.id}
                               align={column.align || "left"}
-                              sx={{ whiteSpace: "nowrap",color:"#8F8F8F" }}
+                              sx={{ whiteSpace: "nowrap", color: "#8F8F8F" }}
                             >
                               {column.format && typeof value === "number"
                                 ? column.format(value)
@@ -100,7 +100,6 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
                             </TableCell>
                           );
                         })}
-
                         {(actions.view || actions.edit || actions.delete) && (
                           <TableCell>
                             {actions.view && (

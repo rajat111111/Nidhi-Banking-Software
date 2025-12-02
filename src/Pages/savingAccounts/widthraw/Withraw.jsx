@@ -9,6 +9,7 @@ import { Alert, Snackbar } from "@mui/material";
 import GetSavingDetailsByAcnt from "../../../components/GetSavingDetailsByAcnt";
 
 const Withdraw = () => {
+
   const [showDetails, setShowDetails] = useState(false);
   const [accountNumber, setAccountNumber] = useState("");
 
@@ -79,6 +80,7 @@ const Withdraw = () => {
     },
   ];
 
+
   const withdreMoneyValidationSchema = Yup.object({
     amount: Yup.number()
       .required("Withdraw amount is required")
@@ -87,6 +89,7 @@ const Withdraw = () => {
     transactionDate: Yup.string().required("Transaction Date is required"),
     payMode: Yup.string().required("Mode of Payment is required"),
   });
+
 
   const withdrMoneyHandleSubmit = async (values, { resetForm }) => {
     try {
@@ -103,8 +106,10 @@ const Withdraw = () => {
     }
   };
 
+
   const handleCloseSnackbarAlert = () =>
     setSnackbarAlert((prev) => ({ ...prev, open: false }));
+
 
   return (
     <PagesMainContainerStyle>
@@ -165,6 +170,7 @@ const Withdraw = () => {
       </Snackbar>
     </PagesMainContainerStyle>
   );
+
 };
 
 export default Withdraw;

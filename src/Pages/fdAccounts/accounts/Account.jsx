@@ -6,7 +6,7 @@ import DynamicButton from "../../../components/DynamicButton";
 import { NavLink } from "react-router-dom";
 import { useGetAllSavingAccountsListQuery } from "../../../features/api/savingAccounts";
 
-const Account= () => {
+const Account = () => {
 
 
   const { data, isLoading } = useGetAllSavingAccountsListQuery();
@@ -38,7 +38,6 @@ const Account= () => {
     { id: "action", label: "Actions", minWidth: 180 },
   ];
 
-
   const rows = savingAccountsList.map((curList, i) => ({
     id: i + 1,
     fdNo: curList?.branch?.name || "N/A",
@@ -53,20 +52,20 @@ const Account= () => {
     openDate: `₹ ${curList?.depositAmount}` || "N/A",
     maturityDate: curList?.lockinAmount || "N/A",
     IntPayout: curList?.passbookNumber || "N/A",
-    status: curList?.status ==="closed" ? "Closed":"Approved",
+    status: curList?.status === "closed" ? "Closed" : "Approved",
     action: (
       <ActionButtonContainer>
-  <DynamicButton
+        <DynamicButton
           text="View"
           variant="outlined"
           textColor="#0D6A84"
           borderColor="#0D6A84"
           borderRadius="5px"
-          onClick={()=>localStorage.setItem("accountNumber",curList?.accountNumber)}
+          onClick={() => localStorage.setItem("accountNumber", curList?.accountNumber)}
           component={NavLink}
           to={`/saving-accounts/${curList?.member?.id}/account-details`}
         />
-      
+
       </ActionButtonContainer>
     ),
   }));
@@ -81,10 +80,10 @@ const Account= () => {
           label: "Add New",
           variant: "contained",
           component: { NavLink },
-        
+
           to: "/saving-accounts/add-new-account",
           color: "secondary",
-        
+
         }}
       />
       <DynamicDataTable isLoading={isLoading} rows={rows} columns={columns} />

@@ -17,10 +17,11 @@ const WarningDialogBox = ({
   snackbar,
   id
 }) => {
+
   const handleRemove = async () => {
-    console.log("removeId",id)
+    console.log("removeId", id)
     try {
-      await performAction({id}).unwrap();
+      await performAction({ id }).unwrap();
     } catch (err) {
       console.error("Error removing account:", err);
     }

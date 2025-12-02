@@ -33,6 +33,7 @@ import { membersApi } from "../features/api/membersApi";
 import { agentsApi } from "../features/api/agentsApi";
 import { employeesApi } from "../features/api/employeesApi";
 import { cspsApi } from "../features/api/cspsApi";
+import { ddAccountsApi } from "../features/api/ddAccountsApi";
 
 export const store = configureStore({
   reducer: rootReducer,
@@ -46,6 +47,7 @@ export const store = configureStore({
       branchesApi.middleware,
       agentsApi.middleware,
       employeesApi.middleware,
-      cspsApi.middleware
+      cspsApi.middleware,
+      ddAccountsApi.middleware,
     ),
 });

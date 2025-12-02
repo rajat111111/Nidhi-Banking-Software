@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const SHARE_HOLDING_API = `${import.meta.env.VITE_API_BASE_URL}/auth`;
 
+
 export const shareHoldingApi = createApi({
   reducerPath: "shareHoldingApi",
   baseQuery: fetchBaseQuery({
@@ -13,7 +14,6 @@ export const shareHoldingApi = createApi({
       return headers;
     },
   }),
-
   endpoints: (builder) => ({
     getAllShareHoldingDetails: builder.query({
       query: () => ({
@@ -25,3 +25,4 @@ export const shareHoldingApi = createApi({
 });
 
 export const { useGetAllShareHoldingDetailsQuery } = shareHoldingApi;
+

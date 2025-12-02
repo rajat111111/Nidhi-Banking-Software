@@ -1,113 +1,203 @@
 
+// import React from "react";
+// import { Box, Divider, Typography } from "@mui/material";
+// import { styled } from "@mui/material/styles";
+// import { useNavigate, useParams } from "react-router-dom";
+// import PageTopContent from "../../components/PageTopContent";
+// import DynamicButton from "../../components/DynamicButton";
+// import InformationPage from "../../components/InformationPage";
+// import { useGetMemberByIdQuery } from "../../features/api/membersApi";
+
+// const PageWrapper = styled("div")({
+//     width: "100%",
+//     maxWidth: 1100,
+//     margin: "0 auto",
+//     padding: "20px 24px",
+// });
+
+// const ApprovalViewDetails = () => {
+//     const navigate = useNavigate();
+//     const { id } = useParams();
+//     const { data, isLoading, isError } = useGetMemberByIdQuery(id);
+
+//     if (isError) return <Typography color="error">Failed to load details</Typography>;
+//     if (isLoading) return <Typography>Loading...</Typography>;
+
+//     const detail = data?.data ?? data ?? {};
+//     const member = detail || {};
+
+//     // Extract fields safely
+//     const reference = `Member#${member.id || "-"}`;
+//     const memberNo = member.applicationNumber || "-";
+//     const memberName = `${member.firstName || ""} ${member.lastName || ""}`.trim() || "-";
+//     const accountType = member.accountType || "-";
+//     const amount = member.amount ? `₹ ${member.amount}` : "-";
+//     const transactionDate = member.createdAt?.split("T")[0] || "-";
+//     const accountNumber = member.bankAccountDetails?.accountNumber || "-";
+//     const reviewedBy = member.reviewedBy || "-";
+//     const remark = member.remark || "-";
+//     const status = member.status || "-";
+//     const gender = member.gender || "-";
+//     const dob = member.dob || "-";
+//     const fatherName = member.fatherName || "-";
+//     const spouseName = member.spouseName || "-";
+//     const address =
+//         member.correspondenceAddress?.addressLine1 ||
+//         member.permanentAddress?.address ||
+//         "-";
+
+//     // Information Page content
+//     const key1 = ["Reference", "Member No.", "Member Name", "Account Type"];
+//     const pair1 = [reference, memberNo, memberName, accountType];
+
+//     const key2 = ["Amount", "Created Date", "Account Number", "Status"];
+//     const pair2 = [amount, transactionDate, accountNumber, status];
+
+//     const key3 = ["Reviewed by", "Remark", "Gender", "Date of Birth"];
+//     const pair3 = [reviewedBy, remark, gender, dob];
+
+//     const key4 = ["Father's Name", "Spouse/Husband Name", "Address", "Approved Time"];
+//     const pair4 = [fatherName, spouseName, address, member.approvedTime || "-"];
+
+//     return (
+//         <Box sx={{ width: "100%", pb: 6 }}>
+//             <PageWrapper>
+//                 <PageTopContent title="Member Details View" />
+
+//                 <Box sx={{ mt: 2, p: 3, bgcolor: "#F2F3F6BF", borderRadius: 1 }}>
+//                     <InformationPage key1={key1} pair1={pair1} key2={key2} pair2={pair2} />
+
+//                     <InformationPage key1={key3} pair1={pair3} key2={key4} pair2={pair4} />
+
+
+
+//                     <Box sx={{ display: "flex", gap: 12, justifyContent: "flex-end", mt: 1 }}>
+//                         <DynamicButton
+//                             variant="outlined"
+//                             text="Back"
+//                             onClick={() => navigate(-1)}
+//                         />
+//                     </Box>
+//                 </Box>
+//             </PageWrapper>
+//         </Box>
+//     );
+// };
+
+// export default ApprovalViewDetails;
 import React from "react";
-import {
-    Box,
-    Paper,
-    Grid,
-    Typography,
-    Button,
-    Divider,
-} from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { useNavigate, useParams } from "react-router-dom";
+import PageTopContent from "../../components/PageTopContent";
+import DynamicButton from "../../components/DynamicButton";
+import InformationPage from "../../components/InformationPage";
+import { useGetMemberByIdQuery } from "../../features/api/membersApi";
 
-const mockData = {
-    reference: "Member#1",
-    memberNo: "#2365478",
-    memberName: "Ramesh Adhakrao",
-    accountType: "Saving Account",
-    amount: "₹1,25,256",
-    transactionDate: "22 June 2024",
-    accountNumber: "32658965458",
-    approvedTime: "-",
-    status: "Pending",
-    reviewedBy: "-",
-    remark: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    gender: "Male",
-    dob: "26 June 1981",
-    fatherName: "Keshav Sharma",
-    spouseName: "Renu Sharma",
-    address: "Flat No. 12B, Shanti Apartments, Andheri East Mumbai, MH – India",
-};
-
-const RowItem = ({ label, value }) => (
-    <Grid container spacing={1} sx={{ mb: 1 }}>
-        <Grid item xs={4} sm={3} md={2}>
-            <Typography variant="body2" fontWeight={600}>
-                {label}
-            </Typography>
-        </Grid>
-        <Grid item xs={1}>
-            <Typography variant="body2">:</Typography>
-        </Grid>
-        <Grid item xs={7} sm={8} md={9}>
-            <Typography variant="body2">{value}</Typography>
-        </Grid>
-    </Grid>
-);
+const PageWrapper = styled("div")({
+    width: "100%",
+    maxWidth: 1100,
+    margin: "0 auto",
+    padding: "20px 24px",
+});
 
 const ApprovalViewDetails = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const { data, isLoading, isError } = useGetMemberByIdQuery(id);
 
-    const data = mockData; // later replace with fetch by id
+    if (isError) return <Typography color="error">Failed to load details</Typography>;
+    if (isLoading) return <Typography>Loading...</Typography>;
+
+    const detail = data?.data ?? data ?? {};
+    const member = detail || {};
+
+    // Extract fields safely
+    const reference = `Member#${member.id || "-"}`;
+    const memberNo = member.applicationNumber || "-";
+    const memberName = `${member.firstName || ""} ${member.lastName || ""}`.trim() || "-";
+    const accountType = member.accountType || "-";
+    const amount = member.amount ? `₹ ${member.amount}` : "-";
+    const transactionDate = member.createdAt?.split("T")[0] || "-";
+    const accountNumber = member.bankAccountDetails?.accountNumber || "-";
+    const reviewedBy = member.reviewedBy || "-";
+    const remark = member.remark || "-";
+    const status = member.status || "-";
+    const gender = member.gender || "-";
+    const dob = member.dob || "-";
+    const fatherName = member.fatherName || "-";
+    const spouseName = member.spouseName || "-";
+    const address =
+        member.correspondenceAddress?.addressLine1 ||
+        member.permanentAddress?.address ||
+        "-";
+
+    // Information Page content
+
+
+    const key1 = [
+        "Reference",
+        "Member No.",
+        "Member Name",
+        "Account Type",
+        "Amount",
+        "Created Date",
+        "Account Number",
+        "Status",
+    ];
+
+    const pair1 = [
+        reference,
+        memberNo,
+        memberName,
+        accountType,
+        amount,
+        transactionDate,
+        accountNumber,
+        status,
+    ];
+
+
+    const key2 = [
+        "Reviewed by",
+        "Remark",
+        "Gender",
+        "Date of Birth",
+        "Father's Name",
+        "Spouse/Husband Name",
+        "Address",
+        "Approved Time",
+    ];
+
+    const pair2 = [
+        reviewedBy,
+        remark,
+        gender,
+        dob,
+        fatherName,
+        spouseName,
+        address,
+        member.approvedTime || "-",
+    ];
 
     return (
-        <Box>
-            {/* Breadcrumb-like header */}
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Home &gt; Members &gt; Approval
-            </Typography>
+        <Box sx={{ width: "100%", pb: 6 }}>
+            <PageWrapper>
+                <PageTopContent title="Member Details View" />
 
-            {/* Page Title */}
-            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                Approval View Details
-            </Typography>
+                <Box sx={{ mt: 2, p: 3, bgcolor: "#F2F3F6BF", borderRadius: 2 }}>
+                    {/* First Info Block */}
+                    <InformationPage key1={key1} pair1={pair1} key2={key2} pair2={pair2} />
 
-            <Paper sx={{ p: 3, borderRadius: 2 }}>
-                <Grid container spacing={4}>
-                    {/* Left Column */}
-                    <Grid item xs={12} md={6}>
-                        <RowItem label="Reference" value={data.reference} />
-                        <RowItem label="Member No." value={data.memberNo} />
-                        <RowItem label="Member Name" value={data.memberName} />
-                        <RowItem label="Account Type" value={data.accountType} />
-                        <RowItem label="Amount" value={data.amount} />
-                        <RowItem label="Transaction Date" value={data.transactionDate} />
-                        <RowItem label="Account Number" value={data.accountNumber} />
-                        <RowItem label="Approved Time" value={data.approvedTime} />
-                        <RowItem label="Status" value={data.status} />
-                    </Grid>
-
-                    {/* Right Column */}
-                    <Grid item xs={12} md={6}>
-                        <RowItem label="Reviewed by" value={data.reviewedBy} />
-                        <RowItem label="Remark" value={data.remark} />
-                        <RowItem label="Gender" value={data.gender} />
-                        <RowItem label="Date of Birth" value={data.dob} />
-                        <RowItem label="Father’s Name" value={data.fatherName} />
-                        <RowItem label="Spouse/Husband Name" value={data.spouseName} />
-                        <RowItem label="Address" value={data.address} />
-                    </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 2 }} />
-
-                {/* Action Buttons */}
-                <Box display="flex" justifyContent="flex-end" gap={2}>
-                    <Button variant="outlined" onClick={() => navigate(-1)}>
-                        Back
-                    </Button>
-                    <Button variant="outlined" color="primary">
-                        View
-                    </Button>
-                    <Button variant="contained" color="success">
-                        Approve
-                    </Button>
-                    <Button variant="contained" color="error">
-                        Reject
-                    </Button>
+                    <Box sx={{ display: "flex", gap: 3, justifyContent: "flex-end", mt: 1 }}>
+                        <DynamicButton
+                            variant="outlined"
+                            text="Back"
+                            onClick={() => navigate(-1)}
+                        />
+                    </Box>
                 </Box>
-            </Paper>
+            </PageWrapper>
         </Box>
     );
 };

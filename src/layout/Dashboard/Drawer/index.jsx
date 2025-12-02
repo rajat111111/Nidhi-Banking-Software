@@ -75,7 +75,6 @@ const menuItems = [
     children: [
       { label: "Share Holdings Details", path: "/share-holding" },
       { label: "Transfer", path: "/share-holding/transfer" },
-      
     ],
   },
   { label: "KYC", path: "/kyc", icon: <PersonIcon /> },
@@ -100,34 +99,41 @@ const menuItems = [
     ],
   },
   { label: "FD Accounts", path: "/fd", icon: <AccountBalanceWalletIcon /> },
-  { label: "RD Accounts", path:"/rd", icon: <AccountBalanceWalletIcon /> },
-  { label: "DD Accounts", path: "/dd", icon: <AccountBalanceWalletIcon /> },
+  { label: "RD Accounts", path: "/rd", icon: <AccountBalanceWalletIcon /> },
+  {
+    label: "DD Accounts",
+    icon: <AccountBalanceWalletIcon />,
+    children: [
+      { label: "Accounts", path: "/dd-accounts" },
+      { label: "Statement", path: "/dd-accounts/statement" },
+      { label: "Enquiry", path: "/dd-accounts/enquiry" },
+      { label: "Approval", path: "/dd-accounts/approval" },
+      { label: "Closure Approval", path: "/dd-accounts/closure-approval" },
+      { label: "Receipt", path: "/dd-accounts/receipt" },
+      { label: "Change Account Type", path: "/s" },
+    ],
+  },
   { label: "MIS Accounts", path: "/mis", icon: <AssessmentIcon /> },
-
   { label: "Gold Loan", path: "/gold-loan", icon: <AttachMoneyIcon /> },
   { label: "Vehicle Loan", path: "/vehicle-loan", icon: <DirectionsCarIcon /> },
   { label: "Education Loan", path: "/education-loan", icon: <SchoolIcon /> },
   { label: "Group Loan", path: "/group-loan", icon: <GroupIcon /> },
   { label: "Personal Loan", path: "/personal-loan", icon: <PersonIcon /> },
-
   {
     label: "Loan Against Deposit",
     path: "/loan-against-deposit",
     icon: <RequestQuoteIcon />,
   },
-
   {
     label: "Property Loan",
     path: "/property-loan",
     icon: <RealEstateAgentIcon />,
   },
-
   {
     label: "Gold Silver Loan",
     path: "/gold-silver-loan",
     icon: <AttachMoneyIcon />,
   },
-
   { label: "User", path: "/user", icon: <PersonIcon /> },
   { label: "Accounting", path: "/accounting", icon: <AccountBalanceIcon /> },
   { label: "Employees", path: "/employees", icon: <PeopleIcon /> },
@@ -157,6 +163,7 @@ const menuItems = [
   { label: "Task Management", path: "/task-management", icon: <TaskIcon /> },
   { label: "Logout", icon: <LogoutIcon /> },
 ];
+
 export default function Sidebar({ open, onClose, variant }) {
   const navigate = useNavigate();
 

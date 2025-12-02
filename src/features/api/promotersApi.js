@@ -45,5 +45,4 @@ export const promotersApi = createApi({
     }),
 });
 
-
 export const { useGetPromotersQuery, useGetPromoterByIdQuery, useAddPromoterMutation, useUpdatePromoterMutation, useGetAllShareHoldingsQuery } = promotersApi;

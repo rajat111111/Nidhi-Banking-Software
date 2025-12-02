@@ -38,6 +38,7 @@ export const savingAccounts = createApi({
         method: "GET",
       }),
     }),
+
     getAllMebers: builder.query({
       query: () => ({
         url: `/members`,
@@ -153,6 +154,7 @@ export const savingAccounts = createApi({
         "GET_NOMINEE_DETAILS",
       ],
     }),
+
     getNomineeDetails: builder.query({
       query: (id) => ({
         url: `saving-account/nominee/${id}`,
@@ -160,6 +162,7 @@ export const savingAccounts = createApi({
       }),
       providesTags: ["GET_NOMINEE_DETAILS"],
     }),
+
     getApprovalSavingAccountList: builder.query({
       query: () => ({
         url: `saving-account/all-status`,
@@ -167,6 +170,7 @@ export const savingAccounts = createApi({
       }),
       providesTags: ["GET_SAVING_ACCOUNT_ALL_STATUS_LIST"],
     }),
+
     approveSavingAccount: builder.mutation({
       query: (id) => ({
         url: `saving-account/approve/${id}`,
@@ -177,6 +181,7 @@ export const savingAccounts = createApi({
         "GET_LATEST_SAVING_DATA_LIST",
       ],
     }),
+
     getDeposiListByAccountNumber: builder.query({
       query: ({ memberName, accountNumber }) =>
         `deposit-details/account-info?memberName=${memberName}&accountNumber=${accountNumber}`,
@@ -194,6 +199,7 @@ export const savingAccounts = createApi({
         "GET_LATEST_SAVING_DATA_LIST",
       ],
     }),
+
     withdrawalAmountByAcccountNumber: builder.mutation({
       query: (values) => ({
         url: `deposit-details/withdraw`,
@@ -205,6 +211,7 @@ export const savingAccounts = createApi({
         "GET_LATEST_SAVING_DATA_LIST",
       ],
     }),
+
     getBankStatementByAccountNumber: builder.query({
       query: ({ accountNumber, fromDate, toDate, page, limit }) => ({
         url: "account-statement",
@@ -218,6 +225,7 @@ export const savingAccounts = createApi({
         },
       }),
     }),
+
     getRecieptPrintList: builder.query({
       query: ({ memberName, accountNumber }) => ({
         url: `saving-account/receipt-print/all`,
@@ -229,6 +237,7 @@ export const savingAccounts = createApi({
       }),
       providesTags: ["GET_RECIEPT_PRINT_LATEST_LIST"],
     }),
+
     createReciept: builder.mutation({
       query: (values) => ({
         url: `saving-account/receipt-print`,
@@ -237,6 +246,7 @@ export const savingAccounts = createApi({
       }),
       invalidatesTags: ["GET_RECIEPT_PRINT_LATEST_LIST"],
     }),
+
     getClosedAccountListByAccountNumber: builder.query({
       query: ({ closeAccountId, memberName, accountNumber }) => ({
         url: `saving-account/closed`,
@@ -248,8 +258,10 @@ export const savingAccounts = createApi({
         },
       }),
     }),
+
   }),
 });
+
 
 export const {
   useGetAllSavingAccountsListQuery,

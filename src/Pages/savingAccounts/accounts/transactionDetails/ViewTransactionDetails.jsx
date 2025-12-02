@@ -9,7 +9,7 @@ import { useParams } from "react-router-dom";
 const ViewTransactionDetails = () => {
   const { id } = useParams();
 
-  console.log("id",id)
+  console.log("id", id)
 
   const { data, isLoading } = useGetAllAccountTransactionsQuery({ id });
 
@@ -31,7 +31,7 @@ const ViewTransactionDetails = () => {
     id: i + 1,
     transactionDate: curList?.transactionDate || "N/A",
     transactionId: curList?.transactionId || "N/A",
-    payMode:capitalize(curList?.payMode ) || "N/A",
+    payMode: capitalize(curList?.payMode) || "N/A",
     remark: curList?.remark || "N/A",
     debit: `₹ ${curList?.debit}` || "N/A",
     credit: `₹ ${curList?.credit}` || "N/A",

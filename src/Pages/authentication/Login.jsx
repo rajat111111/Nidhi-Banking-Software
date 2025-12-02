@@ -73,6 +73,7 @@ export default function Login() {
     };
 
     return (
+
         <Box>
             <Grid
                 container
@@ -174,6 +175,7 @@ export default function Login() {
                                 <Typography sx={{ color: "#0066FF" }}>forgot Password?</Typography>
                             </Link>
                         </Box>
+
                     </Box>
                 </Grid>
 
@@ -193,6 +195,7 @@ export default function Login() {
                         {snackbar.message}
                     </Alert>
                 </Snackbar>
+
             </Grid>
         </Box>
     );
