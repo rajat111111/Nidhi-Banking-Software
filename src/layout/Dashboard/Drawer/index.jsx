@@ -145,7 +145,19 @@ const menuItems = [
       },
     ],
   },
-  { label: "DD Accounts", path: "/dd", icon: <AccountBalanceWalletIcon /> },
+  {
+    label: "DD Accounts",
+    icon: <AccountBalanceWalletIcon />,
+    children: [
+      { label: "Accounts", path: "/dd-accounts" },
+      { label: "Statement", path: "/dd-accounts/statement" },
+      { label: "Enquiry", path: "/dd-accounts/enquiry" },
+      { label: "Approval", path: "/dd-accounts/approval" },
+      { label: "Closure Approval", path: "/dd-accounts/closure-approval" },
+      { label: "Receipt", path: "/dd-accounts/receipt" },
+      { label: "Change Account Type", path: "/s" },
+    ],
+  },
   {
     label: "MIS Accounts",
     icon: <AttachMoneyIcon />,
@@ -182,6 +194,8 @@ const menuItems = [
       { label: "Change Account Type", path: "/s" },
     ],
   },
+
+
   { label: "MIS Accounts", path: "/mis", icon: <AssessmentIcon /> },
 
   { label: "Gold Loan", path: "/gold-loan", icon: <AttachMoneyIcon /> },
