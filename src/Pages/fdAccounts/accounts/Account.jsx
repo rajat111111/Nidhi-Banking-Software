@@ -1,4 +1,3 @@
-import React from "react";
 import PageHeader from "../../../components/PageHeader";
 import DynamicDataTable from "../../../components/DynamicTable";
 import { styled } from "@mui/material";
@@ -8,20 +7,16 @@ import { useGetFdAccountsWithApprovalStatusQuery } from "../../../features/api/f
 import { capitalizeFirstLetter } from "../../../helper/helper";
 
 const Account = () => {
-  // Fetch approved FD accounts using RTK Query
   const { data, isLoading } = useGetFdAccountsWithApprovalStatusQuery();
 
-  // Handle nested structure from API
-  const fdAccountsList = data?.data?.data || [];
+  const fdAccountsList = data?.data?.data || data?.data || [];
 
-  // Action button container styling
   const ActionButtonContainer = styled("div")({
     display: "flex",
     gap: "10px",
     alignItems: "center",
   });
 
-  // Table columns based on API response
   const columns = [
     { id: "id", label: "#", minWidth: 50 },
     { id: "fdAccountNumber", label: "FD Account No.", minWidth: 160 },
@@ -38,7 +33,6 @@ const Account = () => {
     { id: "action", label: "Actions", minWidth: 160 },
   ];
 
-  //  Prepare table rows dynamically
   const rows = fdAccountsList.map((account, index) => ({
     id: index + 1,
     fdAccountNumber: account?.fdAccountNumber || "N/A",
@@ -54,11 +48,11 @@ const Account = () => {
     maturityDate: account?.maturityDate || "N/A",
     approvedBy: account?.approvedBy?.name || "N/A",
     status:
-      account?.status === "approved"
-        ? "Approved"
-        : account?.status === "closed"
+      account?.status === "closed"
         ? "Closed"
-        : "⏳ Pending",
+        : account?.status === "Closure_Approval"
+        ? "Closure Request"
+        : "Approved",
     action: (
       <ActionButtonContainer>
         <DynamicButton
@@ -79,7 +73,6 @@ const Account = () => {
 
   return (
     <>
-      {/* Page Header with Add New button */}
       <PageHeader
         title="FD Account Details"
         onDownload
@@ -92,8 +85,6 @@ const Account = () => {
           color: "secondary",
         }}
       />
-
-      {/* Data Table */}
       <DynamicDataTable isLoading={isLoading} rows={rows} columns={columns} />
     </>
   );

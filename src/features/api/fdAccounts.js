@@ -46,14 +46,14 @@ export const fdAccounts = createApi({
     }),
     getFdAccountsWithApprovalStatus: builder.query({
       query: () => ({
-        url: `/fd-account/approved`,
+        url: `/fd-approval/approval`,
         method: "GET",
       }),
       providesTags: ["GET_LATEST_FD_ACCOUNT_LIST_OF_APPROVAL"],
     }),
     getBasicFdAccountDetails: builder.query({
       query: ({ id }) => ({
-        url: `/fd-account/basic-details/${id}`,
+        url: `/fd-approval/basic-details/${id}`,
         method: "GET",
       }),
       providesTags: ["GET_FD_BASIC_ACCOUNT_DETAILS"],
@@ -103,10 +103,10 @@ export const fdAccounts = createApi({
     }),
     removeFdAccount: builder.mutation({
       query: ({ id }) => ({
-        url: `/fd-account/remove/${id}`,
+        url: `/fd-account/removeAccount/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["GET_LATEST_FD_DATA_LIST"],
+      invalidatesTags: ["GET_LATEST_FD_DATA_LIST","GET_LATEST_FD_ACCOUNT_LIST_OF_APPROVAL"],
     }),
     creditOrDebitFdInterest: builder.mutation({
       query: ({ id, values }) => ({
@@ -186,20 +186,20 @@ export const fdAccounts = createApi({
       providesTags: ["GET_FD_RECIEPT_PRINT_LATEST_LIST"],
     }),
     fetchFdClosedAcntByFdAcntNoAndMemberName: builder.mutation({
-      query: ({ closeAccountId, accountNumber, memberName }) => ({
+      query: ({ closureApprovalId, accountNumber, memberName }) => ({
         url: `fd-account/closed`,
         method: "GET",
         params: {
           accountNumber,
           memberName,
-          closeAccountId,
+          closureApprovalId,
         },
         providesTags: ["GET_LATEST_FD_CLOSURE_APPROVALS"],
       }),
     }),
     approveFdAccount: builder.mutation({
       query: (id) => ({
-        url: `fd-account/approve/${id}`,
+        url: `fd-approval/approve/${id}`,
         method: "PUT",
       }),
       invalidatesTags: ["GET_LATEST_FD_ACCOUNT_LIST_OF_APPROVAL"],

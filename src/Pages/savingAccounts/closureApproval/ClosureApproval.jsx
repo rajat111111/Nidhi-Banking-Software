@@ -93,7 +93,7 @@ const ClosureApproval = () => {
   };
 
   const handleApproveClosure = async (id) => {
-    console.log("id");
+
     try {
       await approveClosureSavingAccount(id).unwrap();
     } catch (err) {

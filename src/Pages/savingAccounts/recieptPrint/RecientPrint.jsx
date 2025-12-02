@@ -89,7 +89,7 @@ const RecieptPrint = () => {
       memberId: curPrint?.memberId || "N/A",
       memberName: curPrint?.memberName || "N/A",
       accountNo: curPrint?.accountNumber || "N/A",
-      accountType: capitalizeFirstLetter(curPrint?.accountType) || "N/A",
+      accountType: capitalizeFirstLetter(curPrint?.accountType|| curPrint?.transactionType) || "N/A",
       amount: `₹ ${curPrint?.amount}` || "N/A",
       mode: capitalizeFirstLetter(curPrint?.paymentMode) || "N/A",
       receiptDate: curPrint?.receiptDate

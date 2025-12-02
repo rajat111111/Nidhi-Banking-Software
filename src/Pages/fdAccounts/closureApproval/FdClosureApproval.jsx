@@ -45,8 +45,8 @@ const FdClosureApproval = () => {
       label: "Close ID",
       type: "number",
       placeholder: "Enter Close ID",
-      name: "closeAccountId",
-      id: "closeAccountId",
+      name: "closureApprovalId",
+      id: "closureApprovalId",
     },
     {
       label: "FD Account Number",
@@ -66,13 +66,13 @@ const FdClosureApproval = () => {
   const initialValues = {
     accountNumber: "",
     memberName: "",
-    closeAccountId: "",
+    closureApprovalId: "",
   };
 
   const validationSchema = Yup.object({
     accountNumber: Yup.string().required("Account number is required"),
     // memberName: Yup.string().required("Member name is required"),
-    closeAccountId: Yup.number()
+    closureApprovalId: Yup.number()
       .required("Close ID is required")
       .positive("Close ID must be positive")
       .typeError("Close ID must be a number"),
@@ -139,14 +139,14 @@ const FdClosureApproval = () => {
       approvedBy: curList?.approvedBy || "N/A",
       releaseAmount: `₹ ${curList?.depositAmount}` || "N/A",
       status:
-        (curList?.status === "closed" && (
+        (curList?.status === "Closure_Approval" && (
           <strong style={{ color: "#e91212ff" }}>
             {capitalizeFirstLetter(curList?.status)}
           </strong>
         )) ||
         "N/A",
       action:
-        curList?.status === "Closure_approval" ? (
+        curList?.status === "Closure_Approval" ? (
           <DynamicButton
             text={
               <SubmitButtonLoader
@@ -197,6 +197,7 @@ const FdClosureApproval = () => {
         error={error}
         data={data}
         setSnackbar={setSnackbar}
+        whereToNavigate="/fd-account"
       />
       <ErrorAndSuccessUseEffect
         isError={approveClosureAccntIsError}

@@ -39,7 +39,7 @@ const FdDocumentLogs = () => {
 
   return (
     <PagesMainContainerStyle>
-      <PageHeader onFilter title="FD Bond" paddingBottom="0px" />
+      <PageHeader onFilter title="Deposit Logs" paddingBottom="0px" />
       <DynamicDataTable isLoading={isLoading} rows={rows} columns={columns} />
     </PagesMainContainerStyle>
   );

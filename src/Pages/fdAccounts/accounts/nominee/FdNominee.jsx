@@ -7,7 +7,6 @@ import { IconButton, styled } from "@mui/material";
 import ColorizeOutlinedIcon from "@mui/icons-material/ColorizeOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import {
-  useGetBasicFdAccountDetailsQuery,
   useGetSingleUserFdNonineeDetailsQuery,
 } from "../../../../features/api/fdAccounts";
 
@@ -20,8 +19,6 @@ const ActionButtonContainer = styled("div")({
 
 const FdNominee = () => {
   const { id } = useParams();
-  const { data: basicFdDetails } = useGetBasicFdAccountDetailsQuery({ id });
-  const memberId = basicFdDetails?.data?.memberNo;
   const { isLoading, data } = useGetSingleUserFdNonineeDetailsQuery({ id });
 
   const nomineeDeatails = data?.data || {};
@@ -106,7 +103,7 @@ const FdNominee = () => {
           label: "Add Nominee",
           variant: "contained",
           component: { NavLink },
-          to: `/fd-accounts/${nomineeDeatails?.fdAccountId}/add-nominee`,
+          to: `/fd-accounts/${id}/add-nominee`,
         }}
       />
       <DynamicDataTable isLoading={isLoading} rows={rows} columns={columns} />

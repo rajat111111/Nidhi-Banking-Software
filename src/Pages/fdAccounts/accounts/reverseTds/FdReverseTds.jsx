@@ -40,7 +40,7 @@ const FdReverseTds = ({ setActiveTab = "viewTransaction" }) => {
         type: "select",
         options: [
           { value: "deduct", label: "Deduct" },
-          { value: "credit", label: "Credit" },
+          { value: "reverse", label: "Credit" },
         ],
         placeholder: "Enter Transaction Type",
         name: "transactionType",

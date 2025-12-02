@@ -47,7 +47,7 @@ const ViewSingleFdAccountDetails = () => {
 
   return (
     <ViewSingleAccountDetailsMainContainer>
-      <PageTopContent title="Saving Account Information" />
+      <PageTopContent title="FD Account Information" />
 
       <GroupOfButton buttonsList={buttonsList} borderColor="#DDDDEBBF" />
 

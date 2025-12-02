@@ -12,7 +12,7 @@ const ViewFdTransactionDetails = () => {
 
   const { data, isLoading } = useViewSingleUserFdTransactionQuery({ id });
 
-  const allTransactionList = data?.data || [];
+  const allTransactionList = data?.data?.data || [];
 
   const columns = [
     { id: "id", label: "#", minWidth: 50 },

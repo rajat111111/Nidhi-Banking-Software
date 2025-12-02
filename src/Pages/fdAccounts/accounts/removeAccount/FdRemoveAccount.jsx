@@ -36,7 +36,7 @@ const FdRemoveAccount = () => {
     id,
   });
 
-  const fdAccountId = fdAccountBasicDetails?.data?.fdId || "N/A";
+
 
   return (
     <>
@@ -84,7 +84,7 @@ const FdRemoveAccount = () => {
         snackbar={snackbar}
         isLoading={isLoading}
         whereToNavigate="/fd-accounts"
-        id={fdAccountId}
+        id={id}
         performAction={removeFdAccount}
         setSnackbar={setSnackbar}
       />

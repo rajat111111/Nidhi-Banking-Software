@@ -22,13 +22,13 @@ const CloseAccount = ({setActiveTab}) => {
     {
       label: "Net Amount to Release",
       placeholder: "Enter Amount",
-      name: "closeAmount",
+      name: "netAmountToRelease",
       type: "number",
     },
     {
       label: "Transaction Date",
       type: "date",
-      name: "closeDate",
+      name: "closeTransactionDate",
     },
     {
       label: "Remark (If Any)",
@@ -49,18 +49,18 @@ const CloseAccount = ({setActiveTab}) => {
   ];
 
   const initialValues = {
-    closeDate: "",
+    closeTransactionDate: "",
     closeRemark: "",
-    closeAmount: "",
+    netAmountToRelease: "",
     closePaymentMode: "",
   };
 
   const validationSchema = Yup.object({
     closePaymentMode: Yup.string().required("Payment Mode is required"),
-    closeAmount: Yup.number()
+    netAmountToRelease: Yup.number()
       .required("Amount is required")
       .typeError("Amount must be a number"),
-    closeDate: Yup.string().required("Closing Date is required"),
+    closeTransactionDate: Yup.string().required("Closing Date is required"),
   });
 
   const handleSubmit = async (values) => {

@@ -18,6 +18,7 @@ const FdForClose = ({ setActiveTab }) => {
     severity: "",
   });
   const { id } = useParams();
+  console.log("closeid",id)
   const [forFdCloseAccount, { data, isError, error, isLoading, isSuccess }] =
     useForFdCloseAccountMutation();
 
@@ -107,7 +108,7 @@ const FdForClose = ({ setActiveTab }) => {
     interestLeftToPay: "",
   };
   const handleSubmit = async (values) => {
-    await forFdCloseAccount({ values, id: fdAccountId }).unwrap();
+    await forFdCloseAccount({ values, id }).unwrap();
   };
 
   const handleCloseSnackbar = () =>

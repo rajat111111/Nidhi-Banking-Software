@@ -39,6 +39,7 @@ export const savingAccounts = createApi({
         method: "GET",
       }),
     }),
+
     getAllMebers: builder.query({
       query: () => ({
         url: `/members/all`,
@@ -68,7 +69,7 @@ export const savingAccounts = createApi({
 
     getAllAccountTransactions: builder.query({
       query: ({ id }) => ({
-        url: `/account-transactions/member/${id}`,
+        url: `/account-transactions/account/${id}`,
         method: "GET",
       }),
       providesTags: ["GET_TRANSACTION_DETAILS"],
@@ -78,7 +79,7 @@ export const savingAccounts = createApi({
       query: ({ values, id }) => ({
         url: `/saving-account/close/${id}`,
         method: "PUT",
-        body: { values },
+        body:  values ,
       }),
       invalidatesTags: [
         "GET_LATEST_SAVING_DATA_LIST",
@@ -154,6 +155,7 @@ export const savingAccounts = createApi({
         "GET_NOMINEE_DETAILS",
       ],
     }),
+
     getNomineeDetails: builder.query({
       query: (id) => ({
         url: `saving-account/nominee/${id}`,
@@ -161,6 +163,7 @@ export const savingAccounts = createApi({
       }),
       providesTags: ["GET_NOMINEE_DETAILS"],
     }),
+
     getApprovalSavingAccountList: builder.query({
       query: () => ({
         url: `saving-account/all-status`,
@@ -168,6 +171,7 @@ export const savingAccounts = createApi({
       }),
       providesTags: ["GET_SAVING_ACCOUNT_ALL_STATUS_LIST"],
     }),
+
     approveSavingAccount: builder.mutation({
       query: (id) => ({
         url: `saving-account/approve/${id}`,
@@ -178,6 +182,7 @@ export const savingAccounts = createApi({
         "GET_LATEST_SAVING_DATA_LIST",
       ],
     }),
+
     getDeposiListByAccountNumber: builder.query({
       query: ({ memberName, accountNumber }) =>
         `deposit-details/account-info?memberName=${memberName}&accountNumber=${accountNumber}`,
@@ -195,6 +200,7 @@ export const savingAccounts = createApi({
         "GET_LATEST_SAVING_DATA_LIST",
       ],
     }),
+
     withdrawalAmountByAcccountNumber: builder.mutation({
       query: (values) => ({
         url: `deposit-details/withdraw`,
@@ -206,6 +212,7 @@ export const savingAccounts = createApi({
         "GET_LATEST_SAVING_DATA_LIST",
       ],
     }),
+
     getBankStatementByAccountNumber: builder.query({
       query: ({ accountNumber, fromDate, toDate, page, limit }) => ({
         url: "account-statement",
@@ -219,6 +226,7 @@ export const savingAccounts = createApi({
         },
       }),
     }),
+
     getRecieptPrintList: builder.query({
       query: ({ memberName, accountNumber }) => ({
         url: `saving-receipt-print/search`,
@@ -230,6 +238,7 @@ export const savingAccounts = createApi({
       }),
       providesTags: ["GET_RECIEPT_PRINT_LATEST_LIST"],
     }),
+
     createReciept: builder.mutation({
       query: (values) => ({
         url: `saving-receipt-print`,
@@ -238,6 +247,7 @@ export const savingAccounts = createApi({
       }),
       invalidatesTags: ["GET_RECIEPT_PRINT_LATEST_LIST"],
     }),
+
     getClosedAccountListByAccountNumber: builder.query({
       query: ({ closureApprovalId, memberName, accountNumber }) => ({
         url: `saving-account/closure-approvals`,
@@ -253,11 +263,11 @@ export const savingAccounts = createApi({
         method: "PUT",
       }),
       invalidatesTags: [
-        "GET_LATEST_CLOSURE_APPROVALS",
         "GET_LATEST_SAVING_DATA_LIST",
         "GET_ACCOUNT_DETAILS",
       ],
     }),
+
     submitSavingAccountDocs:builder.mutation({
       query:({values,id})=>({
         url:`saving-accounts/documents/${id}`,
@@ -265,6 +275,7 @@ export const savingAccounts = createApi({
         body:values
       })
     })
+    
   }),
 });
 

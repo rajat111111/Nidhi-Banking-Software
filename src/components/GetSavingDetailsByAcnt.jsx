@@ -81,7 +81,7 @@ const GetSavingDetailsByAcnt = ({ setShowDetails, showDetails, title,AccountNumb
   const validationSchema = Yup.object({
     accountNumber: Yup.string().required("Account number is required"),
     memberName: Yup.string()
-      .required("Member name is required")
+      // .required("Member name is required")
       .matches(/^[A-Za-z\s]+$/, "Customer name must only contain letters"),
   });
 

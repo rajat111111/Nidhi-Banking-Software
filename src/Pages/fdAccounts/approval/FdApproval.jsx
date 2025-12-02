@@ -34,7 +34,7 @@ const FdApproval = () => {
     },
   ] = useApproveFdAccountMutation();
 
-  const savingAccountApprovalList = data?.data || [];
+  const savingAccountApprovalList = data?.data?.data || [];
 
   // handle approval button click
   const handleApproved = async (id) => {
@@ -69,10 +69,10 @@ const FdApproval = () => {
   // Table rows
   const rows = savingAccountApprovalList.map((curList, i) => ({
     id: i + 1,
-    accountNumber: curList?.accountNumber || "N/A",
-    memberName: curList?.memberName || "N/A",
-    branchName: curList?.branchName || "N/A",
-    agentName: curList?.agentName || "N/A",
+    accountNumber: curList?.fdAccountNumber || "N/A",
+    memberName: curList?.member?.name || "N/A",
+    branchName: curList?.branch?.name || "N/A",
+    agentName: curList?.agent?.name || "N/A",
     depositAmount: curList?.depositAmount
       ? `₹ ${curList.depositAmount}`
       : "₹ 0",

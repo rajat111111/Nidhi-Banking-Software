@@ -1,6 +1,9 @@
-export const capitalizeFirstLetter = (word) => {
-  return word?.charAt(0)?.toUpperCase() + word?.slice(1)?.toLowerCase();
+import { useMemo } from "react";
+
+export const capitalizeFirstLetter = (word = "") => {
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 };
+
 
 // Converts a string to a number safely
 export const changeStringToNumber = (str) => {

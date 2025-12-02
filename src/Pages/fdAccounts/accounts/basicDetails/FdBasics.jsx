@@ -11,7 +11,6 @@ const FdBasics = () => {
 
   const basicDetails = data?.data || {};
 
-  // Destructure safely from API
   const {
     member,
     memberNo,
@@ -24,10 +23,10 @@ const FdBasics = () => {
     seniorCitizen,
     approvedBy,
     approvedDate,
-    fdNumber,
+    fdAccountNumber,
     branchName,
     plan,
-    fdId,
+    fdApprovalId,
     paymentMode,
     maturityAmount,
     balance,
@@ -38,7 +37,6 @@ const FdBasics = () => {
     closureApprovalId,
   } = basicDetails;
 
-  // 🔹 Left section
   const key1 = [
     "Member",
     "Member No.",
@@ -70,7 +68,7 @@ const FdBasics = () => {
       <strong style={{ color: "#1F9C00" }}>Active</strong>
     ),
     closureApprovalId || "N/A",
-    seniorCitizen === "Yes" ? (
+    seniorCitizen === "YES" ? (
       <YesContainer>Yes</YesContainer>
     ) : (
       <NoContainer>No</NoContainer>
@@ -79,7 +77,6 @@ const FdBasics = () => {
     approvedDate ? new Date(approvedDate).toLocaleDateString() : "N/A",
   ];
 
-  // 🔹 Right section
   const key2 = [
     "FD Account Number",
     "FD Id",
@@ -95,20 +92,20 @@ const FdBasics = () => {
   ];
 
   const pair2 = [
-    fdNumber || "N/A",
-    fdId || "N/A",
+    fdAccountNumber || "N/A",
+    fdApprovalId || "N/A",
     branchName || "N/A",
     capitalizeFirstLetter(plan) || "N/A",
     capitalizeFirstLetter(paymentMode) || "N/A",
     `₹ ${maturityAmount}` || "N/A",
     `₹ ${balance}` || "N/A",
     interestPayout || "N/A",
-    tdsDeduction === "Yes" ? (
+    tdsDeduction === "YES" ? (
       <YesContainer>Yes</YesContainer>
     ) : (
       <NoContainer>No</NoContainer>
     ),
-    autoRenewal === "Yes" ? (
+    autoRenewal === "YES" ? (
       <YesContainer>Yes</YesContainer>
     ) : (
       <NoContainer>No</NoContainer>
@@ -141,7 +138,7 @@ const NoContainer = styled("div")({
 });
 const YesContainer = styled("div")({
   height: "25px",
-  backgroundColor: "#c61010eb",
+  backgroundColor: "#20ec0aeb",
   width: "30px",
   display: "flex",
   alignItems: "center",

@@ -5,9 +5,10 @@ import { useMemo, useState } from "react";
 import * as Yup from "yup";
 import { useParams } from "react-router-dom";
 import ErrorAndSuccessUseEffect from "../../../../components/ErrorAndSuccessUseEffect";
-import { useAddNewFdNomineeMutation } from "../../../../features/api/fdAccounts";
+import { useAddNewFdNomineeMutation, useGetBasicFdAccountDetailsQuery } from "../../../../features/api/fdAccounts";
 
 const AddFdNominee = () => {
+
   const { id } = useParams();
   const [snackbar, setSnackbar] = useState({
     open: false,

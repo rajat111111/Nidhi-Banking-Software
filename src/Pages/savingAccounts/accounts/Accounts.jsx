@@ -1,7 +1,8 @@
+import React, { Suspense } from "react";
 
-import PageHeader from "../../../components/PageHeader";
+const PageHeader = React.lazy(() => import("../../../components/PageHeader"));
 import DynamicDataTable from "../../../components/DynamicTable";
-import { styled } from "@mui/material";
+import { CircularProgress, styled } from "@mui/material";
 import DynamicButton from "../../../components/DynamicButton";
 import { NavLink } from "react-router-dom";
 import { useGetAllSavingAccountsListQuery } from "../../../features/api/savingAccounts";
@@ -10,12 +11,6 @@ const Accounts = () => {
   const { data, isLoading } = useGetAllSavingAccountsListQuery();
 
   const savingAccountsList = data?.data || [];
-
-  const ActionButtonContainer = styled("div")({
-    display: "flex",
-    gap: "10px",
-    alignItems: "center",
-  });
 
   const columns = [
     { id: "id", label: "#", minWidth: 50 },
@@ -75,22 +70,36 @@ const Accounts = () => {
 
   return (
     <>
-      <PageHeader
-        title="Account Details"
-        onDownload
-        onFilter
-        primaryButton={{
-          label: "Add New",
-          variant: "contained",
-          component: { NavLink },
+      <Suspense
+        fallback={
+          <div>
+            <CircularProgress color="#0D6A84" />
+          </div>
+        }
+      >
+        <PageHeader
+          title="Account Details"
+          onDownload
+          onFilter
+          primaryButton={{
+            label: "Add New",
+            variant: "contained",
+            component: { NavLink },
 
-          to: "/saving-accounts/add-new-account",
-          color: "secondary",
-        }}
-      />
+            to: "/saving-accounts/add-new-account",
+            color: "secondary",
+          }}
+        />
+      </Suspense>
       <DynamicDataTable isLoading={isLoading} rows={rows} columns={columns} />
     </>
   );
 };
+
+const ActionButtonContainer = styled("div")({
+  display: "flex",
+  gap: "10px",
+  alignItems: "center",
+});
 
 export default Accounts;

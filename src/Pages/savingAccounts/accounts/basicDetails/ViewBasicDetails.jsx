@@ -6,7 +6,6 @@ import { capitalizeFirstLetter } from "../../../../helper/helper";
 
 const ViewBasicDetails = () => {
   const { id } = useParams();
-  console.log("id", id);
   const { data, isLoading } = useGetBasicAccountDetailsQuery({ id });
 
   const basicDetails = data?.data || {};
@@ -27,7 +26,7 @@ const ViewBasicDetails = () => {
     approvedBy,
     address,
     approvedDate,
-    closureApprovalId
+    closureApprovalId,
   } = basicDetails;
 
   const key1 = [
@@ -47,11 +46,13 @@ const ViewBasicDetails = () => {
     openDate || "N/A",
     status === "closed" ? (
       <strong style={{ color: "#de1313ff" }}>Account Closed</strong>
-    ) :  status === "Closure_Approval" ? (
-      <strong style={{ color: "#de1313ff" }}>Pending For Closure Approval</strong>
-    ): status === "approved" ? (
+    ) : status === "Closure_Approval" ? (
+      <strong style={{ color: "#de1313ff" }}>
+        Pending For Closure Approval
+      </strong>
+    ) : status === "approved" ? (
       <strong style={{ color: "#1F9C00" }}>Active</strong> || "N/A"
-    ): (
+    ) : (
       <strong style={{ color: "#9c4900ff" }}>N/A</strong> || "N/A"
     ),
     nomineeRelation || "N/A",
@@ -64,7 +65,7 @@ const ViewBasicDetails = () => {
     "Account Number",
     "Principal Amount",
     "Balance",
-  "Closure Request Id",
+    "Closure Request Id",
     "On Hold",
     "Nominee Name",
     "Lockin Amount",
