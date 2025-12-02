@@ -16,7 +16,7 @@ const DynamicForm = ({
   texting,
   initialValues = {},
   validationSchema = Yup.object(),
-  handleSubmit = () => {},
+  handleSubmit = () => { },
   md,
   width,
 }) => {
@@ -24,6 +24,7 @@ const DynamicForm = ({
     initialValues,
     validationSchema,
     onSubmit: handleSubmit,
+    enableReinitialize: true,
   });
 
   const {
@@ -97,9 +98,9 @@ const DynamicForm = ({
                     type === "textarea"
                       ? "100%"
                       : {
-                          xs: "100%",
-                          sm: width ? width : "45%",
-                        },
+                        xs: "100%",
+                        sm: width ? width : "45%",
+                      },
                 }}
               >
                 <FormContent>
@@ -113,7 +114,7 @@ const DynamicForm = ({
                       onChange={
                         onChange
                           ? (e) =>
-                              onChange(e, handleChange, values, setFieldValue)
+                            onChange(e, handleChange, values, setFieldValue)
                           : handleChange
                       }
                       onBlur={handleBlur}
@@ -127,6 +128,7 @@ const DynamicForm = ({
                       ))}
                     </select>
                   ) : type === "textarea" ? (
+
                     <textarea
                       name={name}
                       id={id}
@@ -135,7 +137,7 @@ const DynamicForm = ({
                       onChange={
                         onChange
                           ? (e) =>
-                              onChange(e, handleChange, values, setFieldValue)
+                            onChange(e, handleChange, values, setFieldValue)
                           : handleChange
                       }
                       onBlur={handleBlur}
@@ -158,6 +160,8 @@ const DynamicForm = ({
                         />
                       }
                     />
+
+
                   ) : (
                     <input
                       type={type}
@@ -168,7 +172,7 @@ const DynamicForm = ({
                       onChange={
                         onChange
                           ? (e) =>
-                              onChange(e, handleChange, values, setFieldValue)
+                            onChange(e, handleChange, values, setFieldValue)
                           : handleChange
                       }
                       onBlur={handleBlur}

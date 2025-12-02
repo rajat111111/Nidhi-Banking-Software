@@ -113,7 +113,6 @@ const AddNewAccount = () => {
             value: changeStringToNumber(curMember?.id),
             label: `${curMember.firstName} ${curMember.lastName} (${curMember?.id})`,
           })) || [],
-
         onChange: (e, formikHandleChange, formikValues, setFieldValue) => {
           const selectedMemberId = Number(e.target.value);
           setFieldValue("memberId", selectedMemberId);
@@ -127,9 +126,9 @@ const AddNewAccount = () => {
             setFieldValue(
               "agentId",
               selectedMember.agent?.id ||
-                selectedMember.csp?.id ||
-                selectedMember.employee?.id ||
-                ""
+              selectedMember.csp?.id ||
+              selectedMember.employee?.id ||
+              ""
             );
             setFieldValue(
               "accountType",

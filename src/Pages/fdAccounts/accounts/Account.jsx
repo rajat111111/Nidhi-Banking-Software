@@ -51,8 +51,8 @@ const Account = () => {
       account?.status === "closed"
         ? "Closed"
         : account?.status === "Closure_Approval"
-        ? "Closure Request"
-        : "Approved",
+          ? "Closure Request"
+          : "Approved",
     action: (
       <ActionButtonContainer>
         <DynamicButton

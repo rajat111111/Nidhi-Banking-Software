@@ -18,8 +18,12 @@ const WarningDialogBox = ({
   id,
   whereToNavigate
 }) => {
+
   const handleRemove = async () => {
+
     console.log("removeId", id);
+
+
     try {
       await performAction({ id }).unwrap();
     } catch (err) {
@@ -93,7 +97,7 @@ const WarningDialogBox = ({
         setSnackbar={setSnackbar}
         data={data}
         setOpen={setOpen}
-        whereToNavigate={whereToNavigate || "/saving-accounts"} 
+        whereToNavigate={whereToNavigate || "/saving-accounts"}
       />
 
       <Snackbar

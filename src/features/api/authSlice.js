@@ -13,16 +13,22 @@ const authSlice = createSlice({
       state.token = token;
       state.user = user;
 
+
+      // persist in localStorage
+      localStorage.setItem("token", token);
+
       // persist in localStorage
       localStorage.setItem("token", token);
     },
     logout: (state) => {
       state.token = null;
-
       // remove from localStorage
       localStorage.removeItem("token");
     },
+
   },
+
+
 });
 
 // named exports for actions

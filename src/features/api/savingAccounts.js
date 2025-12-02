@@ -79,7 +79,7 @@ export const savingAccounts = createApi({
       query: ({ values, id }) => ({
         url: `/saving-account/close/${id}`,
         method: "PUT",
-        body:  values ,
+        body: values,
       }),
       invalidatesTags: [
         "GET_LATEST_SAVING_DATA_LIST",
@@ -257,6 +257,7 @@ export const savingAccounts = createApi({
       providesTags: ["GET_LATEST_CLOSURE_APPROVALS"],
     }),
 
+
     approveClosureSavingAccount: builder.mutation({
       query: (id) => ({
         url: `saving-account/approve-closure/${id}`,
@@ -268,16 +269,18 @@ export const savingAccounts = createApi({
       ],
     }),
 
-    submitSavingAccountDocs:builder.mutation({
-      query:({values,id})=>({
-        url:`saving-accounts/documents/${id}`,
-        method:"POST",
-        body:values
+    submitSavingAccountDocs: builder.mutation({
+      query: ({ values, id }) => ({
+        url: `saving-accounts/documents/${id}`,
+        method: "POST",
+        body: values
       })
     })
-    
+
+
   }),
 });
+
 
 export const {
   useGetAllSavingAccountsListQuery,

@@ -96,7 +96,6 @@ const DynamicDataTable = ({ columns, rows, actions = {}, isLoading }) => {
                             </TableCell>
                           );
                         })}
-
                         {(actions.view || actions.edit || actions.delete) && (
                           <TableCell>
                             {actions.view && (

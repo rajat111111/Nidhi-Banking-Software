@@ -7,7 +7,11 @@ import { useParams } from "react-router-dom";
 
 const ViewTransactionDetails = () => {
   const { id } = useParams();
-   const { data, isLoading } = useGetAllAccountTransactionsQuery({ id });
+
+  const { data, isLoading } = useGetAllAccountTransactionsQuery({ id });
+
+
+
 
   const allTransactionList = data?.data || [];
 

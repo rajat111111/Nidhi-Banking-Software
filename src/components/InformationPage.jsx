@@ -37,8 +37,8 @@ const InfoPageMainContainer = styled("div")({
   gap: "50px",
   padding: "15px",
   backgroundColor: "#F2F3F6BF",
-  flexWrap: "wrap", 
-    marginTop:"20px"
+  flexWrap: "wrap",
+  marginTop: "20px"
 });
 
 const InfoColumn = styled("div")({
@@ -53,21 +53,20 @@ const InformationContainer = styled("div")({
   display: "flex",
   justifyContent: "space-between",
   gap: "10px",
-
   padding: "8px 12px",
   borderRadius: "6px",
 });
 
 const KeyValue = styled("p")({
   width: "200px",
-// backgroundColor:"green",
+  // backgroundColor:"green",
   color: "#8F8F8F",
   font: "400 14px Poppins",
 
 });
 const PairValue = styled("p")({
   width: "250px",
-// backgroundColor:"red",
+  // backgroundColor:"red",
   color: "#2C2C2C",
   font: "400 14px Poppins",
 

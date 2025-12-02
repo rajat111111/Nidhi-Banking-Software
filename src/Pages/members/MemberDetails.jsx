@@ -19,7 +19,7 @@ import PageHeader from "../../components/PageHeader";
 import DynamicDataTable from "../../components/DynamicTable";
 import { useNavigate } from "react-router-dom";
 import DynamicButton from "../../components/DynamicButton";
-import { useGetMembersQuery } from "../../features/api/membersApi";
+import { useGetApprovedMembersQuery } from "../../features/api/membersApi";
 
 // Styled status button
 const StatusButton = styled(Button)(({ status }) => ({
@@ -40,8 +40,9 @@ const MemberDetails = () => {
   const navigate = useNavigate();
 
   // ✅ Fetch members from backend
-  const { data, isLoading, isError } = useGetMembersQuery();
-  console.log(data);
+  const { data, isLoading, isError, refetch } = useGetApprovedMembersQuery();
+
+
   const columns = [
     { id: "branch", label: "Branch", minWidth: 120 },
     { id: "memberNo", label: "Member No.", minWidth: 100 },
@@ -117,6 +118,7 @@ const MemberDetails = () => {
             borderColor="#7858C6"
             variant="outlined"
             textColor="#7858C6"
+            onClick={() => navigate(`/members/${member.id}/collect-membership`)}
           />
           <DynamicButton
             text="Delete"

@@ -7,10 +7,13 @@ const NotFound = ({ to }) => {
   return (
     <NotFoundMainContainer>
       <img src={notFoundImage} alt="notFound" />
-      <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
+
+
+
+      <div style={{ display: "flex", gap: "30px", alignItems: "center" }} >
         <DynamicButton
           component={NavLink}
-          to={to || "/saving-accounts/create-receipt"}
+          to="/saving-accounts/create-receipt"
           text="Create Receipt"
           color="#7858C6"
           textColor="#fff"

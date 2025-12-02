@@ -14,7 +14,7 @@ import MemberDetails from "../Pages/members/MemberDetails";
 import AddMember from "../Pages/members/AddMember";
 import ApprovalDetails from "../Pages/members/ApprovalDetails";
 import MinorDetailsMembers from "../Pages/members/MinorDetailsMembers";
-import { CollectMembershipFees } from "../Pages/members/CollectMembershipFees";
+
 import ShareHoldingDetailsMembers from "../Pages/members/ShareHoldingDetailsMembers";
 import AddShareHoldingMembers from "../Pages/members/AddShareHoldingMembers";
 import ManualShareAllocation from "../Pages/members/ManualShareAllocation";
@@ -37,6 +37,7 @@ import RecieptPrint from "../Pages/savingAccounts/recieptPrint/RecientPrint";
 import CreateReceipt from "../Pages/savingAccounts/recieptPrint/CreateReceipt";
 import UpdateNominee from "../Pages/savingAccounts/accounts/nominee/UpdateNominee";
 import Account from "../Pages/fdAccounts/accounts/Account";
+
 import AddFdAccount from "../Pages/fdAccounts/accounts/AddFdAccount";
 import ViewSingleFdAccountDetails from "../Pages/fdAccounts/accounts/ViewSingleFdAccountDetails";
 import FdStatement from "../Pages/fdAccounts/statement/FdStatement";
@@ -62,6 +63,21 @@ import ViewRdReciept from "../Pages/rdAccounts/reciept/ViewRdReciept";
 import RdReciept from "../Pages/rdAccounts/reciept/RdReciept";
 import CreateRdReciept from "../Pages/rdAccounts/reciept/CreateRdReciept";
 import ChangeRdAccountType from "../Pages/rdAccounts/changeAccountType/ChangeRdAccountType";
+
+import AccountDetails from "../Pages/ddAccounts/accounts/AccountDetails";
+import AddNewAccountDesign from "../Pages/ddAccounts/accounts/AddNewAccountDD";
+import AddNewAccountDD from "../Pages/ddAccounts/accounts/AddNewAccountDD";
+import CollectMembershipPage from "../Pages/members/CollectMembershipPage";
+import ViewSingleAccountDetailsDD from "../Pages/ddAccounts/accounts/ViewSingleAccountDetailsDD";
+import EditNominee from "../Pages/ddAccounts/accounts/nominee/EditNominee";
+import StatementDetails from "../Pages/ddAccounts/statement/StatementDetails";
+import EnquiryDetails from "../Pages/ddAccounts/enquiry/EnquiryDetails";
+import ViewEnquiryDetails from "../Pages/ddAccounts/enquiry/ViewEnquiryDetails";
+import Receipt from "../Pages/ddAccounts/receipt/ReceiptDD";
+import ApprovalDD from "../Pages/ddAccounts/approval/ApprovalDD";
+import ClosureApprovalDD from "../Pages/ddAccounts/closureApproval/ClosureApprovalDD";
+import ReceiptDD from "../Pages/ddAccounts/receipt/ReceiptDD";
+
 
 const MainRoutes = {
   path: "/",
@@ -105,10 +121,15 @@ const MainRoutes = {
             { path: "unallotted-shares", element: <UnallottedShares /> },
             { path: "manual-share-transfer", element: <ManualShareTransfer /> },
             { path: "minor-details", element: <MinorDetailsMembers /> },
+            { path: ":id/collect-membership", element: <CollectMembershipPage /> },
             {
-              path: "collect-membership-fees/:id",
-              element: <CollectMembershipFees />,
-            },
+              path: "approval-view-details/:id",
+              element: <ApprovalViewDetails />
+            }
+            // {
+            //   path: "approval-view-details/:id",
+            //   element: <ApprovalViewDetails />
+            // }
           ],
         },
         {
@@ -143,6 +164,7 @@ const MainRoutes = {
           path: "fd-accounts",
           children: [
             { index: true, element: <Account /> },
+
             { path: "add-new-account", element: <AddFdAccount /> },
             {
               path: ":id/account-details",
@@ -237,10 +259,27 @@ const MainRoutes = {
               path: "change-account-type",
               element: <ChangeRdAccountType />,
             },
+
+          ],
+        },
+        {
+          path: "dd-accounts",
+          children: [
+            { index: true, element: <AccountDetails /> },
+            { path: "add-new-account", element: <AddNewAccountDD /> },
+            { path: ":id/account-detailsDD", element: <ViewSingleAccountDetailsDD /> },
+            { path: ":id/account-detailsDD/update-nominee/:id", element: <EditNominee /> },
+            { path: "statement", element: <StatementDetails /> },
+            { path: "enquiry", element: <EnquiryDetails /> },
+            { path: "enquiry/:id", element: <EnquiryDetails /> },
+            { path: "enquiry/:id", element: <ViewEnquiryDetails /> },
+            { path: "approval", element: <ApprovalDD /> },
+            { path: "closure-approval", element: <ClosureApprovalDD /> },
+            { path: "receipt", element: <ReceiptDD /> },
           ],
         },
       ],
-    },
+    }
   ],
 };
 

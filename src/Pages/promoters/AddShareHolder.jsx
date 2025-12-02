@@ -43,6 +43,7 @@ const AddShareHolder = ({ onBack }) => {
 
     return (
         <Box sx={{ p: 2 }}>
+
             <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
                 <Typography variant="h5" fontWeight="bold">
                     Add Share Holder
@@ -160,6 +161,7 @@ const AddShareHolder = ({ onBack }) => {
                     </Button>
                 </Box>
             </form>
+
         </Box >
     );
 };
